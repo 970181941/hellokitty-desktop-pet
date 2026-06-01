@@ -5,10 +5,10 @@ const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
 
+const GITHUB_API_RELEASES =
+  'https://api.github.com/repos/970181941/hellokitty-desktop-pet/releases/latest';
 const GITHUB_RAW_BASE =
   'https://raw.githubusercontent.com/970181941/hellokitty-desktop-pet/main';
-const GITHUB_RELEASES_BASE =
-  'https://github.com/970181941/hellokitty-desktop-pet/releases/download';
 
 class Updater {
   constructor() {

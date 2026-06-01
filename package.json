@@ -1,6 +1,6 @@
 {
   "name": "hellokitty-desktop-pet",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Hello Kitty 桌面宠物",
   "main": "src/main/index.js",
   "scripts": {

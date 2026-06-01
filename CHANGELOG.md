@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.0.8] - 2026-06-01
+
+### 修复
+- 修复检查更新失败：改用 GitHub Releases API 获取版本信息
+- 不再依赖 dist/latest-mac.yml（该文件在 .gitignore 中未提交到仓库）
+
+## [1.0.7] - 2026-06-01
+
+### 修复
+- 完全绕过 Squirrel.Mac，实现自定义更新机制
+- 自动下载 zip → ditto 解压 → 覆盖应用 → xattr 清除 quarantine → 重启
+- 彻底解决 macOS ad-hoc 签名导致的代码签名验证失败问题
+
 ## [1.0.6] - 2026-06-01
 
 ### 修复
