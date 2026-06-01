@@ -1,12 +1,12 @@
 {
   "name": "hellokitty-desktop-pet",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Hello Kitty 桌面宠物",
   "main": "src/main/index.js",
   "scripts": {
     "start": "electron .",
     "dev": "electron . --dev",
-    "build": "electron-builder --mac dmg && xattr -cr dist/*.dmg && echo 'DMG built'",
+    "build": "electron-builder --mac && xattr -cr dist/*.dmg && echo 'Build done'",
     "release": "node scripts/build.js",
     "release:patch": "node scripts/build.js patch",
     "release:minor": "node scripts/build.js minor",
@@ -45,7 +45,8 @@
       "icon": "assets/icon.icns",
       "category": "public.app-category.entertainment",
       "target": [
-        "dmg"
+        "dmg",
+        "zip"
       ],
       "artifactName": "${name}-${version}.${ext}",
       "hardenedRuntime": false,

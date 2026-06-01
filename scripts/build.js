@@ -168,11 +168,11 @@ function main() {
     console.log('推送到 GitHub:');
     console.log('  git push origin main --tags\n');
     console.log('创建 GitHub Release (需要 gh CLI):');
-    console.log(`  gh release create v${newVersion} dist/*.dmg dist/latest-mac.yml --title "v${newVersion}" --notes "${changelogEntry}"\n`);
+    console.log(`  gh release create v${newVersion} dist/*.dmg dist/*.zip dist/latest-mac.yml --title "v${newVersion}" --notes "${changelogEntry}"\n`);
     console.log('或者手动:');
     console.log('  1. 前往 GitHub 仓库 -> Releases -> Create a new release');
     console.log(`  2. 选择标签 v${newVersion}`);
-    console.log('  3. 上传 dist/ 下的 .dmg 文件和 latest-mac.yml');
+    console.log('  3. 上传 dist/ 下的 .dmg、.zip 文件和 latest-mac.yml');
     console.log('  4. 粘贴更新内容并发布');
   } else {
     console.log('初始化 Git 仓库后推送:');
