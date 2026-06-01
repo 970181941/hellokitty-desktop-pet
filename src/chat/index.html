@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="chat.css">
 </head>
 <body>
+  <div id="app-wrapper">
   <div id="chat-app">
     <header id="chat-header">
       <div class="header-left">
@@ -23,6 +24,7 @@
       <span class="status-item" id="status-mood">--</span>
       <span class="status-item" id="status-affinity">--</span>
       <span class="status-item" id="status-days">--</span>
+      <span class="status-expand-icon">›</span>
     </div>
 
     <div id="message-list"></div>
@@ -214,6 +216,65 @@
       <button id="btn-send">发送</button>
     </footer>
   </div>
+
+  <!-- 状态详情侧边面板 -->
+  <aside id="status-side-panel" class="hidden">
+    <div class="side-panel-header">
+      <span class="side-panel-title">详细状态</span>
+      <button class="side-panel-close-btn">✕</button>
+    </div>
+    <div class="side-panel-scroll">
+      <!-- 主人卡片 -->
+      <div class="side-section side-owner-card">
+        <div class="side-avatar"><img src="assets/avatar.jpeg" alt="HK"></div>
+        <div class="side-owner-name" id="side-owner-name">新朋友</div>
+        <div class="side-owner-greeting" id="side-greeting">欢迎回来~</div>
+      </div>
+
+      <!-- 心情 -->
+      <div class="side-section side-mood-section">
+        <div class="side-section-title">Kitty 心情</div>
+        <div class="side-mood-display">
+          <span class="side-mood-emoji" id="side-mood-emoji">😊</span>
+          <span class="side-mood-text" id="side-mood-text">开心</span>
+        </div>
+      </div>
+
+      <!-- 亲密度 -->
+      <div class="side-section side-affinity-section">
+        <div class="side-section-title">亲密度</div>
+        <div class="side-affinity-header">
+          <span id="side-level-name">--</span>
+          <span id="side-affinity-num">0</span>
+        </div>
+        <div class="side-progress-bar">
+          <div class="side-progress-fill" id="side-progress"></div>
+        </div>
+        <div class="side-progress-label" id="side-progress-label">--</div>
+        <div class="side-next-level" id="side-next-level">--</div>
+      </div>
+
+      <!-- 陪伴统计 -->
+      <div class="side-section side-stats-section">
+        <div class="side-section-title">陪伴统计</div>
+        <div class="side-stat-row">
+          <span class="side-stat-label">相识天数</span>
+          <span class="side-stat-value" id="side-days">--</span>
+        </div>
+        <div class="side-stat-row">
+          <span class="side-stat-label">连续登录</span>
+          <span class="side-stat-value" id="side-streak">--</span>
+        </div>
+      </div>
+
+      <!-- 成就徽章 -->
+      <div class="side-section side-achievements-section">
+        <div class="side-section-title">连续登录成就</div>
+        <div class="side-achievements" id="side-achievements"></div>
+      </div>
+    </div>
+  </aside>
+  </div> <!-- end of #app-wrapper -->
 
   <script src="skins.js"></script>
   <script src="chat.js"></script>

@@ -24,6 +24,9 @@ let todos = [];
 let currentSkinId = 'sakura';
 // 面板状态：日程和待办可同时打开，玩耍、信息、设置面板与其他互斥
 let panelState = { play: false, schedule: false, info: false, todo: false, settings: false };
+// 侧边面板状态
+let sidePanelOpen = false;
+let sidePanelAnimating = false;
 
 // 心情 emoji 映射
 const MOOD_EMOJIS = { 1: '😢', 2: '😟', 3: '😐', 4: '😊', 5: '🤩' };
@@ -70,6 +73,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 初始化设置面板
   initSettingsPanel();
 
+  // 初始化侧边面板
+  initSidePanel();
+
   // 初始化状态栏
   refreshStatusBar();
 
@@ -84,6 +90,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 如果信息面板正在显示，更新它
     if (panelState.info) {
       updateInfoPanel(data);
+    }
+    // 如果侧边面板正在显示，更新它
+    if (sidePanelOpen) {
+      updateSidePanelContent(data);
     }
   });
 
@@ -131,7 +141,7 @@ async function loadAndApplySkin() {
 
 function applySkin(skinId) {
   const skin = SKINS[skinId] || SKINS.sakura;
-  const root = document.getElementById('chat-app');
+  const root = document.getElementById('app-wrapper');
   root.style.setProperty('--color-bg', skin.bg);
   root.style.setProperty('--color-bg-alt', skin.bgAlt);
   root.style.setProperty('--color-primary', skin.primary);
@@ -143,6 +153,11 @@ function applySkin(skinId) {
   // 更新 header 渐变
   document.getElementById('chat-header').style.background =
     `linear-gradient(135deg, ${skin.primaryLight}, ${skin.primary})`;
+  const sidePanelHeader = document.querySelector('.side-panel-header');
+  if (sidePanelHeader) {
+    sidePanelHeader.style.background =
+      `linear-gradient(135deg, ${skin.primaryLight}, ${skin.primary})`;
+  }
   currentSkinId = skinId;
 }
 
@@ -162,8 +177,19 @@ async function selectSkin(skinId) {
 // === 面板切换 ===
 // 关闭与目标面板互斥的面板
 function closeExclusivePanels(except) {
-  // 玩耍、信息、设置面板：与所有其他面板互斥
+  // 侧边面板与 play、info 互斥
+  if (except === 'sidePanel') {
+    if (panelState.play) setPanelVisibility('play', false);
+    if (panelState.info) setPanelVisibility('info', false);
+    return;
+  }
+
+  // 玩耍、信息、设置面板：与所有其他面板互斥（含侧边面板）
   if (except === 'play' || except === 'info' || except === 'settings') {
+    // 关闭侧边面板（如果打开）
+    if (sidePanelOpen && !sidePanelAnimating) {
+      closeSidePanel();
+    }
     Object.keys(panelState).forEach(name => {
       if (name !== except && panelState[name]) {
         setPanelVisibility(name, false);
@@ -237,10 +263,10 @@ function initToolbar() {
           togglePanel('schedule');
           break;
         case 'status':
-          togglePanel('info');
-          // 打开时更新信息面板
-          if (panelState.info && latestStatusData) {
-            updateInfoPanel(latestStatusData);
+          toggleSidePanel();
+          // 打开时更新侧边面板
+          if (sidePanelOpen && latestStatusData) {
+            updateSidePanelContent(latestStatusData);
           }
           break;
         case 'todo':
@@ -907,6 +933,195 @@ function updateStatusBar(data) {
   if (data.days !== undefined) {
     daysEl.textContent = data.days > 0 ? `第${data.days}天` : '初次见面';
   }
+}
+
+// === 侧边面板 ===
+const STREAK_MILESTONES = [3, 7, 14, 30, 60, 100];
+
+function initSidePanel() {
+  const statusBar = document.getElementById('status-bar');
+  const sidePanel = document.getElementById('status-side-panel');
+  const closeBtn = sidePanel.querySelector('.side-panel-close-btn');
+
+  // 状态栏点击切换侧边面板
+  statusBar.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleSidePanel();
+  });
+
+  // 关闭按钮
+  closeBtn.addEventListener('click', () => {
+    closeSidePanel();
+  });
+
+  // Escape 键关闭
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && sidePanelOpen) {
+      closeSidePanel();
+    }
+  });
+}
+
+function toggleSidePanel() {
+  if (sidePanelAnimating) return;
+  if (sidePanelOpen) {
+    closeSidePanel();
+  } else {
+    openSidePanel();
+  }
+}
+
+function openSidePanel() {
+  if (sidePanelOpen || sidePanelAnimating) return;
+  sidePanelAnimating = true;
+
+  // 关闭互斥面板
+  closeExclusivePanels('sidePanel');
+
+  const wrapper = document.getElementById('app-wrapper');
+  const sidePanel = document.getElementById('status-side-panel');
+
+  // 重置卡片动画
+  sidePanel.querySelectorAll('.side-section').forEach(s => {
+    s.style.animation = 'none';
+    void s.offsetWidth;
+    s.style.animation = '';
+  });
+
+  wrapper.classList.add('expanded');
+  sidePanel.classList.remove('hidden');
+  // 触发 reflow 以确保 transition 生效
+  void sidePanel.offsetWidth;
+  sidePanel.classList.add('expanded');
+
+  // 请求 Electron 窗口扩展
+  window.chatAPI.resizeChatWindow(true);
+
+  // 填充数据
+  if (latestStatusData) {
+    updateSidePanelContent(latestStatusData);
+  } else {
+    // 没有缓存数据时主动获取
+    refreshSidePanelData();
+  }
+
+  sidePanelOpen = true;
+  setTimeout(() => { sidePanelAnimating = false; }, 350);
+}
+
+function closeSidePanel() {
+  if (!sidePanelOpen || sidePanelAnimating) return;
+  sidePanelAnimating = true;
+
+  const wrapper = document.getElementById('app-wrapper');
+  const sidePanel = document.getElementById('status-side-panel');
+
+  wrapper.classList.remove('expanded');
+  sidePanel.classList.remove('expanded');
+
+  // 请求 Electron 窗口收缩
+  window.chatAPI.resizeChatWindow(false);
+
+  sidePanelOpen = false;
+  setTimeout(() => {
+    sidePanel.classList.add('hidden');
+    sidePanelAnimating = false;
+  }, 350);
+}
+
+async function refreshSidePanelData() {
+  try {
+    const ctx = await window.chatAPI.getContext();
+    if (ctx) {
+      updateSidePanelContent({
+        ownerName: ctx.ownerName,
+        moodLevel: ctx.moodLevel,
+        moodName: ctx.moodName,
+        affinityLevelNum: ctx.affinityLevelNum,
+        affinityLevelName: ctx.affinityLevel,
+        affinity: ctx.affinity,
+        nextLevelMin: ctx.nextLevelMin,
+        nextLevelMax: ctx.nextLevelMax,
+        days: ctx.days,
+        loginStreakDays: ctx.loginStreakDays,
+        totalInteractions: ctx.totalInteractions,
+      });
+    }
+  } catch (e) {
+    // ignore
+  }
+}
+
+function updateSidePanelContent(data) {
+  // 主人信息
+  const nameEl = document.getElementById('side-owner-name');
+  const greetingEl = document.getElementById('side-greeting');
+  const ownerName = data.ownerName || '新朋友';
+  nameEl.textContent = ownerName;
+
+  // 根据时段生成问候语
+  const hour = new Date().getHours();
+  let greeting = '欢迎回来~';
+  if (hour < 6) greeting = '夜深了，注意休息~';
+  else if (hour < 12) greeting = '早上好~';
+  else if (hour < 14) greeting = '中午好~';
+  else if (hour < 18) greeting = '下午好~';
+  else if (hour < 22) greeting = '晚上好~';
+  else greeting = '夜深了，注意休息~';
+  if (data.days > 0) {
+    greeting = `${greeting} 第 ${data.days} 天`;
+  }
+  greetingEl.textContent = greeting;
+
+  // 心情
+  const moodEmojiEl = document.getElementById('side-mood-emoji');
+  const moodTextEl = document.getElementById('side-mood-text');
+  const moodEmoji = MOOD_EMOJIS[data.moodLevel] || '😊';
+  moodEmojiEl.textContent = moodEmoji;
+  moodTextEl.textContent = data.moodName || '开心';
+
+  // 亲密度
+  const levelNameEl = document.getElementById('side-level-name');
+  const affinityNumEl = document.getElementById('side-affinity-num');
+  const progressEl = document.getElementById('side-progress');
+  const progressLabelEl = document.getElementById('side-progress-label');
+  const nextLevelEl = document.getElementById('side-next-level');
+
+  const levelEmoji = AFFINITY_EMOJIS[data.affinityLevelNum] || '💗';
+  levelNameEl.textContent = `${levelEmoji} ${data.affinityLevelName || ''}`;
+  const currentAffinity = data.affinity || 0;
+  affinityNumEl.textContent = `${currentAffinity}`;
+
+  const currentMin = data.nextLevelMin || 0;
+  const currentMax = data.nextLevelMax || 2500;
+  const range = currentMax - currentMin;
+  const progress = range > 0 ? Math.min(((currentAffinity - currentMin) / range) * 100, 100) : 100;
+  progressEl.style.width = `${Math.max(0, progress)}%`;
+  progressLabelEl.textContent = `${currentAffinity} / ${currentMax}`;
+
+  const remaining = Math.max(0, currentMax - currentAffinity);
+  nextLevelEl.textContent = remaining > 0 ? `距离下一级还需 ${remaining} 点` : '已达最高等级！';
+
+  // 陪伴统计
+  const daysEl = document.getElementById('side-days');
+  const streakEl = document.getElementById('side-streak');
+  daysEl.textContent = data.days > 0 ? `第 ${data.days} 天` : '初次见面';
+  streakEl.textContent = data.loginStreakDays > 0 ? `${data.loginStreakDays} 天` : '0 天';
+
+  // 成就徽章
+  renderAchievements(data.loginStreakDays || 0);
+}
+
+function renderAchievements(streakDays) {
+  const container = document.getElementById('side-achievements');
+  container.innerHTML = '';
+  STREAK_MILESTONES.forEach(milestone => {
+    const badge = document.createElement('div');
+    badge.className = `side-streak-badge${streakDays >= milestone ? ' achieved' : ''}`;
+    badge.textContent = `${milestone}`;
+    badge.title = streakDays >= milestone ? `已达成 ${milestone} 天连续登录` : `还需 ${milestone - streakDays} 天`;
+    container.appendChild(badge);
+  });
 }
 
 // === 番茄钟显示 ===
