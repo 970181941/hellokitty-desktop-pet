@@ -97,7 +97,8 @@ class Updater {
 
     try {
       const result = await autoUpdater.checkForUpdates();
-      return { available: result.updateInfo.version !== app.getVersion() };
+      const remoteVersion = result?.updateInfo?.version;
+      return { available: remoteVersion ? remoteVersion !== app.getVersion() : false };
     } catch (error) {
       console.error('[Updater] 检查更新失败:', error.message);
       this._pushStatus({

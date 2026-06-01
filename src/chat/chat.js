@@ -356,6 +356,14 @@ function initSchedulePanel() {
   // 添加事件
   document.getElementById('schedule-add-btn').addEventListener('click', addScheduleEvent);
 
+  // 日程内容输入框回车添加
+  document.getElementById('schedule-text').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addScheduleEvent();
+    }
+  });
+
   // 保存
   document.getElementById('schedule-save').addEventListener('click', saveSchedule);
 
@@ -657,10 +665,17 @@ async function saveOwnerInfo() {
   const name = document.getElementById('settings-owner-name').value.trim();
   const birthday = document.getElementById('settings-owner-birthday').value.trim();
 
-  // 验证生日格式
+  // 验证生日格式（MM-DD，且月份1-12，日期1-31）
   if (birthday && !/^\d{2}-\d{2}$/.test(birthday)) {
     renderSystemMessage('生日格式不对哦，请使用 MM-DD 格式（如 03-15）');
     return;
+  }
+  if (birthday) {
+    const [mm, dd] = birthday.split('-').map(Number);
+    if (mm < 1 || mm > 12 || dd < 1 || dd > 31) {
+      renderSystemMessage('生日日期不合法哦，请检查月份和日期~');
+      return;
+    }
   }
 
   try {

@@ -221,15 +221,16 @@ app.whenReady().then(() => {
       win.webContents.send('request-context');
 
       // 等待 Kitty 窗口响应
+      const handler = (_event, context) => {
+        clearTimeout(timeout);
+        resolve(context);
+      };
       const timeout = setTimeout(() => {
-        ipcMain.removeAllListeners('context-response');
+        ipcMain.removeListener('context-response', handler);
         resolve({});
       }, 2000);
 
-      ipcMain.once('context-response', (_event, context) => {
-        clearTimeout(timeout);
-        resolve(context);
-      });
+      ipcMain.once('context-response', handler);
     });
   });
 
@@ -269,15 +270,16 @@ app.whenReady().then(() => {
 
       win.webContents.send('chat-get-pomodoro-status');
 
+      const handler = (_event, data) => {
+        clearTimeout(timeout);
+        resolve(data || { active: false, state: 'idle', timeRemaining: 0 });
+      };
       const timeout = setTimeout(() => {
-        ipcMain.removeAllListeners('pomodoro-status-response');
+        ipcMain.removeListener('pomodoro-status-response', handler);
         resolve({ active: false, state: 'idle', timeRemaining: 0 });
       }, 2000);
 
-      ipcMain.once('pomodoro-status-response', (_event, data) => {
-        clearTimeout(timeout);
-        resolve(data || { active: false, state: 'idle', timeRemaining: 0 });
-      });
+      ipcMain.once('pomodoro-status-response', handler);
     });
   });
 

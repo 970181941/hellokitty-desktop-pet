@@ -46,7 +46,6 @@ contextBridge.exposeInMainWorld('chatAPI', {
   // === 主人信息 ===
   getOwnerInfo: () => ipcRenderer.invoke('owner-get-info'),
   setOwnerInfo: (data) => ipcRenderer.invoke('owner-set-info', data),
-  onOwnerInfoUpdated: (callback) => ipcRenderer.on('owner-info-updated', (_e, data) => callback(data)),
 
   // === 皮肤 ===
   getSkin: () => ipcRenderer.invoke('skin-get'),

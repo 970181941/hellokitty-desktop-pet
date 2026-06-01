@@ -117,7 +117,13 @@ ${GIF_TABLE}
 
 ## 输出格式
 你必须严格输出一个 JSON 对象，不要输出任何其他内容：
-{"text": "你的回复内容", "gifId": "你选择的动画ID"}`;
+{"text": "你的回复内容", "gifId": "你选择的动画ID"}
+
+## 主人信息修改指令
+当主人明确要求修改/设置/告诉你他们的名字或生日时，你必须在 JSON 回复中额外添加 action 字段：
+- 修改名字: {"text": "...", "gifId": "happy_hands_up", "action": {"type": "set_name", "value": "新名字"}}
+- 修改生日: {"text": "...", "gifId": "heart_gesture", "action": {"type": "set_birthday", "value": "MM-DD"}}
+只在主人明确要求时才添加 action，不要主动修改。`;
 
 class AIService {
   constructor() {
