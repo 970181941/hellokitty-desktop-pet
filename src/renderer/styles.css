@@ -1,0 +1,412 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  background: transparent;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-app-region: no-drag;
+}
+
+#pet-container {
+  position: relative;
+  width: 192px;
+  height: 243px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+}
+
+#pet-container.dragging {
+  cursor: grabbing;
+}
+
+#pet-container img {
+  position: absolute;
+  width: 179px;
+  height: auto;
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+  image-rendering: auto;
+}
+
+#pet-container img.active {
+  opacity: 1;
+}
+
+/* === 气泡容器 === */
+#bubble-container {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-height: 24px;
+  max-width: 160px;
+  background: linear-gradient(135deg, #fff0f5 0%, #ffe4ec 100%);
+  color: #d63384;
+  border-radius: 16px;
+  font-size: 11px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", sans-serif;
+  border: 1.5px solid #ffb6c1;
+  box-shadow: 0 2px 12px rgba(255, 105, 180, 0.2);
+  z-index: 10;
+  opacity: 1;
+  transition: opacity 0.4s ease, transform 0.2s ease;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+}
+
+#bubble-container.hidden {
+  opacity: 0;
+  pointer-events: none !important;
+}
+
+#bubble-container.birthday-theme {
+  background: linear-gradient(135deg, #fff0f5, #ffd1dc, #fff0f5);
+  border: 2px solid #ff69b4;
+  box-shadow: 0 2px 16px rgba(255, 105, 180, 0.35);
+}
+
+/* 气泡文本内容 */
+#bubble-content {
+  padding: 6px 12px;
+  text-align: center;
+  line-height: 1.5;
+  white-space: normal;
+  word-break: break-all;
+  max-height: 70px;
+  overflow: hidden;
+}
+
+#bubble-content.small-text {
+  font-size: 10px;
+}
+
+/* 气泡小三角 */
+.bubble-tail {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #ffb6c1;
+  margin-top: -1px;
+}
+
+#bubble-container.birthday-theme .bubble-tail {
+  border-top-color: #ff69b4;
+}
+
+/* === 输入框模式 === */
+#bubble-input-wrap {
+  padding: 4px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#bubble-input-wrap.hidden {
+  display: none;
+}
+
+#bubble-input {
+  width: 145px;
+  height: 24px;
+  border: 1.5px solid #ff99cc;
+  border-radius: 12px;
+  padding: 0 8px;
+  font-size: 10px;
+  font-family: inherit;
+  outline: none;
+  background: #fff5f8;
+  color: #d63384;
+  pointer-events: auto;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#bubble-input:focus {
+  border-color: #ff69b4;
+  box-shadow: 0 0 8px rgba(255, 105, 180, 0.3);
+}
+
+#bubble-input::placeholder {
+  color: #ffb6c1;
+}
+
+/* === 计时器模式 === */
+#bubble-timer {
+  padding: 5px 12px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+#bubble-timer.hidden {
+  display: none;
+}
+
+#bubble-timer .timer-label {
+  font-size: 11px;
+  color: #e75480;
+}
+
+#bubble-timer .timer-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ff69b4;
+}
+
+/* === 睡觉 Z 字动画 === */
+@keyframes zzz {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.5); }
+  50% { opacity: 1; }
+  100% { opacity: 0; transform: translate(15px, -25px) scale(1.2); }
+}
+
+.zzz-indicator {
+  position: absolute;
+  top: 50px;
+  right: 15px;
+  font-size: 14px;
+  color: #ff99cc;
+  text-shadow: 0 0 4px rgba(255, 105, 180, 0.4);
+  animation: zzz 2s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* 轻微弹跳动画 (行走时) */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.walking #gif-current,
+.walking #gif-next {
+  animation: bounce 0.4s ease-in-out infinite;
+}
+
+/* 输入框出现动画 */
+@keyframes bubblePop {
+  0% { transform: translateX(-50%) scale(0.85); opacity: 0; }
+  100% { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+
+#bubble-container.pop-in {
+  animation: bubblePop 0.25s ease-out;
+}
+
+/* === 悬浮快捷按钮 === */
+#hover-buttons {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 20;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+#hover-buttons.visible {
+  opacity: 1;
+}
+
+.hover-btn {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px solid #ff99cc;
+  background: #fff0f5;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 0 2px 8px rgba(255, 105, 180, 0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  padding: 0;
+  outline: none;
+}
+
+.hover-btn:hover {
+  transform: scale(1.2);
+  box-shadow: 0 3px 12px rgba(255, 105, 180, 0.45);
+  border-color: #ff69b4;
+}
+
+.hover-btn:active {
+  transform: scale(0.9);
+}
+
+#btn-dialogue {
+  top: 64px;
+  left: 2px;
+  width: 42px;
+  height: 42px;
+  font-size: 20px;
+  border-width: 2px;
+  box-shadow: 0 3px 12px rgba(255, 105, 180, 0.4);
+  background: linear-gradient(135deg, #fff0f5, #ffe4ec);
+}
+#btn-dialogue:hover {
+  transform: scale(1.25);
+  box-shadow: 0 4px 16px rgba(255, 105, 180, 0.6);
+}
+#btn-feed { top: 70px; right: 4px; }
+#btn-status {
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+#btn-status:hover {
+  transform: translateX(-50%) scale(1.2);
+}
+#btn-status:active {
+  transform: translateX(-50%) scale(0.9);
+}
+
+/* === 状态卡片 === */
+#status-card {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 172px;
+  background: #fff0f5;
+  border: 1.5px solid #ffb6c1;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(255, 105, 180, 0.3);
+  z-index: 25;
+  pointer-events: auto;
+  overflow: hidden;
+}
+
+#status-card.hidden {
+  display: none;
+}
+
+#status-card.visible {
+  animation: cardIn 0.3s ease-out;
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+.card-header {
+  padding: 8px 10px 6px;
+  background: #ff99cc;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.owner-name {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.days-badge {
+  font-size: 9px;
+  background: rgba(255, 255, 255, 0.3);
+  padding: 1px 6px;
+  border-radius: 8px;
+}
+
+.card-body {
+  padding: 8px 10px;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+  gap: 5px;
+}
+
+.status-row:last-child {
+  margin-bottom: 0;
+}
+
+.status-label {
+  font-size: 10px;
+  color: #d63384;
+  min-width: 24px;
+  font-weight: 500;
+}
+
+.status-bar {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 182, 193, 0.3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.mood-fill {
+  background: #ff69b4;
+}
+
+.affinity-fill {
+  background: #e91e63;
+}
+
+.status-value {
+  font-size: 9px;
+  color: #e75480;
+  min-width: 28px;
+  text-align: right;
+  font-weight: 600;
+}
+
+.card-footer {
+  padding: 6px 10px;
+  background: rgba(255, 182, 193, 0.12);
+  border-top: 1px solid rgba(255, 182, 193, 0.25);
+}
+
+.greeting-text {
+  font-size: 9px;
+  color: #d63384;
+}
+
+/* === 悬浮微动画 === */
+@keyframes hoverWiggle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+#pet-container.hovering img.active {
+  animation: hoverWiggle 0.5s ease-in-out;
+}

@@ -1,0 +1,69 @@
+{
+  "name": "hellokitty-desktop-pet",
+  "version": "1.0.1",
+  "description": "Hello Kitty 桌面宠物",
+  "main": "src/main/index.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder --mac dmg && xattr -cr dist/*.dmg && echo 'DMG built'",
+    "release": "node scripts/build.js",
+    "release:patch": "node scripts/build.js patch",
+    "release:minor": "node scripts/build.js minor",
+    "release:major": "node scripts/build.js major"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^35.0.0",
+    "electron-builder": "^26.8.1"
+  },
+  "dependencies": {
+    "electron-store": "^10.0.0",
+    "electron-updater": "^6.8.3"
+  },
+  "build": {
+    "appId": "com.hellokitty.desktop-pet",
+    "productName": "HelloKitty桌面宠物",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json",
+      "CHANGELOG.md"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "970181941",
+        "repo": "hellokitty-desktop-pet"
+      }
+    ],
+    "mac": {
+      "icon": "assets/icon.icns",
+      "category": "public.app-category.entertainment",
+      "target": [
+        "dmg"
+      ],
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false
+    },
+    "dmg": {
+      "title": "HelloKitty桌面宠物",
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Hello Kitty</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="pet-container">
+    <div id="bubble-container" class="hidden">
+      <div id="bubble-content"></div>
+      <div id="bubble-input-wrap" class="hidden">
+        <input id="bubble-input" type="text" placeholder="和 Kitty 说些什么...">
+      </div>
+      <div id="bubble-timer" class="hidden"></div>
+      <div class="bubble-tail"></div>
+    </div>
+    <!-- 悬浮快捷按钮 -->
+    <div id="hover-buttons">
+      <button class="hover-btn" id="btn-dialogue" data-action="dialogue">💬</button>
+      <button class="hover-btn" id="btn-feed" data-action="feed">🍰</button>
+      <button class="hover-btn" id="btn-status" data-action="status">📊</button>
+    </div>
+    <!-- 状态卡片 -->
+    <div id="status-card" class="hidden">
+      <div class="card-header">
+        <span class="owner-name"></span>
+        <span class="days-badge"></span>
+      </div>
+      <div class="card-body">
+        <div class="status-row">
+          <span class="status-label">心情</span>
+          <div class="status-bar"><div class="bar-fill mood-fill"></div></div>
+          <span class="status-value mood-value"></span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">亲密</span>
+          <div class="status-bar"><div class="bar-fill affinity-fill"></div></div>
+          <span class="status-value affinity-value"></span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="greeting-text"></span>
+      </div>
+    </div>
+    <img id="gif-current" class="active" draggable="false">
+    <img id="gif-next" draggable="false">
+  </div>
+  <script src="main.js"></script>
+</body>
+</html>

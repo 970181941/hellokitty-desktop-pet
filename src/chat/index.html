@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kitty 聊天</title>
+  <link rel="stylesheet" href="chat.css">
+</head>
+<body>
+  <div id="chat-app">
+    <header id="chat-header">
+      <div class="header-left">
+        <div class="avatar-small"><img src="assets/avatar.jpeg" alt="HK"></div>
+        <div class="header-info">
+          <div class="header-name">Hello Kitty</div>
+          <div class="header-status">在线 · 陪伴中</div>
+        </div>
+      </div>
+      <button id="btn-close" class="close-btn">✕</button>
+    </header>
+
+    <div id="status-bar">
+      <span class="status-item" id="status-mood">--</span>
+      <span class="status-item" id="status-affinity">--</span>
+      <span class="status-item" id="status-days">--</span>
+    </div>
+
+    <div id="message-list"></div>
+
+    <div id="typing-indicator" class="hidden">
+      <div class="typing-avatar"><img src="assets/avatar.jpeg" alt="HK"></div>
+      <div class="typing-bubble">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+    </div>
+
+    <!-- 玩耍弹出面板 -->
+    <div id="play-popup" class="hidden">
+      <div class="play-grid">
+        <button class="play-btn" data-action="feed" data-req="none"><img src="assets/icons/feed.png" class="play-icon-img"><span class="play-label">喂食</span></button>
+        <button class="play-btn" data-action="play" data-req="none"><img src="assets/icons/play.png" class="play-icon-img"><span class="play-label">玩耍</span></button>
+        <button class="play-btn" data-action="heal" data-req="mood"><img src="assets/icons/sleep.png" class="play-icon-img"><span class="play-label">治疗</span></button>
+        <button class="play-btn" data-action="pomodoro" data-req="none"><img src="assets/icons/pomodoro.png" class="play-icon-img"><span class="play-label">专注</span></button>
+        <button class="play-btn" data-action="sing" data-req="affinity3"><img src="assets/icons/sing.png" class="play-icon-img"><span class="play-label">唱歌</span></button>
+        <button class="play-btn" data-action="skate" data-req="affinity3"><img src="assets/icons/skate.png" class="play-icon-img"><span class="play-label">溜冰</span></button>
+        <button class="play-btn" data-action="gift" data-req="affinity5"><img src="assets/icons/gift.png" class="play-icon-img"><span class="play-label">送礼物</span></button>
+        <button class="play-btn" data-action="hug" data-req="affinity6"><img src="assets/icons/hug.png" class="play-icon-img"><span class="play-label">抱抱</span></button>
+        <button class="play-btn" data-action="secret" data-req="affinity8"><img src="assets/icons/sleep.png" class="play-icon-img"><span class="play-label">秘密</span></button>
+      </div>
+    </div>
+
+    <!-- 周日程面板 -->
+    <div id="schedule-container" class="hidden">
+      <div class="panel-header">
+        <span class="panel-title"><img src="assets/icons/schedule.png" class="panel-title-icon">每周日程</span>
+        <button class="panel-close-btn">✕</button>
+      </div>
+      <div class="day-selector">
+        <button class="day-btn active" data-day="mon">一</button>
+        <button class="day-btn" data-day="tue">二</button>
+        <button class="day-btn" data-day="wed">三</button>
+        <button class="day-btn" data-day="thu">四</button>
+        <button class="day-btn" data-day="fri">五</button>
+        <button class="day-btn" data-day="sat">六</button>
+        <button class="day-btn" data-day="sun">日</button>
+      </div>
+      <div id="schedule-list"></div>
+      <div class="schedule-add-row">
+        <select id="schedule-hour"></select>
+        <span class="time-sep">:</span>
+        <select id="schedule-minute"></select>
+        <input type="text" id="schedule-text" placeholder="日程内容" />
+        <button id="schedule-add-btn">+</button>
+      </div>
+      <div class="schedule-actions">
+        <button id="schedule-save">保存</button>
+        <button id="schedule-cancel">取消</button>
+      </div>
+    </div>
+
+    <!-- 状态信息面板 -->
+    <div id="info-panel" class="hidden">
+      <div class="panel-header">
+        <span class="panel-title"><img src="assets/icons/status.png" class="panel-title-icon">状态信息</span>
+        <button class="panel-close-btn">✕</button>
+      </div>
+      <div class="info-sections">
+        <div class="info-section">
+          <div class="info-section-title">👤 主人</div>
+          <div class="info-row">
+            <span class="info-label">名字</span>
+            <span class="info-value" id="info-owner-name">--</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">陪伴</span>
+            <span class="info-value" id="info-days">--</span>
+          </div>
+        </div>
+        <div class="info-section">
+          <div class="info-section-title">🎀 Kitty</div>
+          <div class="info-row">
+            <span class="info-label">心情</span>
+            <span class="info-value" id="info-mood">--</span>
+          </div>
+        </div>
+        <div class="info-section">
+          <div class="info-section-title">💗 亲密度</div>
+          <div class="info-affinity-header">
+            <span id="info-level-name">--</span>
+            <span id="info-affinity-num">0</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="info-progress"></div>
+          </div>
+          <div class="info-progress-label" id="info-progress-label">--</div>
+          <div class="info-row" style="margin-top: 6px;">
+            <span class="info-label">连续登录</span>
+            <span class="info-value" id="info-streak">--</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 待办面板 -->
+    <div id="todo-panel" class="hidden">
+      <div class="panel-header">
+        <span class="panel-title"><img src="assets/icons/todo.png" class="panel-title-icon">待办事项</span>
+        <button class="panel-close-btn">✕</button>
+      </div>
+      <div id="todo-list"></div>
+      <div class="todo-add-row">
+        <input type="text" id="todo-input" placeholder="添加新的待办事项..." />
+        <button id="todo-add-btn">+</button>
+      </div>
+    </div>
+
+    <!-- 设置面板 -->
+    <div id="settings-panel" class="hidden">
+      <div class="panel-header">
+        <span class="panel-title"><img src="assets/icons/settings.png" class="panel-title-icon">设置</span>
+        <button class="panel-close-btn">✕</button>
+      </div>
+      <div class="settings-content">
+        <!-- 主人信息 -->
+        <div class="settings-section">
+          <div class="settings-section-title">主人信息</div>
+          <div class="settings-row">
+            <label>名字</label>
+            <input type="text" id="settings-owner-name" placeholder="输入你的名字">
+          </div>
+          <div class="settings-row">
+            <label>生日</label>
+            <input type="text" id="settings-owner-birthday" placeholder="MM-DD 格式">
+          </div>
+          <button id="settings-save-owner" class="settings-save-btn">保存</button>
+        </div>
+        <!-- AI 设置 -->
+        <div class="settings-section">
+          <div class="settings-section-title">AI 设置</div>
+          <div class="settings-row">
+            <label>API Key</label>
+            <input type="password" id="settings-api-key" placeholder="sk-...">
+          </div>
+          <button id="settings-save-ai" class="settings-save-btn">保存</button>
+        </div>
+        <!-- 皮肤主题 -->
+        <div class="settings-section">
+          <div class="settings-section-title">皮肤主题</div>
+          <div class="skin-grid" id="skin-grid"></div>
+        </div>
+        <!-- 软件更新 -->
+        <div class="settings-section">
+          <div class="settings-section-title">软件更新</div>
+          <div class="update-info">
+            <div class="update-version-row">
+              <span class="update-label">当前版本</span>
+              <span class="update-version" id="update-current-version">--</span>
+            </div>
+            <div class="update-status-text" id="update-status-text">点击检查更新</div>
+            <div class="update-progress-bar hidden" id="update-progress-bar">
+              <div class="update-progress-fill" id="update-progress-fill"></div>
+            </div>
+            <div class="update-progress-pct hidden" id="update-progress-pct"></div>
+          </div>
+          <div class="update-actions">
+            <button id="update-check-btn" class="settings-save-btn">检查更新</button>
+            <button id="update-install-btn" class="settings-save-btn hidden">安装更新</button>
+          </div>
+          <div class="update-changelog-toggle">
+            <button id="update-changelog-btn" class="update-link-btn">查看更新日志</button>
+          </div>
+          <div class="update-changelog-content hidden" id="update-changelog-content"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="toolbar">
+      <button class="tool-btn" data-action="play" title="玩耍"><img src="assets/icons/play.png" class="tool-icon"></button>
+      <button class="tool-btn" data-action="schedule" title="日程"><img src="assets/icons/schedule.png" class="tool-icon"></button>
+      <button class="tool-btn" data-action="status" title="状态"><img src="assets/icons/status.png" class="tool-icon"></button>
+      <button class="tool-btn" data-action="todo" title="待办"><img src="assets/icons/todo.png" class="tool-icon"></button>
+      <button class="tool-btn" data-action="settings" title="设置"><img src="assets/icons/settings.png" class="tool-icon"></button>
+    </div>
+
+    <footer id="input-area">
+      <input
+        type="text"
+        id="chat-input"
+        placeholder="和 Kitty 说些什么..."
+        autocomplete="off"
+      />
+      <button id="btn-send">发送</button>
+    </footer>
+  </div>
+
+  <script src="skins.js"></script>
+  <script src="chat.js"></script>
+</body>
+</html>
