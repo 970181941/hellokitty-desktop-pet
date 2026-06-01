@@ -1,10 +1,12 @@
 const { autoUpdater } = require('electron-updater');
-const { app } = require('electron');
+const { app, shell } = require('electron');
 
 class Updater {
   constructor() {
     this.statusCallback = null;
     this.isDev = !app.isPackaged;
+    this._lastUpdateInfo = null;
+    this._manualDownloadUrl = null;
 
     // 配置 autoUpdater
     autoUpdater.autoDownload = false;
@@ -98,6 +100,10 @@ class Updater {
     try {
       const result = await autoUpdater.checkForUpdates();
       const remoteVersion = result?.updateInfo?.version;
+      // 存储更新信息用于手动下载回退
+      if (result?.updateInfo) {
+        this._lastUpdateInfo = result.updateInfo;
+      }
       return { available: remoteVersion ? remoteVersion !== app.getVersion() : false };
     } catch (error) {
       console.error('[Updater] 检查更新失败:', error.message);
@@ -122,6 +128,24 @@ class Updater {
       return { ok: true };
     } catch (error) {
       console.error('[Updater] 下载失败:', error.message);
+
+      // macOS ad-hoc 签名无法通过 Squirrel.Mac 代码签名验证，回退到手动下载
+      const isCodeSignatureError = error.message.includes('Code signature') ||
+        error.message.includes('code requirement') ||
+        error.message.includes('did not pass validation');
+
+      if (isCodeSignatureError) {
+        console.log('[Updater] 代码签名验证失败，回退到手动下载');
+        const releaseUrl = this._buildReleaseUrl();
+        this._manualDownloadUrl = releaseUrl;
+        this._pushStatus({
+          status: 'manual-download',
+          url: releaseUrl,
+          version: this._lastUpdateInfo?.version || '',
+        });
+        return { ok: true, manual: true };
+      }
+
       this._pushStatus({
         status: 'error',
         message: `下载失败: ${error.message}`,
@@ -138,7 +162,31 @@ class Updater {
       console.log('[Updater] 开发模式下无法安装更新');
       return;
     }
+    // 如果是手动下载模式，打开浏览器下载页面
+    if (this._manualDownloadUrl) {
+      this.openReleasePage();
+      return;
+    }
     autoUpdater.quitAndInstall();
+  }
+
+  /**
+   * 构建 GitHub Release 页面 URL
+   */
+  _buildReleaseUrl() {
+    const version = this._lastUpdateInfo?.version;
+    return version
+      ? `https://github.com/970181941/hellokitty-desktop-pet/releases/tag/v${version}`
+      : 'https://github.com/970181941/hellokitty-desktop-pet/releases/latest';
+  }
+
+  /**
+   * 在浏览器中打开 Release 页面（手动下载）
+   */
+  openReleasePage() {
+    const url = this._manualDownloadUrl || this._buildReleaseUrl();
+    console.log('[Updater] 打开手动下载页面:', url);
+    shell.openExternal(url);
   }
 
   /**

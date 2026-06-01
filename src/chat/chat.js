@@ -750,6 +750,16 @@ function handleUpdateStatus(data) {
       loadVersionDisplay();
       break;
 
+    case 'manual-download':
+      setUpdateStatus(`发现新版本 v${data.version || ''}，请点击按钮前往下载页面`);
+      progressBar.classList.add('hidden');
+      progressPct.classList.add('hidden');
+      installBtn.classList.remove('hidden');
+      installBtn.disabled = false;
+      installBtn.textContent = '前往下载';
+      loadVersionDisplay();
+      break;
+
     case 'error':
       setUpdateStatus('更新失败: ' + (data.message || '未知错误'));
       progressBar.classList.add('hidden');
