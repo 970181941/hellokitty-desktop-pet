@@ -4,14 +4,6 @@ const chatInput = document.getElementById('chat-input');
 const btnSend = document.getElementById('btn-send');
 const btnClose = document.getElementById('btn-close');
 const typingIndicator = document.getElementById('typing-indicator');
-const toolbar = document.getElementById('toolbar');
-
-// 面板元素
-const playPopup = document.getElementById('play-popup');
-const scheduleContainer = document.getElementById('schedule-container');
-const infoPanel = document.getElementById('info-panel');
-const todoPanel = document.getElementById('todo-panel');
-const settingsPanel = document.getElementById('settings-panel');
 
 // === 状态 ===
 let messages = [];
@@ -22,11 +14,8 @@ let selectedDay = 'mon';
 let latestStatusData = null;
 let todos = [];
 let currentSkinId = 'sakura';
-// 面板状态：日程和待办可同时打开，玩耍、信息、设置面板与其他互斥
-let panelState = { play: false, schedule: false, info: false, todo: false, settings: false };
-// 侧边面板状态
-let sidePanelOpen = false;
-let sidePanelAnimating = false;
+// 当前侧边面板视图
+let currentView = 'status';
 
 // 心情 emoji 映射
 const MOOD_EMOJIS = { 1: '😢', 2: '😟', 3: '😐', 4: '😊', 5: '🤩' };
@@ -61,8 +50,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.chatAPI.closeWindow();
   });
 
-  // 初始化工具栏
-  initToolbar();
+  // 初始化侧边工具栏
+  initSideToolbar();
 
   // 初始化周日程面板
   initSchedulePanel();
@@ -73,28 +62,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 初始化设置面板
   initSettingsPanel();
 
-  // 初始化侧边面板
-  initSidePanel();
-
   // 初始化状态栏
   refreshStatusBar();
 
   // 加载并应用皮肤
   loadAndApplySkin();
 
+  // 初始加载侧边面板数据
+  refreshSidePanelData();
+
   // 监听状态推送
   window.chatAPI.onStatusUpdate((data) => {
     latestStatusData = data;
     updateStatusBar(data);
     updatePlayButtonStates(data);
-    // 如果信息面板正在显示，更新它
-    if (panelState.info) {
-      updateInfoPanel(data);
-    }
-    // 如果侧边面板正在显示，更新它
-    if (sidePanelOpen) {
-      updateSidePanelContent(data);
-    }
+    // 始终更新侧边面板状态视图
+    updateSidePanelContent(data);
   });
 
   // 监听番茄钟倒计时
@@ -113,13 +96,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 监听周日程通知
   window.chatAPI.onScheduleNotification((data) => {
     renderSystemMessage(`提醒: ${data.text}`);
-  });
-
-  // 点击面板外部关闭玩耍弹出
-  document.addEventListener('click', (e) => {
-    if (panelState.play && !playPopup.contains(e.target) && !toolbar.contains(e.target)) {
-      togglePanel('play');
-    }
   });
 
   // 聚焦输入框
@@ -174,139 +150,79 @@ async function selectSkin(skinId) {
   });
 }
 
-// === 面板切换 ===
-// 关闭与目标面板互斥的面板
-function closeExclusivePanels(except) {
-  // 侧边面板与 play、info 互斥
-  if (except === 'sidePanel') {
-    if (panelState.play) setPanelVisibility('play', false);
-    if (panelState.info) setPanelVisibility('info', false);
-    return;
+// === 视图切换 ===
+function switchView(viewName) {
+  if (currentView === viewName) return;
+
+  // 隐藏当前视图
+  const currentEl = document.getElementById(`view-${currentView}`);
+  if (currentEl) currentEl.classList.remove('active');
+
+  // 显示目标视图
+  const targetEl = document.getElementById(`view-${viewName}`);
+  if (targetEl) targetEl.classList.add('active');
+
+  // 更新工具栏按钮激活状态
+  document.querySelectorAll('.side-tool-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.view === viewName);
+  });
+
+  currentView = viewName;
+
+  // 切换到设置视图时刷新数据
+  if (viewName === 'settings') {
+    refreshSettingsPanel();
   }
-
-  // 玩耍、信息、设置面板：与所有其他面板互斥（含侧边面板）
-  if (except === 'play' || except === 'info' || except === 'settings') {
-    // 关闭侧边面板（如果打开）
-    if (sidePanelOpen && !sidePanelAnimating) {
-      closeSidePanel();
-    }
-    Object.keys(panelState).forEach(name => {
-      if (name !== except && panelState[name]) {
-        setPanelVisibility(name, false);
-      }
-    });
-  } else {
-    // 日程和待办：只关闭玩耍、信息、设置面板
-    ['play', 'info', 'settings'].forEach(name => {
-      if (panelState[name]) {
-        setPanelVisibility(name, false);
-      }
-    });
-  }
-}
-
-function setPanelVisibility(name, visible) {
-  const panelMap = {
-    play: playPopup,
-    schedule: scheduleContainer,
-    info: infoPanel,
-    todo: todoPanel,
-    settings: settingsPanel,
-  };
-  const el = panelMap[name];
-  if (!el) return;
-
-  panelState[name] = visible;
-  if (visible) {
-    el.classList.remove('hidden');
-  } else {
-    el.classList.add('hidden');
-  }
-
-  // 更新对应工具栏按钮的激活状态
-  const btn = toolbar.querySelector(`[data-action="${name}"]`);
-  if (btn) {
-    if (visible) {
-      btn.classList.add('active');
+  // 切换到状态视图时刷新数据
+  if (viewName === 'status') {
+    if (latestStatusData) {
+      updateSidePanelContent(latestStatusData);
     } else {
-      btn.classList.remove('active');
+      refreshSidePanelData();
     }
   }
 }
 
-function togglePanel(panelName) {
-  const isOpen = panelState[panelName];
-
-  if (isOpen) {
-    // 关闭该面板
-    setPanelVisibility(panelName, false);
-  } else {
-    // 关闭互斥面板，然后打开目标面板
-    closeExclusivePanels(panelName);
-    setPanelVisibility(panelName, true);
-  }
+function showStatusView() {
+  switchView('status');
 }
 
-// === 工具栏初始化 ===
-function initToolbar() {
-  const buttons = toolbar.querySelectorAll('.tool-btn');
-  buttons.forEach((btn) => {
-    btn.addEventListener('click', async (e) => {
-      e.stopPropagation();
-      const action = btn.dataset.action;
-
-      switch (action) {
-        case 'play':
-          togglePanel('play');
-          break;
-        case 'schedule':
-          togglePanel('schedule');
-          break;
-        case 'status':
-          toggleSidePanel();
-          // 打开时更新侧边面板
-          if (sidePanelOpen && latestStatusData) {
-            updateSidePanelContent(latestStatusData);
-          }
-          break;
-        case 'todo':
-          togglePanel('todo');
-          break;
-        case 'settings':
-          togglePanel('settings');
-          // 打开时加载最新数据
-          if (panelState.settings) {
-            refreshSettingsPanel();
-          }
-          break;
-      }
+// === 侧边工具栏初始化 ===
+function initSideToolbar() {
+  // 工具栏按钮点击切换视图
+  const toolBtns = document.querySelectorAll('.side-tool-btn');
+  toolBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const view = btn.dataset.view;
+      switchView(view);
     });
   });
 
-  // 初始化玩耍弹出面板按钮事件
-  initPlayPopup();
+  // 返回按钮
+  document.querySelectorAll('.side-view-back').forEach(btn => {
+    btn.addEventListener('click', () => {
+      showStatusView();
+    });
+  });
+
+  // 初始化玩耍按钮事件
+  initPlayButtons();
 
   // 初始获取状态来设置按钮状态
   refreshButtonStates();
 }
 
-// === 玩耍弹出面板 ===
-function initPlayPopup() {
-  const playBtns = playPopup.querySelectorAll('.play-btn');
+// === 玩耍按钮 ===
+function initPlayButtons() {
+  const playBtns = document.querySelectorAll('#view-play .play-btn');
   playBtns.forEach((btn) => {
     btn.addEventListener('click', async () => {
       const action = btn.dataset.action;
-
-      // 番茄钟：切换开始/停止
-      if (action === 'pomodoro') {
-        await window.chatAPI.triggerAction('pomodoro');
-        togglePanel('play');
-        return;
-      }
-
-      // 其他动作
       await window.chatAPI.triggerAction(action);
-      togglePanel('play');
+      // 非番茄钟动作执行后回到状态视图
+      if (action !== 'pomodoro') {
+        showStatusView();
+      }
     });
   });
 }
@@ -326,7 +242,7 @@ async function refreshButtonStates() {
 }
 
 function updatePlayButtonStates(data) {
-  const playBtns = playPopup.querySelectorAll('.play-btn');
+  const playBtns = document.querySelectorAll('#view-play .play-btn');
   playBtns.forEach((btn) => {
     const action = btn.dataset.action;
     const req = btn.dataset.req;
@@ -369,7 +285,7 @@ function initSchedulePanel() {
   loadSchedule();
 
   // 日期选择按钮
-  const dayBtns = scheduleContainer.querySelectorAll('.day-btn');
+  const dayBtns = document.querySelectorAll('#view-schedule .day-btn');
   dayBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
       dayBtns.forEach(b => b.classList.remove('active'));
@@ -393,12 +309,9 @@ function initSchedulePanel() {
   // 保存
   document.getElementById('schedule-save').addEventListener('click', saveSchedule);
 
-  // 取消/关闭
+  // 取消 → 回到状态视图
   document.getElementById('schedule-cancel').addEventListener('click', () => {
-    togglePanel('schedule');
-  });
-  scheduleContainer.querySelector('.panel-close-btn').addEventListener('click', () => {
-    togglePanel('schedule');
+    showStatusView();
   });
 }
 
@@ -488,47 +401,10 @@ async function saveSchedule() {
   try {
     await window.chatAPI.setSchedule(currentSchedule);
     renderSystemMessage('日程已保存~');
-    togglePanel('schedule');
+    showStatusView();
   } catch (e) {
     renderSystemMessage('保存失败了...再试试~');
   }
-}
-
-// === 状态信息面板 ===
-function updateInfoPanel(data) {
-  // 主人信息
-  const ownerNameEl = document.getElementById('info-owner-name');
-  const daysEl = document.getElementById('info-days');
-  ownerNameEl.textContent = data.ownerName || '新朋友';
-  daysEl.textContent = data.days > 0 ? `第 ${data.days} 天` : '初次见面';
-
-  // Kitty 心情
-  const moodEl = document.getElementById('info-mood');
-  const moodEmoji = MOOD_EMOJIS[data.moodLevel] || '😊';
-  moodEl.textContent = `${moodEmoji} ${data.moodName || ''}`;
-
-  // 亲密度
-  const levelNameEl = document.getElementById('info-level-name');
-  const affinityNumEl = document.getElementById('info-affinity-num');
-  const progressEl = document.getElementById('info-progress');
-  const progressLabelEl = document.getElementById('info-progress-label');
-  const streakEl = document.getElementById('info-streak');
-
-  const levelEmoji = AFFINITY_EMOJIS[data.affinityLevelNum] || '💗';
-  levelNameEl.textContent = `${levelEmoji} ${data.affinityLevelName || ''}`;
-  affinityNumEl.textContent = `${data.affinity || 0}`;
-
-  // 进度条
-  const currentMin = data.nextLevelMin || 0;
-  const currentMax = data.nextLevelMax || 2500;
-  const currentAffinity = data.affinity || 0;
-  const range = currentMax - currentMin;
-  const progress = range > 0 ? Math.min(((currentAffinity - currentMin) / range) * 100, 100) : 100;
-  progressEl.style.width = `${Math.max(0, progress)}%`;
-  progressLabelEl.textContent = `${currentAffinity} / ${currentMax}`;
-
-  // 连续登录
-  streakEl.textContent = data.loginStreakDays > 0 ? `${data.loginStreakDays} 天` : '0 天';
 }
 
 // === 待办面板 ===
@@ -545,11 +421,6 @@ function initTodoPanel() {
       e.preventDefault();
       addTodo();
     }
-  });
-
-  // 关闭按钮
-  todoPanel.querySelector('.panel-close-btn').addEventListener('click', () => {
-    togglePanel('todo');
   });
 }
 
@@ -643,11 +514,6 @@ async function saveTodos() {
 
 // === 设置面板 ===
 function initSettingsPanel() {
-  // 关闭按钮
-  settingsPanel.querySelector('.panel-close-btn').addEventListener('click', () => {
-    togglePanel('settings');
-  });
-
   // 主人信息保存
   document.getElementById('settings-save-owner').addEventListener('click', saveOwnerInfo);
 
@@ -675,7 +541,7 @@ async function refreshSettingsPanel() {
   try {
     const hasKey = await window.chatAPI.getAiKeyStatus();
     const keyInput = document.getElementById('settings-api-key');
-    keyInput.placeholder = hasKey ? '已设置 (留空保持不变)' : 'sk-...';
+    keyInput.placeholder = hasKey ? '已设置 (留空不变)' : 'sk-...';
     keyInput.value = '';
   } catch (e) {
     // ignore
@@ -723,7 +589,7 @@ async function saveAIKey() {
     await window.chatAPI.setAiKey(key);
     renderSystemMessage('API Key 已保存~');
     document.getElementById('settings-api-key').value = '';
-    document.getElementById('settings-api-key').placeholder = '已设置 (留空保持不变)';
+    document.getElementById('settings-api-key').placeholder = '已设置 (留空不变)';
   } catch (e) {
     renderSystemMessage('保存失败了...再试试~');
   }
@@ -935,99 +801,8 @@ function updateStatusBar(data) {
   }
 }
 
-// === 侧边面板 ===
+// === 侧边面板数据 ===
 const STREAK_MILESTONES = [3, 7, 14, 30, 60, 100];
-
-function initSidePanel() {
-  const statusBar = document.getElementById('status-bar');
-  const sidePanel = document.getElementById('status-side-panel');
-  const closeBtn = sidePanel.querySelector('.side-panel-close-btn');
-
-  // 状态栏点击切换侧边面板
-  statusBar.addEventListener('click', (e) => {
-    e.stopPropagation();
-    toggleSidePanel();
-  });
-
-  // 关闭按钮
-  closeBtn.addEventListener('click', () => {
-    closeSidePanel();
-  });
-
-  // Escape 键关闭
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && sidePanelOpen) {
-      closeSidePanel();
-    }
-  });
-}
-
-function toggleSidePanel() {
-  if (sidePanelAnimating) return;
-  if (sidePanelOpen) {
-    closeSidePanel();
-  } else {
-    openSidePanel();
-  }
-}
-
-function openSidePanel() {
-  if (sidePanelOpen || sidePanelAnimating) return;
-  sidePanelAnimating = true;
-
-  // 关闭互斥面板
-  closeExclusivePanels('sidePanel');
-
-  const wrapper = document.getElementById('app-wrapper');
-  const sidePanel = document.getElementById('status-side-panel');
-
-  // 重置卡片动画
-  sidePanel.querySelectorAll('.side-section').forEach(s => {
-    s.style.animation = 'none';
-    void s.offsetWidth;
-    s.style.animation = '';
-  });
-
-  wrapper.classList.add('expanded');
-  sidePanel.classList.remove('hidden');
-  // 触发 reflow 以确保 transition 生效
-  void sidePanel.offsetWidth;
-  sidePanel.classList.add('expanded');
-
-  // 请求 Electron 窗口扩展
-  window.chatAPI.resizeChatWindow(true);
-
-  // 填充数据
-  if (latestStatusData) {
-    updateSidePanelContent(latestStatusData);
-  } else {
-    // 没有缓存数据时主动获取
-    refreshSidePanelData();
-  }
-
-  sidePanelOpen = true;
-  setTimeout(() => { sidePanelAnimating = false; }, 350);
-}
-
-function closeSidePanel() {
-  if (!sidePanelOpen || sidePanelAnimating) return;
-  sidePanelAnimating = true;
-
-  const wrapper = document.getElementById('app-wrapper');
-  const sidePanel = document.getElementById('status-side-panel');
-
-  wrapper.classList.remove('expanded');
-  sidePanel.classList.remove('expanded');
-
-  // 请求 Electron 窗口收缩
-  window.chatAPI.resizeChatWindow(false);
-
-  sidePanelOpen = false;
-  setTimeout(() => {
-    sidePanel.classList.add('hidden');
-    sidePanelAnimating = false;
-  }, 350);
-}
 
 async function refreshSidePanelData() {
   try {
@@ -1273,10 +1048,6 @@ async function handleAIAction(action) {
         info.birthday = action.value;
       }
       await window.chatAPI.setOwnerInfo(info);
-      // 刷新设置面板（如果打开的话）
-      if (panelState.settings) {
-        refreshSettingsPanel();
-      }
     } catch (e) {
       // ignore
     }

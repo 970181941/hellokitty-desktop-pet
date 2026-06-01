@@ -84,7 +84,7 @@ function getScreenSize() {
 
 function createChatWindow() {
   const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
-  const chatWidth = 450;
+  const chatWidth = 730;  // 450 聊天区 + 280 侧边面板
   const chatHeight = 620;
 
   // 计算位置：优先 Kitty 窗口左侧，不够则右侧，再不够则居中
@@ -132,9 +132,7 @@ function createChatWindow() {
     frame: false,
     transparent: false,
     alwaysOnTop: false,
-    resizable: true,
-    minWidth: 380,
-    minHeight: 480,
+    resizable: false,
     hasShadow: true,
     skipTaskbar: false,
     backgroundColor: bgColor,
@@ -173,64 +171,6 @@ function showChatWindow() {
   }
 }
 
-const SIDE_PANEL_WIDTH = 280;
-let chatWindowOriginalBounds = null;
-
-function resizeChatWindow(expanded) {
-  if (!chatWindow || chatWindow.isDestroyed()) return;
-
-  const bounds = chatWindow.getBounds();
-  const { width: screenWidth } = screen.getPrimaryDisplay().workAreaSize;
-
-  if (expanded) {
-    // 保存原始 bounds
-    chatWindowOriginalBounds = { ...bounds };
-
-    // 决定扩展方向：聊天窗口在 Kitty 左侧则向左扩展，在右侧则向右扩展
-    let newX = bounds.x;
-    let newWidth = bounds.width + SIDE_PANEL_WIDTH;
-
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      const kittyBounds = mainWindow.getBounds();
-      const chatIsLeftOfKitty = bounds.x < kittyBounds.x;
-
-      if (chatIsLeftOfKitty) {
-        // 向左扩展
-        newX = bounds.x - SIDE_PANEL_WIDTH;
-        // 边界检查
-        if (newX < 0) {
-          newX = 0;
-          // 如果左边空间不够，改为向右扩展
-          newWidth = bounds.width + SIDE_PANEL_WIDTH;
-        }
-      } else {
-        // 向右扩展
-        newX = bounds.x;
-        // 边界检查
-        if (bounds.x + newWidth > screenWidth) {
-          // 改为向左扩展
-          newX = Math.max(0, bounds.x - SIDE_PANEL_WIDTH);
-        }
-      }
-    }
-
-    chatWindow.setMinimumSize(380 + SIDE_PANEL_WIDTH, 480);
-    chatWindow.setBounds({ x: newX, y: bounds.y, width: newWidth, height: bounds.height }, true);
-  } else {
-    // 恢复原始大小
-    const restoreBounds = chatWindowOriginalBounds || {
-      x: bounds.x,
-      y: bounds.y,
-      width: Math.max(bounds.width - SIDE_PANEL_WIDTH, 380),
-      height: bounds.height,
-    };
-
-    chatWindow.setMinimumSize(380, 480);
-    chatWindow.setBounds(restoreBounds, true);
-    chatWindowOriginalBounds = null;
-  }
-}
-
 module.exports = {
   createWindow,
   getWindow,
@@ -240,5 +180,4 @@ module.exports = {
   createChatWindow,
   getChatWindow,
   showChatWindow,
-  resizeChatWindow,
 };

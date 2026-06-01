@@ -62,7 +62,4 @@ contextBridge.exposeInMainWorld('chatAPI', {
   getAppVersion: () => ipcRenderer.invoke('update-get-version'),
   getChangelog: () => ipcRenderer.invoke('update-get-changelog'),
   onUpdateStatus: (callback) => ipcRenderer.on('update-status', (_e, data) => callback(data)),
-
-  // === 窗口调整 ===
-  resizeChatWindow: (expanded) => ipcRenderer.send('chat-resize', expanded),
 });

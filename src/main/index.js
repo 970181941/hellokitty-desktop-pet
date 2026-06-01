@@ -1,7 +1,7 @@
 const { app, ipcMain, Menu, dialog, Notification } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { createWindow, getWindow, saveWindowPosition, getScreenSize, showChatWindow, getChatWindow, resizeChatWindow } = require('./windowManager');
+const { createWindow, getWindow, saveWindowPosition, getScreenSize, showChatWindow, getChatWindow } = require('./windowManager');
 const { createTray, updateTrayMenu } = require('./trayManager');
 const store = require('./store');
 const AIService = require('./AIService');
@@ -246,11 +246,6 @@ app.whenReady().then(() => {
     if (chatWin) {
       chatWin.hide();
     }
-  });
-
-  // 调整聊天窗口大小（侧边面板）
-  ipcMain.on('chat-resize', (_event, expanded) => {
-    resizeChatWindow(expanded);
   });
 
   // === 聊天窗口动作 IPC ===

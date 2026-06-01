@@ -8,6 +8,185 @@
 </head>
 <body>
   <div id="app-wrapper">
+
+  <!-- 左侧常驻侧边面板 -->
+  <aside id="status-side-panel">
+    <div class="side-panel-header">
+      <span class="side-panel-title" id="side-panel-title">Hello Kitty</span>
+    </div>
+    <div class="side-panel-scroll">
+      <!-- 状态视图 (默认) -->
+      <div class="side-view active" id="view-status">
+        <div class="side-section side-owner-card">
+          <div class="side-avatar"><img src="assets/avatar.jpeg" alt="HK"></div>
+          <div class="side-owner-name" id="side-owner-name">新朋友</div>
+          <div class="side-owner-greeting" id="side-greeting">欢迎回来~</div>
+        </div>
+        <div class="side-section side-mood-section">
+          <div class="side-section-title">Kitty 心情</div>
+          <div class="side-mood-display">
+            <span class="side-mood-emoji" id="side-mood-emoji">😊</span>
+            <span class="side-mood-text" id="side-mood-text">开心</span>
+          </div>
+        </div>
+        <div class="side-section side-affinity-section">
+          <div class="side-section-title">亲密度</div>
+          <div class="side-affinity-header">
+            <span id="side-level-name">--</span>
+            <span id="side-affinity-num">0</span>
+          </div>
+          <div class="side-progress-bar">
+            <div class="side-progress-fill" id="side-progress"></div>
+          </div>
+          <div class="side-progress-label" id="side-progress-label">--</div>
+          <div class="side-next-level" id="side-next-level">--</div>
+        </div>
+        <div class="side-section side-stats-section">
+          <div class="side-section-title">陪伴统计</div>
+          <div class="side-stat-row">
+            <span class="side-stat-label">相识天数</span>
+            <span class="side-stat-value" id="side-days">--</span>
+          </div>
+          <div class="side-stat-row">
+            <span class="side-stat-label">连续登录</span>
+            <span class="side-stat-value" id="side-streak">--</span>
+          </div>
+        </div>
+        <div class="side-section side-achievements-section">
+          <div class="side-section-title">连续登录成就</div>
+          <div class="side-achievements" id="side-achievements"></div>
+        </div>
+      </div>
+
+      <!-- 玩耍视图 -->
+      <div class="side-view" id="view-play">
+        <div class="side-view-header">
+          <button class="side-view-back" data-view="status">← 返回</button>
+          <span class="side-view-title">玩耍</span>
+        </div>
+        <div class="play-grid">
+          <button class="play-btn" data-action="feed" data-req="none"><img src="assets/icons/feed.png" class="play-icon-img"><span class="play-label">喂食</span></button>
+          <button class="play-btn" data-action="play" data-req="none"><img src="assets/icons/play.png" class="play-icon-img"><span class="play-label">玩耍</span></button>
+          <button class="play-btn" data-action="heal" data-req="mood"><img src="assets/icons/sleep.png" class="play-icon-img"><span class="play-label">治疗</span></button>
+          <button class="play-btn" data-action="pomodoro" data-req="none"><img src="assets/icons/pomodoro.png" class="play-icon-img"><span class="play-label">专注</span></button>
+          <button class="play-btn" data-action="sing" data-req="affinity3"><img src="assets/icons/sing.png" class="play-icon-img"><span class="play-label">唱歌</span></button>
+          <button class="play-btn" data-action="skate" data-req="affinity3"><img src="assets/icons/skate.png" class="play-icon-img"><span class="play-label">溜冰</span></button>
+          <button class="play-btn" data-action="gift" data-req="affinity5"><img src="assets/icons/gift.png" class="play-icon-img"><span class="play-label">送礼物</span></button>
+          <button class="play-btn" data-action="hug" data-req="affinity6"><img src="assets/icons/hug.png" class="play-icon-img"><span class="play-label">抱抱</span></button>
+          <button class="play-btn" data-action="secret" data-req="affinity8"><img src="assets/icons/sleep.png" class="play-icon-img"><span class="play-label">秘密</span></button>
+        </div>
+      </div>
+
+      <!-- 日程视图 -->
+      <div class="side-view" id="view-schedule">
+        <div class="side-view-header">
+          <button class="side-view-back" data-view="status">← 返回</button>
+          <span class="side-view-title">每周日程</span>
+        </div>
+        <div class="day-selector">
+          <button class="day-btn active" data-day="mon">一</button>
+          <button class="day-btn" data-day="tue">二</button>
+          <button class="day-btn" data-day="wed">三</button>
+          <button class="day-btn" data-day="thu">四</button>
+          <button class="day-btn" data-day="fri">五</button>
+          <button class="day-btn" data-day="sat">六</button>
+          <button class="day-btn" data-day="sun">日</button>
+        </div>
+        <div id="schedule-list"></div>
+        <div class="schedule-add-row">
+          <select id="schedule-hour"></select>
+          <span class="time-sep">:</span>
+          <select id="schedule-minute"></select>
+          <input type="text" id="schedule-text" placeholder="日程内容" />
+          <button id="schedule-add-btn">+</button>
+        </div>
+        <div class="schedule-actions">
+          <button id="schedule-save">保存</button>
+          <button id="schedule-cancel">取消</button>
+        </div>
+      </div>
+
+      <!-- 待办视图 -->
+      <div class="side-view" id="view-todo">
+        <div class="side-view-header">
+          <button class="side-view-back" data-view="status">← 返回</button>
+          <span class="side-view-title">待办事项</span>
+        </div>
+        <div id="todo-list"></div>
+        <div class="todo-add-row">
+          <input type="text" id="todo-input" placeholder="添加新的待办事项..." />
+          <button id="todo-add-btn">+</button>
+        </div>
+      </div>
+
+      <!-- 设置视图 -->
+      <div class="side-view" id="view-settings">
+        <div class="side-view-header">
+          <button class="side-view-back" data-view="status">← 返回</button>
+          <span class="side-view-title">设置</span>
+        </div>
+        <div class="settings-content">
+          <div class="settings-section">
+            <div class="settings-section-title">主人信息</div>
+            <div class="settings-row">
+              <label>名字</label>
+              <input type="text" id="settings-owner-name" placeholder="输入你的名字">
+            </div>
+            <div class="settings-row">
+              <label>生日</label>
+              <input type="text" id="settings-owner-birthday" placeholder="MM-DD 格式">
+            </div>
+            <button id="settings-save-owner" class="settings-save-btn">保存</button>
+          </div>
+          <div class="settings-section">
+            <div class="settings-section-title">AI 设置</div>
+            <div class="settings-row">
+              <label>API Key</label>
+              <input type="password" id="settings-api-key" placeholder="sk-...">
+            </div>
+            <button id="settings-save-ai" class="settings-save-btn">保存</button>
+          </div>
+          <div class="settings-section">
+            <div class="settings-section-title">皮肤主题</div>
+            <div class="skin-grid" id="skin-grid"></div>
+          </div>
+          <div class="settings-section">
+            <div class="settings-section-title">软件更新</div>
+            <div class="update-info">
+              <div class="update-version-row">
+                <span class="update-label">当前版本</span>
+                <span class="update-version" id="update-current-version">--</span>
+              </div>
+              <div class="update-status-text" id="update-status-text">点击检查更新</div>
+              <div class="update-progress-bar hidden" id="update-progress-bar">
+                <div class="update-progress-fill" id="update-progress-fill"></div>
+              </div>
+              <div class="update-progress-pct hidden" id="update-progress-pct"></div>
+            </div>
+            <div class="update-actions">
+              <button id="update-check-btn" class="settings-save-btn">检查更新</button>
+              <button id="update-install-btn" class="settings-save-btn hidden">安装更新</button>
+            </div>
+            <div class="update-changelog-toggle">
+              <button id="update-changelog-btn" class="update-link-btn">查看更新日志</button>
+            </div>
+            <div class="update-changelog-content hidden" id="update-changelog-content"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 侧边面板底部工具栏 -->
+    <div class="side-toolbar">
+      <button class="side-tool-btn active" data-view="status"><img src="assets/icons/status.png" class="side-tool-icon"><span>状态</span></button>
+      <button class="side-tool-btn" data-view="play"><img src="assets/icons/play.png" class="side-tool-icon"><span>玩耍</span></button>
+      <button class="side-tool-btn" data-view="schedule"><img src="assets/icons/schedule.png" class="side-tool-icon"><span>日程</span></button>
+      <button class="side-tool-btn" data-view="todo"><img src="assets/icons/todo.png" class="side-tool-icon"><span>待办</span></button>
+      <button class="side-tool-btn" data-view="settings"><img src="assets/icons/settings.png" class="side-tool-icon"><span>设置</span></button>
+    </div>
+  </aside>
+
+  <!-- 右侧聊天区域 -->
   <div id="chat-app">
     <header id="chat-header">
       <div class="header-left">
@@ -24,7 +203,6 @@
       <span class="status-item" id="status-mood">--</span>
       <span class="status-item" id="status-affinity">--</span>
       <span class="status-item" id="status-days">--</span>
-      <span class="status-expand-icon">›</span>
     </div>
 
     <div id="message-list"></div>
@@ -38,174 +216,6 @@
       </div>
     </div>
 
-    <!-- 玩耍弹出面板 -->
-    <div id="play-popup" class="hidden">
-      <div class="play-grid">
-        <button class="play-btn" data-action="feed" data-req="none"><img src="assets/icons/feed.png" class="play-icon-img"><span class="play-label">喂食</span></button>
-        <button class="play-btn" data-action="play" data-req="none"><img src="assets/icons/play.png" class="play-icon-img"><span class="play-label">玩耍</span></button>
-        <button class="play-btn" data-action="heal" data-req="mood"><img src="assets/icons/sleep.png" class="play-icon-img"><span class="play-label">治疗</span></button>
-        <button class="play-btn" data-action="pomodoro" data-req="none"><img src="assets/icons/pomodoro.png" class="play-icon-img"><span class="play-label">专注</span></button>
-        <button class="play-btn" data-action="sing" data-req="affinity3"><img src="assets/icons/sing.png" class="play-icon-img"><span class="play-label">唱歌</span></button>
-        <button class="play-btn" data-action="skate" data-req="affinity3"><img src="assets/icons/skate.png" class="play-icon-img"><span class="play-label">溜冰</span></button>
-        <button class="play-btn" data-action="gift" data-req="affinity5"><img src="assets/icons/gift.png" class="play-icon-img"><span class="play-label">送礼物</span></button>
-        <button class="play-btn" data-action="hug" data-req="affinity6"><img src="assets/icons/hug.png" class="play-icon-img"><span class="play-label">抱抱</span></button>
-        <button class="play-btn" data-action="secret" data-req="affinity8"><img src="assets/icons/sleep.png" class="play-icon-img"><span class="play-label">秘密</span></button>
-      </div>
-    </div>
-
-    <!-- 周日程面板 -->
-    <div id="schedule-container" class="hidden">
-      <div class="panel-header">
-        <span class="panel-title"><img src="assets/icons/schedule.png" class="panel-title-icon">每周日程</span>
-        <button class="panel-close-btn">✕</button>
-      </div>
-      <div class="day-selector">
-        <button class="day-btn active" data-day="mon">一</button>
-        <button class="day-btn" data-day="tue">二</button>
-        <button class="day-btn" data-day="wed">三</button>
-        <button class="day-btn" data-day="thu">四</button>
-        <button class="day-btn" data-day="fri">五</button>
-        <button class="day-btn" data-day="sat">六</button>
-        <button class="day-btn" data-day="sun">日</button>
-      </div>
-      <div id="schedule-list"></div>
-      <div class="schedule-add-row">
-        <select id="schedule-hour"></select>
-        <span class="time-sep">:</span>
-        <select id="schedule-minute"></select>
-        <input type="text" id="schedule-text" placeholder="日程内容" />
-        <button id="schedule-add-btn">+</button>
-      </div>
-      <div class="schedule-actions">
-        <button id="schedule-save">保存</button>
-        <button id="schedule-cancel">取消</button>
-      </div>
-    </div>
-
-    <!-- 状态信息面板 -->
-    <div id="info-panel" class="hidden">
-      <div class="panel-header">
-        <span class="panel-title"><img src="assets/icons/status.png" class="panel-title-icon">状态信息</span>
-        <button class="panel-close-btn">✕</button>
-      </div>
-      <div class="info-sections">
-        <div class="info-section">
-          <div class="info-section-title">👤 主人</div>
-          <div class="info-row">
-            <span class="info-label">名字</span>
-            <span class="info-value" id="info-owner-name">--</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">陪伴</span>
-            <span class="info-value" id="info-days">--</span>
-          </div>
-        </div>
-        <div class="info-section">
-          <div class="info-section-title">🎀 Kitty</div>
-          <div class="info-row">
-            <span class="info-label">心情</span>
-            <span class="info-value" id="info-mood">--</span>
-          </div>
-        </div>
-        <div class="info-section">
-          <div class="info-section-title">💗 亲密度</div>
-          <div class="info-affinity-header">
-            <span id="info-level-name">--</span>
-            <span id="info-affinity-num">0</span>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-fill" id="info-progress"></div>
-          </div>
-          <div class="info-progress-label" id="info-progress-label">--</div>
-          <div class="info-row" style="margin-top: 6px;">
-            <span class="info-label">连续登录</span>
-            <span class="info-value" id="info-streak">--</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 待办面板 -->
-    <div id="todo-panel" class="hidden">
-      <div class="panel-header">
-        <span class="panel-title"><img src="assets/icons/todo.png" class="panel-title-icon">待办事项</span>
-        <button class="panel-close-btn">✕</button>
-      </div>
-      <div id="todo-list"></div>
-      <div class="todo-add-row">
-        <input type="text" id="todo-input" placeholder="添加新的待办事项..." />
-        <button id="todo-add-btn">+</button>
-      </div>
-    </div>
-
-    <!-- 设置面板 -->
-    <div id="settings-panel" class="hidden">
-      <div class="panel-header">
-        <span class="panel-title"><img src="assets/icons/settings.png" class="panel-title-icon">设置</span>
-        <button class="panel-close-btn">✕</button>
-      </div>
-      <div class="settings-content">
-        <!-- 主人信息 -->
-        <div class="settings-section">
-          <div class="settings-section-title">主人信息</div>
-          <div class="settings-row">
-            <label>名字</label>
-            <input type="text" id="settings-owner-name" placeholder="输入你的名字">
-          </div>
-          <div class="settings-row">
-            <label>生日</label>
-            <input type="text" id="settings-owner-birthday" placeholder="MM-DD 格式">
-          </div>
-          <button id="settings-save-owner" class="settings-save-btn">保存</button>
-        </div>
-        <!-- AI 设置 -->
-        <div class="settings-section">
-          <div class="settings-section-title">AI 设置</div>
-          <div class="settings-row">
-            <label>API Key</label>
-            <input type="password" id="settings-api-key" placeholder="sk-...">
-          </div>
-          <button id="settings-save-ai" class="settings-save-btn">保存</button>
-        </div>
-        <!-- 皮肤主题 -->
-        <div class="settings-section">
-          <div class="settings-section-title">皮肤主题</div>
-          <div class="skin-grid" id="skin-grid"></div>
-        </div>
-        <!-- 软件更新 -->
-        <div class="settings-section">
-          <div class="settings-section-title">软件更新</div>
-          <div class="update-info">
-            <div class="update-version-row">
-              <span class="update-label">当前版本</span>
-              <span class="update-version" id="update-current-version">--</span>
-            </div>
-            <div class="update-status-text" id="update-status-text">点击检查更新</div>
-            <div class="update-progress-bar hidden" id="update-progress-bar">
-              <div class="update-progress-fill" id="update-progress-fill"></div>
-            </div>
-            <div class="update-progress-pct hidden" id="update-progress-pct"></div>
-          </div>
-          <div class="update-actions">
-            <button id="update-check-btn" class="settings-save-btn">检查更新</button>
-            <button id="update-install-btn" class="settings-save-btn hidden">安装更新</button>
-          </div>
-          <div class="update-changelog-toggle">
-            <button id="update-changelog-btn" class="update-link-btn">查看更新日志</button>
-          </div>
-          <div class="update-changelog-content hidden" id="update-changelog-content"></div>
-        </div>
-      </div>
-    </div>
-
-    <div id="toolbar">
-      <button class="tool-btn" data-action="play" title="玩耍"><img src="assets/icons/play.png" class="tool-icon"></button>
-      <button class="tool-btn" data-action="schedule" title="日程"><img src="assets/icons/schedule.png" class="tool-icon"></button>
-      <button class="tool-btn" data-action="status" title="状态"><img src="assets/icons/status.png" class="tool-icon"></button>
-      <button class="tool-btn" data-action="todo" title="待办"><img src="assets/icons/todo.png" class="tool-icon"></button>
-      <button class="tool-btn" data-action="settings" title="设置"><img src="assets/icons/settings.png" class="tool-icon"></button>
-    </div>
-
     <footer id="input-area">
       <input
         type="text"
@@ -217,63 +227,6 @@
     </footer>
   </div>
 
-  <!-- 状态详情侧边面板 -->
-  <aside id="status-side-panel" class="hidden">
-    <div class="side-panel-header">
-      <span class="side-panel-title">详细状态</span>
-      <button class="side-panel-close-btn">✕</button>
-    </div>
-    <div class="side-panel-scroll">
-      <!-- 主人卡片 -->
-      <div class="side-section side-owner-card">
-        <div class="side-avatar"><img src="assets/avatar.jpeg" alt="HK"></div>
-        <div class="side-owner-name" id="side-owner-name">新朋友</div>
-        <div class="side-owner-greeting" id="side-greeting">欢迎回来~</div>
-      </div>
-
-      <!-- 心情 -->
-      <div class="side-section side-mood-section">
-        <div class="side-section-title">Kitty 心情</div>
-        <div class="side-mood-display">
-          <span class="side-mood-emoji" id="side-mood-emoji">😊</span>
-          <span class="side-mood-text" id="side-mood-text">开心</span>
-        </div>
-      </div>
-
-      <!-- 亲密度 -->
-      <div class="side-section side-affinity-section">
-        <div class="side-section-title">亲密度</div>
-        <div class="side-affinity-header">
-          <span id="side-level-name">--</span>
-          <span id="side-affinity-num">0</span>
-        </div>
-        <div class="side-progress-bar">
-          <div class="side-progress-fill" id="side-progress"></div>
-        </div>
-        <div class="side-progress-label" id="side-progress-label">--</div>
-        <div class="side-next-level" id="side-next-level">--</div>
-      </div>
-
-      <!-- 陪伴统计 -->
-      <div class="side-section side-stats-section">
-        <div class="side-section-title">陪伴统计</div>
-        <div class="side-stat-row">
-          <span class="side-stat-label">相识天数</span>
-          <span class="side-stat-value" id="side-days">--</span>
-        </div>
-        <div class="side-stat-row">
-          <span class="side-stat-label">连续登录</span>
-          <span class="side-stat-value" id="side-streak">--</span>
-        </div>
-      </div>
-
-      <!-- 成就徽章 -->
-      <div class="side-section side-achievements-section">
-        <div class="side-section-title">连续登录成就</div>
-        <div class="side-achievements" id="side-achievements"></div>
-      </div>
-    </div>
-  </aside>
   </div> <!-- end of #app-wrapper -->
 
   <script src="skins.js"></script>
