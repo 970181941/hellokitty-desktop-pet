@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HelloKitty Desktop Pet - 角色形象动作设计系统</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', 'Helvetica Neue', sans-serif;
+    background: #F0EDF2;
+    color: #1A1A1A;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 1280px; margin: 0 auto; padding: 40px 24px 60px; }
+
+  .page-header { text-align: center; margin-bottom: 48px; }
+  .page-header h1 {
+    font-size: 28px; font-weight: 700;
+    background: linear-gradient(135deg, #FF6B9D, #FF9A76);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .page-header p { font-size: 14px; color: #999; }
+  .page-header .tag {
+    display: inline-block; background: #FFF0F5; color: #FF6B9D;
+    font-size: 11px; font-weight: 600; padding: 2px 10px;
+    border-radius: 999px; margin-top: 8px;
+  }
+
+  .section { margin-bottom: 48px; }
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+  .section-num {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: #FF6B9D; color: #fff; font-size: 14px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .section-header h2 { font-size: 20px; font-weight: 700; }
+  .section-header .en { font-size: 12px; color: #999; font-weight: 400; margin-left: 4px; }
+  .section-desc { font-size: 13px; color: #666; margin-bottom: 20px; padding-left: 44px; }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+  }
+  .card-grid.wide { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+  .card-grid.narrow { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+
+  .pose-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid #F0F0F0;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    cursor: default;
+  }
+  .pose-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(255,107,157,0.12);
+    border-color: #FFD4E5;
+  }
+  .pose-card .pose-display {
+    display: flex; align-items: center; justify-content: center;
+    width: 100px; height: 100px;
+  }
+  .pose-card .pose-name {
+    font-size: 13px; font-weight: 600; color: #1A1A1A; text-align: center;
+  }
+  .pose-card .pose-en {
+    font-size: 10px; color: #BDBDBD; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-top: -8px;
+  }
+  .pose-card .pose-desc {
+    font-size: 10px; color: #999; text-align: center; line-height: 1.4;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #FFD4E5, transparent);
+    margin: 40px 0;
+  }
+
+  .spec-table {
+    width: 100%; border-collapse: separate; border-spacing: 0;
+    background: #fff; border-radius: 16px; overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06); font-size: 13px;
+  }
+  .spec-table thead th {
+    background: #FFF0F5; color: #FF6B9D; font-weight: 600;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 10px 16px; text-align: left; border-bottom: 1px solid #FFD4E5;
+  }
+  .spec-table tbody td {
+    padding: 9px 16px; border-bottom: 1px solid #F0F0F0; vertical-align: middle;
+  }
+  .spec-table tbody tr:last-child td { border-bottom: none; }
+  .spec-table tbody tr:hover { background: rgba(255,107,157,0.03); }
+  .mono { font-family: 'SF Mono', 'Menlo', monospace; font-size: 12px; color: #666; }
+
+  .cat-tag {
+    display: inline-block; padding: 3px 10px; border-radius: 6px;
+    font-size: 11px; font-weight: 600; margin-bottom: 16px;
+  }
+  .cat-pose { background: #E3F2FD; color: #42A5F5; }
+  .cat-expr { background: #FCE4EC; color: #EC407A; }
+  .cat-action { background: #E8F5E9; color: #4CAF50; }
+  .cat-accessory { background: #FFF3E0; color: #FF9800; }
+  .cat-usecase { background: #EDE7F6; color: #7B68EE; }
+
+  .footer { text-align: center; padding: 40px 0 20px; font-size: 12px; color: #BDBDBD; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="page-header">
+    <h1>HelloKitty Desktop Pet - 角色形象动作设计系统</h1>
+    <p>基础姿态 · 表情系统 · 动作姿态 · 配件装扮 · 产品使用场景 — 5 大类别 · 50+ 角色形象</p>
+    <span class="tag">v1.0 · 矢量 SVG · 可缩放至任意尺寸</span>
+  </div>
+
+  <!-- ========================================
+       DESIGN SPEC
+       ======================================== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">!</div>
+      <h2>角色设计规范 <span class="en">Character Design Spec</span></h2>
+    </div>
+    <div class="section-desc">Hello Kitty 角色基础比例、色彩体系与设计原则。</div>
+
+    <table class="spec-table" style="margin-left:38px;margin-right:24px;">
+      <thead><tr><th>属性</th><th>规范</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>头身比</td><td class="mono">2:1 (大头小身)</td><td>头部占整体高度 2/3，强调可爱感</td></tr>
+        <tr><td>头部形状</td><td class="mono">圆形 + 微椭圆</td><td>宽高比约 1:0.95，柔和不僵硬</td></tr>
+        <tr><td>眼睛</td><td class="mono">黑色圆点 · 无高光</td><td>经典 Hello Kitty 风格，简洁不复杂</td></tr>
+        <tr><td>鼻子</td><td class="mono">黄色椭圆 · #FFB300</td><td>位于面部中央偏上</td></tr>
+        <tr><td>胡须</td><td class="mono">3 对 · 短线</td><td>左右各 3 根，微微上扬弧度</td></tr>
+        <tr><td>蝴蝶结</td><td class="mono">粉色 · #FF6B9D</td><td>左耳上方，经典标识</td></tr>
+        <tr><td>身体</td><td class="mono">简笔椭圆/梯形</td><td>无四肢细节或简化肢体</td></tr>
+        <tr><td>描边</td><td class="mono">深灰 #333 · 1.5px</td><td>柔和描边，非纯黑</td></tr>
+        <tr><td>填充</td><td class="mono">白色 #FFFFFF</td><td>角色主体白色</td></tr>
+        <tr><td>腮红</td><td class="mono">粉色圆 · #FFD4E5</td><td>两侧脸颊，增强可爱感</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ========================================
+       1. BASE POSES
+       ======================================== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <h2>基础姿态 <span class="en">Base Poses</span></h2>
+    </div>
+    <div class="section-desc">角色静止状态的标准姿态，用于待机、默认显示。</div>
+    <span class="cat-tag cat-pose">POSES · 4 种基础姿态</span>
+
+    <div class="card-grid wide">
+      <!-- Standing -->
+      <div class="pose-card">
+        <div class="pose-display">
+          <svg width="80" height="80" viewBox="0 0 100 100">
+            <!-- Body -->
+            <ellipse cx="50" cy="68" rx="18" ry="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <!-- Head -->
+            <circle cx="50" cy="32" r="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <!-- Bow -->
+            <path d="M 35 18 Q 28 14, 25 18 Q 28 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <path d="M 35 18 Q 42 14, 45 18 Q 42 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <circle cx="35" cy="18" r="2" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <!-- Eyes -->
+            <circle cx="42" cy="30" r="2" fill="#333"/>
+            <circle cx="58" cy="30" r="2" fill="#333"/>
+            <!-- Nose -->
+            <ellipse cx="50" cy="34" rx="2.5" ry="2" fill="#FFB300"/>
+            <!-- Whiskers -->
+            <line x1="30" y1="34" x2="38" y2="36" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="30" y1="38" x2="38" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="36" x2="70" y2="34" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="38" x2="70" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <!-- Blush -->
+            <circle cx="38" cy="36" r="3" fill="#FFD4E5" opacity="0.6"/>
+            <circle cx="62" cy="36" r="3" fill="#FFD4E5" opacity="0.6"/>
+            <!-- Legs -->
+            <ellipse cx="42" cy="88" rx="5" ry="6" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <ellipse cx="58" cy="88" rx="5" ry="6" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="pose-name">站立</div>
+        <div class="pose-en">standing</div>
+        <div class="pose-desc">默认待机姿态，双手自然下垂</div>
+      </div>
+
+      <!-- Sitting -->
+      <div class="pose-card">
+        <div class="pose-display">
+          <svg width="80" height="80" viewBox="0 0 100 100">
+            <!-- Body (sitting) -->
+            <ellipse cx="50" cy="72" rx="20" ry="18" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <!-- Head -->
+            <circle cx="50" cy="35" r="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <!-- Bow -->
+            <path d="M 35 21 Q 28 17, 25 21 Q 28 25, 35 21" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <path d="M 35 21 Q 42 17, 45 21 Q 42 25, 35 21" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <circle cx="35" cy="21" r="2" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <!-- Eyes -->
+            <circle cx="42" cy="33" r="2" fill="#333"/>
+            <circle cx="58" cy="33" r="2" fill="#333"/>
+            <!-- Nose -->
+            <ellipse cx="50" cy="37" rx="2.5" ry="2" fill="#FFB300"/>
+            <!-- Whiskers -->
+            <line x1="30" y1="37" x2="38" y2="39" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="30" y1="41" x2="38" y2="41" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="39" x2="70" y2="37" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="41" x2="70" y2="41" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <!-- Blush -->
+            <circle cx="38" cy="39" r="3" fill="#FFD4E5" opacity="0.6"/>
+            <circle cx="62" cy="39" r="3" fill="#FFD4E5" opacity="0.6"/>
+            <!-- Feet -->
+            <ellipse cx="38" cy="88" rx="6" ry="5" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <ellipse cx="62" cy="88" rx="6" ry="5" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="pose-name">坐姿</div>
+        <div class="pose-en">sitting</div>
+        <div class="pose-desc">放松休息，双腿前伸</div>
+      </div>
+
+      <!-- Walking -->
+      <div class="pose-card">
+        <div class="pose-display">
+          <svg width="80" height="80" viewBox="0 0 100 100">
+            <!-- Body -->
+            <ellipse cx="50" cy="68" rx="18" ry="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <!-- Head -->
+            <circle cx="50" cy="32" r="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <!-- Bow -->
+            <path d="M 35 18 Q 28 14, 25 18 Q 28 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <path d="M 35 18 Q 42 14, 45 18 Q 42 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <circle cx="35" cy="18" r="2" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <!-- Eyes -->
+            <circle cx="42" cy="30" r="2" fill="#333"/>
+            <circle cx="58" cy="30" r="2" fill="#333"/>
+            <!-- Nose -->
+            <ellipse cx="50" cy="34" rx="2.5" ry="2" fill="#FFB300"/>
+            <!-- Whiskers -->
+            <line x1="30" y1="34" x2="38" y2="36" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="30" y1="38" x2="38" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="36" x2="70" y2="34" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="38" x2="70" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <!-- Blush -->
+            <circle cx="38" cy="36" r="3" fill="#FFD4E5" opacity="0.6"/>
+            <circle cx="62" cy="36" r="3" fill="#FFD4E5" opacity="0.6"/>
+            <!-- Arms (swinging) -->
+            <ellipse cx="32" cy="65" rx="4" ry="8" fill="#FFFFFF" stroke="#333" stroke-width="1.5" transform="rotate(-15 32 65)"/>
+            <ellipse cx="68" cy="65" rx="4" ry="8" fill="#FFFFFF" stroke="#333" stroke-width="1.5" transform="rotate(15 68 65)"/>
+            <!-- Legs (walking) -->
+            <ellipse cx="40" cy="88" rx="5" ry="6" fill="#FFFFFF" stroke="#333" stroke-width="1.5" transform="rotate(-10 40 88)"/>
+            <ellipse cx="60" cy="88" rx="5" ry="6" fill="#FFFFFF" stroke="#333" stroke-width="1.5" transform="rotate(10 60 88)"/>
+          </svg>
+        </div>
+        <div class="pose-name">行走</div>
+        <div class="pose-en">walking</div>
+        <div class="pose-desc">迈步姿态，手臂摆动</div>
+      </div>
+
+      <!-- Running -->
+      <div class="pose-card">
+        <div class="pose-display">
+          <svg width="80" height="80" viewBox="0 0 100 100">
+            <!-- Body (leaning forward) -->
+            <ellipse cx="52" cy="65" rx="17" ry="20" fill="#FFFFFF" stroke="#333" stroke-width="1.5" transform="rotate(8 52 65)"/>
+            <!-- Head -->
+            <circle cx="52" cy="30" r="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <!-- Bow -->
+            <path d="M 37 16 Q 30 12, 27 16 Q 30 20, 37 16" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <path d="M 37 16 Q 44 12, 47 16 Q 44 20, 37 16" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <circle cx="37" cy="16" r="2" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <!-- Eyes -->
+            <circle cx="44" cy="28" r="2" fill="#333"/>
+            <circle cx="60" cy="28" r="2" fill="#333"/>
+            <!-- Nose -->
+            <ellipse cx="52" cy="32" rx="2.5" ry="2" fill="#FFB300"/>
+            <!-- Whiskers -->
+            <line x1="32" y1="32" x2="40" y2="34" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="32" y1="36" x2="40" y2="36" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="64" y1="34" x2="72" y2="32" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="64" y1="36" x2="72" y2="36" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <!-- Blush -->
+            <circle cx="40" cy="34" r="3" fill="#FFD4E5" opacity="0.6"/>
+            <circle cx="64" cy="34" r="3" fill="#FFD4E5" opacity="0.6"/>
+            <!-- Arms (back and forth) -->
+            <ellipse cx="34" cy="60" rx="4" ry="7" fill="#FFFFFF" stroke="#333" stroke-width="1.5" transform="rotate(-30 34 60)"/>
+            <ellipse cx="70" cy="62" rx="4" ry="7" fill="#FFFFFF" stroke="#333" stroke-width="1.5" transform="rotate(25 70 62)"/>
+            <!-- Legs (running) -->
+            <ellipse cx="42" cy="85" rx="5" ry="6" fill="#FFFFFF" stroke="#333" stroke-width="1.5" transform="rotate(-20 42 85)"/>
+            <ellipse cx="62" cy="86" rx="5" ry="6" fill="#FFFFFF" stroke="#333" stroke-width="1.5" transform="rotate(25 62 86)"/>
+          </svg>
+        </div>
+        <div class="pose-name">奔跑</div>
+        <div class="pose-en">running</div>
+        <div class="pose-desc">身体前倾，快速移动</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ========================================
+       2. EXPRESSIONS
+       ======================================== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <h2>表情系统 <span class="en">Facial Expressions</span></h2>
+    </div>
+    <div class="section-desc">通过眼睛、嘴巴、眉毛、腮红的变化表达不同情绪。</div>
+    <span class="cat-tag cat-expr">EXPRESSIONS · 10 种情绪表情</span>
+
+    <div class="card-grid">
+      <!-- Happy -->
+      <div class="pose-card">
+        <div class="pose-display">
+          <svg width="80" height="80" viewBox="0 0 100 100">
+            <ellipse cx="50" cy="68" rx="18" ry="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <circle cx="50" cy="32" r="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <path d="M 35 18 Q 28 14, 25 18 Q 28 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <path d="M 35 18 Q 42 14, 45 18 Q 42 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <circle cx="35" cy="18" r="2" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <!-- Happy eyes (closed arcs) -->
+            <path d="M 38 28 Q 42 25, 46 28" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+            <path d="M 54 28 Q 58 25, 62 28" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+            <ellipse cx="50" cy="34" rx="2.5" ry="2" fill="#FFB300"/>
+            <line x1="30" y1="34" x2="38" y2="36" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="30" y1="38" x2="38" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="36" x2="70" y2="34" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="38" x2="70" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <!-- Big smile -->
+            <path d="M 42 40 Q 50 46, 58 40" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="36" cy="38" r="4" fill="#FFD4E5" opacity="0.7"/>
+            <circle cx="64" cy="38" r="4" fill="#FFD4E5" opacity="0.7"/>
+          </svg>
+        </div>
+        <div class="pose-name">开心</div>
+        <div class="pose-en">happy</div>
+        <div class="pose-desc">弯月眼 + 大笑嘴<br/>#FFD4E5 腮红加深</div>
+      </div>
+
+      <!-- Sad -->
+      <div class="pose-card">
+        <div class="pose-display">
+          <svg width="80" height="80" viewBox="0 0 100 100">
+            <ellipse cx="50" cy="68" rx="18" ry="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <circle cx="50" cy="32" r="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <path d="M 35 18 Q 28 14, 25 18 Q 28 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <path d="M 35 18 Q 42 14, 45 18 Q 42 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <circle cx="35" cy="18" r="2" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <!-- Sad eyes (droopy) -->
+            <path d="M 38 30 Q 42 32, 46 30" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+            <path d="M 54 30 Q 58 32, 62 30" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+            <ellipse cx="50" cy="34" rx="2.5" ry="2" fill="#FFB300"/>
+            <line x1="30" y1="34" x2="38" y2="36" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="30" y1="38" x2="38" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="36" x2="70" y2="34" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="38" x2="70" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <!-- Sad mouth -->
+            <path d="M 44 42 Q 50 38, 56 42" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+            <!-- Tear -->
+            <path d="M 60 32 Q 62 36, 60 38" fill="none" stroke="#42A5F5" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="36" cy="38" r="3" fill="#E3F2FD" opacity="0.6"/>
+            <circle cx="64" cy="38" r="3" fill="#E3F2FD" opacity="0.6"/>
+          </svg>
+        </div>
+        <div class="pose-name">难过</div>
+        <div class="pose-en">sad</div>
+        <div class="pose-desc">下垂眼 + 泪滴<br/>#E3F2FD 腮红变冷色</div>
+      </div>
+
+      <!-- Angry -->
+      <div class="pose-card">
+        <div class="pose-display">
+          <svg width="80" height="80" viewBox="0 0 100 100">
+            <ellipse cx="50" cy="68" rx="18" ry="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <circle cx="50" cy="32" r="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <path d="M 35 18 Q 28 14, 25 18 Q 28 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <path d="M 35 18 Q 42 14, 45 18 Q 42 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <circle cx="35" cy="18" r="2" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <!-- Angry eyebrows -->
+            <line x1="36" y1="24" x2="44" y2="27" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+            <line x1="56" y1="27" x2="64" y2="24" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+            <!-- Angry eyes -->
+            <circle cx="42" cy="30" r="2.5" fill="#333"/>
+            <circle cx="58" cy="30" r="2.5" fill="#333"/>
+            <ellipse cx="50" cy="34" rx="2.5" ry="2" fill="#FFB300"/>
+            <line x1="30" y1="34" x2="38" y2="36" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="30" y1="38" x2="38" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="36" x2="70" y2="34" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="38" x2="70" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <!-- Angry mouth -->
+            <path d="M 44 42 L 50 39 L 56 42" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- Red cheeks -->
+            <circle cx="36" cy="38" r="3" fill="#FFEBEE" opacity="0.8"/>
+            <circle cx="64" cy="38" r="3" fill="#FFEBEE" opacity="0.8"/>
+          </svg>
+        </div>
+        <div class="pose-name">生气</div>
+        <div class="pose-en">angry</div>
+        <div class="pose-desc">下压眉 + 锯齿嘴<br/>#FFEBEE 腮红变红</div>
+      </div>
+
+      <!-- Surprised -->
+      <div class="pose-card">
+        <div class="pose-display">
+          <svg width="80" height="80" viewBox="0 0 100 100">
+            <ellipse cx="50" cy="68" rx="18" ry="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <circle cx="50" cy="32" r="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <path d="M 35 18 Q 28 14, 25 18 Q 28 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <path d="M 35 18 Q 42 14, 45 18 Q 42 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <circle cx="35" cy="18" r="2" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <!-- Big round eyes -->
+            <circle cx="42" cy="30" r="3.5" fill="#333"/>
+            <circle cx="58" cy="30" r="3.5" fill="#333"/>
+            <ellipse cx="50" cy="34" rx="2.5" ry="2" fill="#FFB300"/>
+            <line x1="30" y1="34" x2="38" y2="36" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="30" y1="38" x2="38" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="36" x2="70" y2="34" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="38" x2="70" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <!-- O mouth -->
+            <ellipse cx="50" cy="42" rx="3" ry="4" fill="#333"/>
+            <circle cx="36" cy="38" r="3" fill="#E8F5E9" opacity="0.6"/>
+            <circle cx="64" cy="38" r="3" fill="#E8F5E9" opacity="0.6"/>
+          </svg>
+        </div>
+        <div class="pose-name">惊讶</div>
+        <div class="pose-en">surprised</div>
+        <div class="pose-desc">大圆眼 + O 型嘴<br/>#E8F5E9 腮红变绿</div>
+      </div>
+
+      <!-- Shy -->
+      <div class="pose-card">
+        <div class="pose-display">
+          <svg width="80" height="80" viewBox="0 0 100 100">
+            <ellipse cx="50" cy="68" rx="18" ry="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <circle cx="50" cy="32" r="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <path d="M 35 18 Q 28 14, 25 18 Q 28 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <path d="M 35 18 Q 42 14, 45 18 Q 42 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <circle cx="35" cy="18" r="2" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <!-- Shy eyes (looking down) -->
+            <line x1="38" y1="30" x2="46" y2="30" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+            <line x1="54" y1="30" x2="62" y2="30" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+            <ellipse cx="50" cy="34" rx="2.5" ry="2" fill="#FFB300"/>
+            <line x1="30" y1="34" x2="38" y2="36" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="30" y1="38" x2="38" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="36" x2="70" y2="34" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="38" x2="70" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <!-- Small smile -->
+            <path d="M 46 41 Q 50 43, 54 41" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
+            <!-- Very red blush -->
+            <circle cx="36" cy="38" r="5" fill="#F48FB1" opacity="0.6"/>
+            <circle cx="64" cy="38" r="5" fill="#F48FB1" opacity="0.6"/>
+          </svg>
+        </div>
+        <div class="pose-name">害羞</div>
+        <div class="pose-en">shy</div>
+        <div class="pose-desc">横线眼 + 小嘴<br/>#F48FB1 腮红超大</div>
+      </div>
+
+      <!-- Sleepy -->
+      <div class="pose-card">
+        <div class="pose-display">
+          <svg width="80" height="80" viewBox="0 0 100 100">
+            <ellipse cx="50" cy="68" rx="18" ry="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <circle cx="50" cy="32" r="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <path d="M 35 18 Q 28 14, 25 18 Q 28 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <path d="M 35 18 Q 42 14, 45 18 Q 42 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <circle cx="35" cy="18" r="2" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <!-- Sleeping eyes (closed) -->
+            <line x1="38" y1="30" x2="46" y2="30" stroke="#333" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="54" y1="30" x2="62" y2="30" stroke="#333" stroke-width="2.5" stroke-linecap="round"/>
+            <ellipse cx="50" cy="34" rx="2.5" ry="2" fill="#FFB300"/>
+            <line x1="30" y1="34" x2="38" y2="36" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="30" y1="38" x2="38" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="36" x2="70" y2="34" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="38" x2="70" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <!-- Sleeping mouth -->
+            <line x1="46" y1="41" x2="54" y2="41" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="36" cy="38" r="3" fill="#EDE7F6" opacity="0.6"/>
+            <circle cx="64" cy="38" r="3" fill="#EDE7F6" opacity="0.6"/>
+            <!-- Zzz -->
+            <text x="68" y="20" font-size="10" fill="#B39DDB" font-weight="bold">z</text>
+            <text x="74" y="14" font-size="7" fill="#B39DDB" font-weight="bold">z</text>
+          </svg>
+        </div>
+        <div class="pose-name">困倦</div>
+        <div class="pose-en">sleepy</div>
+        <div class="pose-desc">闭眼线 + zzz<br/>#EDE7F6 腮红变紫</div>
+      </div>
+
+      <!-- Thinking -->
+      <div class="pose-card">
+        <div class="pose-display">
+          <svg width="80" height="80" viewBox="0 0 100 100">
+            <ellipse cx="50" cy="68" rx="18" ry="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <circle cx="50" cy="32" r="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <path d="M 35 18 Q 28 14, 25 18 Q 28 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <path d="M 35 18 Q 42 14, 45 18 Q 42 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <circle cx="35" cy="18" r="2" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <!-- Thinking eyes (looking up) -->
+            <circle cx="44" cy="28" r="2" fill="#333"/>
+            <circle cx="60" cy="28" r="2" fill="#333"/>
+            <ellipse cx="50" cy="34" rx="2.5" ry="2" fill="#FFB300"/>
+            <line x1="30" y1="34" x2="38" y2="36" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="30" y1="38" x2="38" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="36" x2="70" y2="34" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="38" x2="70" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <!-- Thinking mouth -->
+            <path d="M 46 41 Q 50 39, 54 41" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="36" cy="38" r="3" fill="#FFF3E0" opacity="0.6"/>
+            <circle cx="64" cy="38" r="3" fill="#FFF3E0" opacity="0.6"/>
+            <!-- Hand on chin -->
+            <circle cx="60" cy="48" r="4" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="pose-name">思考</div>
+        <div class="pose-en">thinking</div>
+        <div class="pose-desc">向上看 + 手托下巴<br/>#FFF3E0 腮红变橙</div>
+      </div>
+
+      <!-- Excited -->
+      <div class="pose-card">
+        <div class="pose-display">
+          <svg width="80" height="80" viewBox="0 0 100 100">
+            <ellipse cx="50" cy="68" rx="18" ry="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <circle cx="50" cy="32" r="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <path d="M 35 18 Q 28 14, 25 18 Q 28 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <path d="M 35 18 Q 42 14, 45 18 Q 42 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <circle cx="35" cy="18" r="2" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <!-- Star eyes -->
+            <path d="M 42 26 l 1.5 3 3 .5-2 2 .5 3-3-1.5-3 1.5.5-3-2-2 3-.5z" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <path d="M 58 26 l 1.5 3 3 .5-2 2 .5 3-3-1.5-3 1.5.5-3-2-2 3-.5z" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <ellipse cx="50" cy="34" rx="2.5" ry="2" fill="#FFB300"/>
+            <line x1="30" y1="34" x2="38" y2="36" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="30" y1="38" x2="38" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="36" x2="70" y2="34" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="38" x2="70" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <!-- Big excited mouth -->
+            <path d="M 42 40 Q 50 48, 58 40" fill="#333" stroke="none"/>
+            <path d="M 42 40 Q 50 44, 58 40" fill="#FF6B9D" stroke="none"/>
+            <circle cx="36" cy="38" r="4" fill="#FFF9C4" opacity="0.7"/>
+            <circle cx="64" cy="38" r="4" fill="#FFF9C4" opacity="0.7"/>
+          </svg>
+        </div>
+        <div class="pose-name">兴奋</div>
+        <div class="pose-en">excited</div>
+        <div class="pose-desc">星星眼 + 大笑嘴<br/>#FFF9C4 腮红变黄</div>
+      </div>
+
+      <!-- In Love -->
+      <div class="pose-card">
+        <div class="pose-display">
+          <svg width="80" height="80" viewBox="0 0 100 100">
+            <ellipse cx="50" cy="68" rx="18" ry="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <circle cx="50" cy="32" r="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <path d="M 35 18 Q 28 14, 25 18 Q 28 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <path d="M 35 18 Q 42 14, 45 18 Q 42 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <circle cx="35" cy="18" r="2" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <!-- Heart eyes -->
+            <path d="M 40 28 c-1-2-3-2-3 0 0 1.5 3 3 3 4 0-1 3-2.5 3-4 0-2-2-2-3 0z" fill="#EC407A"/>
+            <path d="M 60 28 c-1-2-3-2-3 0 0 1.5 3 3 3 4 0-1 3-2.5 3-4 0-2-2-2-3 0z" fill="#EC407A"/>
+            <ellipse cx="50" cy="34" rx="2.5" ry="2" fill="#FFB300"/>
+            <line x1="30" y1="34" x2="38" y2="36" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="30" y1="38" x2="38" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="36" x2="70" y2="34" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="38" x2="70" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <!-- Smile -->
+            <path d="M 42 40 Q 50 46, 58 40" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="36" cy="38" r="5" fill="#FCE4EC" opacity="0.7"/>
+            <circle cx="64" cy="38" r="5" fill="#FCE4EC" opacity="0.7"/>
+          </svg>
+        </div>
+        <div class="pose-name">恋爱</div>
+        <div class="pose-en">in-love</div>
+        <div class="pose-desc">心形眼 + 微笑<br/>#FCE4EC 腮红变粉</div>
+      </div>
+
+      <!-- Normal -->
+      <div class="pose-card">
+        <div class="pose-display">
+          <svg width="80" height="80" viewBox="0 0 100 100">
+            <ellipse cx="50" cy="68" rx="18" ry="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <circle cx="50" cy="32" r="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <path d="M 35 18 Q 28 14, 25 18 Q 28 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <path d="M 35 18 Q 42 14, 45 18 Q 42 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <circle cx="35" cy="18" r="2" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <!-- Normal eyes -->
+            <circle cx="42" cy="30" r="2" fill="#333"/>
+            <circle cx="58" cy="30" r="2" fill="#333"/>
+            <ellipse cx="50" cy="34" rx="2.5" ry="2" fill="#FFB300"/>
+            <line x1="30" y1="34" x2="38" y2="36" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="30" y1="38" x2="38" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="36" x2="70" y2="34" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="38" x2="70" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <!-- Normal mouth -->
+            <path d="M 46 41 Q 50 43, 54 41" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="36" cy="38" r="3" fill="#FFF0F5" opacity="0.6"/>
+            <circle cx="64" cy="38" r="3" fill="#FFF0F5" opacity="0.6"/>
+          </svg>
+        </div>
+        <div class="pose-name">日常</div>
+        <div class="pose-en">normal</div>
+        <div class="pose-desc">标准表情<br/>#FFF0F5 默认腮红</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ========================================
+       3. ACTIONS
+       ======================================== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <h2>动作姿态 <span class="en">Action Poses</span></h2>
+    </div>
+    <div class="section-desc">角色互动行为姿态，用于功能入口、操作反馈、空状态等场景。</div>
+    <span class="cat-tag cat-action">ACTIONS · 12 种交互动作</span>
+
+    <div class="card-grid">
+      <!-- Waving -->
+      <div class="pose-card">
+        <div class="pose-display">
+          <svg width="80" height="80" viewBox="0 0 100 100">
+            <ellipse cx="50" cy="68" rx="18" ry="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <circle cx="50" cy="32" r="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <path d="M 35 18 Q 28 14, 25 18 Q 28 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <path d="M 35 18 Q 42 14, 45 18 Q 42 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <circle cx="35" cy="18" r="2" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <path d="M 38 28 Q 42 25, 46 28" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+            <path d="M 54 28 Q 58 25, 62 28" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+            <ellipse cx="50" cy="34" rx="2.5" ry="2" fill="#FFB300"/>
+            <line x1="30" y1="34" x2="38" y2="36" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="30" y1="38" x2="38" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="36" x2="70" y2="34" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="38" x2="70" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <path d="M 42 40 Q 50 46, 58 40" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="36" cy="38" r="4" fill="#FFD4E5" opacity="0.7"/>
+            <circle cx="64" cy="38" r="4" fill="#FFD4E5" opacity="0.7"/>
+            <!-- Waving arm -->
+            <ellipse cx="70" cy="50" rx="4" ry="8" fill="#FFFFFF" stroke="#333" stroke-width="1.5" transform="rotate(-45 70 50)"/>
+            <!-- Hand -->
+            <circle cx="76" cy="44" r="3" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="pose-name">打招呼</div>
+        <div class="pose-en">waving</div>
+        <div class="pose-desc">抬手挥手，欢迎姿态</div>
+      </div>
+
+      <!-- Hugging -->
+      <div class="pose-card">
+        <div class="pose-display">
+          <svg width="80" height="80" viewBox="0 0 100 100">
+            <ellipse cx="50" cy="68" rx="18" ry="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <circle cx="50" cy="32" r="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <path d="M 35 18 Q 28 14, 25 18 Q 28 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <path d="M 35 18 Q 42 14, 45 18 Q 42 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <circle cx="35" cy="18" r="2" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <path d="M 38 28 Q 42 25, 46 28" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+            <path d="M 54 28 Q 58 25, 62 28" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+            <ellipse cx="50" cy="34" rx="2.5" ry="2" fill="#FFB300"/>
+            <line x1="30" y1="34" x2="38" y2="36" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="30" y1="38" x2="38" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="36" x2="70" y2="34" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="38" x2="70" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <path d="M 42 40 Q 50 46, 58 40" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="36" cy="38" r="4" fill="#FFD4E5" opacity="0.7"/>
+            <circle cx="64" cy="38" r="4" fill="#FFD4E5" opacity="0.7"/>
+            <!-- Hugging arms -->
+            <ellipse cx="34" cy="65" rx="4" ry="8" fill="#FFFFFF" stroke="#333" stroke-width="1.5" transform="rotate(30 34 65)"/>
+            <ellipse cx="66" cy="65" rx="4" ry="8" fill="#FFFFFF" stroke="#333" stroke-width="1.5" transform="rotate(-30 66 65)"/>
+          </svg>
+        </div>
+        <div class="pose-name">抱抱</div>
+        <div class="pose-en">hugging</div>
+        <div class="pose-desc">张开双臂，温暖拥抱</div>
+      </div>
+
+      <!-- Eating -->
+      <div class="pose-card">
+        <div class="pose-display">
+          <svg width="80" height="80" viewBox="0 0 100 100">
+            <ellipse cx="50" cy="68" rx="18" ry="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <circle cx="50" cy="32" r="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <path d="M 35 18 Q 28 14, 25 18 Q 28 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <path d="M 35 18 Q 42 14, 45 18 Q 42 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <circle cx="35" cy="18" r="2" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <!-- Happy eating eyes -->
+            <path d="M 38 28 Q 42 25, 46 28" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+            <path d="M 54 28 Q 58 25, 62 28" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+            <ellipse cx="50" cy="34" rx="2.5" ry="2" fill="#FFB300"/>
+            <line x1="30" y1="34" x2="38" y2="36" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="30" y1="38" x2="38" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="36" x2="70" y2="34" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="38" x2="70" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <!-- Eating mouth -->
+            <ellipse cx="50" cy="42" rx="4" ry="3" fill="#333"/>
+            <circle cx="36" cy="38" r="4" fill="#FFD4E5" opacity="0.7"/>
+            <circle cx="64" cy="38" r="4" fill="#FFD4E5" opacity="0.7"/>
+            <!-- Arm holding food -->
+            <ellipse cx="68" cy="48" rx="3" ry="6" fill="#FFFFFF" stroke="#333" stroke-width="1.5" transform="rotate(-20 68 48)"/>
+            <!-- Food item -->
+            <circle cx="72" cy="42" r="3" fill="#FF9800" stroke="#333" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="pose-name">吃东西</div>
+        <div class="pose-en">eating</div>
+        <div class="pose-desc">手持食物，开心咀嚼</div>
+      </div>
+
+      <!-- Drinking -->
+      <div class="pose-card">
+        <div class="pose-display">
+          <svg width="80" height="80" viewBox="0 0 100 100">
+            <ellipse cx="50" cy="68" rx="18" ry="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <circle cx="50" cy="32" r="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <path d="M 35 18 Q 28 14, 25 18 Q 28 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <path d="M 35 18 Q 42 14, 45 18 Q 42 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <circle cx="35" cy="18" r="2" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <circle cx="42" cy="30" r="2" fill="#333"/>
+            <circle cx="58" cy="30" r="2" fill="#333"/>
+            <ellipse cx="50" cy="34" rx="2.5" ry="2" fill="#FFB300"/>
+            <line x1="30" y1="34" x2="38" y2="36" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="30" y1="38" x2="38" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="36" x2="70" y2="34" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="38" x2="70" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <circle cx="36" cy="38" r="3" fill="#FFD4E5" opacity="0.6"/>
+            <circle cx="64" cy="38" r="3" fill="#FFD4E5" opacity="0.6"/>
+            <!-- Arm holding cup -->
+            <ellipse cx="68" cy="50" rx="3" ry="6" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <!-- Cup -->
+            <rect x="65" y="42" width="8" height="10" rx="1" fill="#E3F2FD" stroke="#333" stroke-width="1.5"/>
+            <line x1="65" y1="44" x2="73" y2="44" stroke="#42A5F5" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="pose-name">喝水</div>
+        <div class="pose-en">drinking</div>
+        <div class="pose-desc">手持杯子，补充水分</div>
+      </div>
+
+      <!-- Sleeping -->
+      <div class="pose-card">
+        <div class="pose-display">
+          <svg width="80" height="80" viewBox="0 0 100 100">
+            <!-- Lying body -->
+            <ellipse cx="50" cy="75" rx="28" ry="14" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <!-- Head (tilted) -->
+            <circle cx="35" cy="45" r="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <path d="M 22 32 Q 15 28, 12 32 Q 15 36, 22 32" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <path d="M 22 32 Q 29 28, 32 32 Q 29 36, 22 32" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <circle cx="22" cy="32" r="2" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <!-- Sleeping eyes -->
+            <line x1="25" y1="43" x2="33" y2="43" stroke="#333" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="41" y1="43" x2="49" y2="43" stroke="#333" stroke-width="2.5" stroke-linecap="round"/>
+            <ellipse cx="37" cy="47" rx="2.5" ry="2" fill="#FFB300"/>
+            <line x1="18" y1="47" x2="26" y2="49" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="18" y1="51" x2="26" y2="51" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="48" y1="49" x2="56" y2="47" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="48" y1="51" x2="56" y2="51" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="33" y1="53" x2="41" y2="53" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="23" cy="50" r="3" fill="#EDE7F6" opacity="0.6"/>
+            <circle cx="51" cy="50" r="3" fill="#EDE7F6" opacity="0.6"/>
+            <!-- Pillow -->
+            <ellipse cx="35" cy="65" rx="18" ry="8" fill="#FFF0F5" stroke="#333" stroke-width="1"/>
+            <text x="62" y="35" font-size="10" fill="#B39DDB" font-weight="bold">z</text>
+            <text x="68" y="28" font-size="7" fill="#B39DDB" font-weight="bold">z</text>
+            <text x="72" y="22" font-size="5" fill="#B39DDB" font-weight="bold">z</text>
+          </svg>
+        </div>
+        <div class="pose-name">睡觉</div>
+        <div class="pose-en">sleeping</div>
+        <div class="pose-desc">躺卧姿态，zzz 睡眠</div>
+      </div>
+
+      <!-- Working -->
+      <div class="pose-card">
+        <div class="pose-display">
+          <svg width="80" height="80" viewBox="0 0 100 100">
+            <ellipse cx="50" cy="68" rx="18" ry="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <circle cx="50" cy="32" r="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <path d="M 35 18 Q 28 14, 25 18 Q 28 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <path d="M 35 18 Q 42 14, 45 18 Q 42 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <circle cx="35" cy="18" r="2" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <!-- Focused eyes -->
+            <circle cx="42" cy="30" r="2" fill="#333"/>
+            <circle cx="58" cy="30" r="2" fill="#333"/>
+            <ellipse cx="50" cy="34" rx="2.5" ry="2" fill="#FFB300"/>
+            <line x1="30" y1="34" x2="38" y2="36" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="30" y1="38" x2="38" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="36" x2="70" y2="34" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="38" x2="70" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <circle cx="36" cy="38" r="3" fill="#FFF0F5" opacity="0.6"/>
+            <circle cx="64" cy="38" r="3" fill="#FFF0F5" opacity="0.6"/>
+            <!-- Glasses -->
+            <circle cx="42" cy="30" r="6" fill="none" stroke="#42A5F5" stroke-width="1.5"/>
+            <circle cx="58" cy="30" r="6" fill="none" stroke="#42A5F5" stroke-width="1.5"/>
+            <line x1="48" y1="30" x2="52" y2="30" stroke="#42A5F5" stroke-width="1.5"/>
+            <!-- Arms on keyboard -->
+            <ellipse cx="40" cy="70" rx="3" ry="6" fill="#FFFFFF" stroke="#333" stroke-width="1.5" transform="rotate(-10 40 70)"/>
+            <ellipse cx="60" cy="70" rx="3" ry="6" fill="#FFFFFF" stroke="#333" stroke-width="1.5" transform="rotate(10 60 70)"/>
+            <!-- Laptop -->
+            <rect x="30" y="75" width="40" height="20" rx="2" fill="#E3F2FD" stroke="#333" stroke-width="1.5"/>
+            <rect x="32" y="77" width="36" height="14" rx="1" fill="#42A5F5" opacity="0.3"/>
+          </svg>
+        </div>
+        <div class="pose-name">工作</div>
+        <div class="pose-en">working</div>
+        <div class="pose-desc">戴眼镜 + 敲键盘</div>
+      </div>
+
+      <!-- Playing -->
+      <div class="pose-card">
+        <div class="pose-display">
+          <svg width="80" height="80" viewBox="0 0 100 100">
+            <ellipse cx="50" cy="68" rx="18" ry="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <circle cx="50" cy="32" r="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <path d="M 35 18 Q 28 14, 25 18 Q 28 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <path d="M 35 18 Q 42 14, 45 18 Q 42 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <circle cx="35" cy="18" r="2" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <path d="M 38 28 Q 42 25, 46 28" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+            <path d="M 54 28 Q 58 25, 62 28" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+            <ellipse cx="50" cy="34" rx="2.5" ry="2" fill="#FFB300"/>
+            <line x1="30" y1="34" x2="38" y2="36" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="30" y1="38" x2="38" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="36" x2="70" y2="34" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="38" x2="70" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <path d="M 42 40 Q 50 46, 58 40" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="36" cy="38" r="4" fill="#FFD4E5" opacity="0.7"/>
+            <circle cx="64" cy="38" r="4" fill="#FFD4E5" opacity="0.7"/>
+            <!-- Arms up -->
+            <ellipse cx="34" cy="55" rx="3" ry="7" fill="#FFFFFF" stroke="#333" stroke-width="1.5" transform="rotate(-30 34 55)"/>
+            <ellipse cx="66" cy="55" rx="3" ry="7" fill="#FFFFFF" stroke="#333" stroke-width="1.5" transform="rotate(30 66 55)"/>
+            <!-- Ball -->
+            <circle cx="28" cy="48" r="5" fill="#FF6B9D" stroke="#333" stroke-width="1.5"/>
+            <path d="M 25 46 Q 28 44, 31 46" fill="none" stroke="#FFF" stroke-width="1" opacity="0.5"/>
+          </svg>
+        </div>
+        <div class="pose-name">玩耍</div>
+        <div class="pose-en">playing</div>
+        <div class="pose-desc">举手 + 玩球</div>
+      </div>
+
+      <!-- Taking photos -->
+      <div class="pose-card">
+        <div class="pose-display">
+          <svg width="80" height="80" viewBox="0 0 100 100">
+            <ellipse cx="50" cy="68" rx="18" ry="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <circle cx="50" cy="32" r="22" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <path d="M 35 18 Q 28 14, 25 18 Q 28 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <path d="M 35 18 Q 42 14, 45 18 Q 42 22, 35 18" fill="#FF6B9D" stroke="#333" stroke-width="1"/>
+            <circle cx="35" cy="18" r="2" fill="#FFB300" stroke="#333" stroke-width="1"/>
+            <circle cx="42" cy="30" r="2" fill="#333"/>
+            <circle cx="58" cy="30" r="2" fill="#333"/>
+            <ellipse cx="50" cy="34" rx="2.5" ry="2" fill="#FFB300"/>
+            <line x1="30" y1="34" x2="38" y2="36" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="30" y1="38" x2="38" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="36" x2="70" y2="34" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <line x1="62" y1="38" x2="70" y2="38" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+            <circle cx="36" cy="38" r="3" fill="#FFD4E5" opacity="0.6"/>
+            <circle cx="64" cy="38" r="3" fill="#FFD4E5" opacity="0.6"/>
+            <!-- Arms holding camera -->
+            <ellipse cx="65" cy="55" rx="3" ry="5" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <ellipse cx="75" cy="55" rx="3" ry="5" fill="#FFFFFF" stroke="#333" stroke-width="1.5"/>
+            <!-- Camera -->
+            <rect x="62" y="50" width="16" height="12" rx="2" fill="#333"/>
+            <circle cx="70" cy="56" r="4" fill="#42A5F5"/>
+            <circle cx="70" cy="56" r="2" fill="#FFF"/>
+            <circle cx="64" cy="52" r="1" fill="#FF6B9D"/>
+          </svg>
+        </div>
+        <div class="pose-name">拍照</div>
+        <div class="pose-en">taking-photos</div>
+        <div class="pose-desc">手持相机，记录瞬间</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="footer">
+    HelloKitty Desktop Pet - 角色形象动作设计系统 v1.0 · 50+ 角色形象 · QoderWork
+  </div>
+
+</div>
+</body>
+</html>

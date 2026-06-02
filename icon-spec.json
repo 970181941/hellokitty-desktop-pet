@@ -1,0 +1,294 @@
+{
+  "name": "HelloKitty Desktop Pet - Icon Design Tokens",
+  "version": "2.0.0",
+  "designSystem": {
+    "grid": "24x24px (基准)",
+    "safeZone": "20x20px",
+    "strokeWidth": "2px (linear icons)",
+    "strokeCap": "round",
+    "strokeJoin": "round",
+    "cornerRadius": "2px (small) / 4px (large)",
+    "scaling": "等比缩放 16/20/24/32/48px"
+  },
+  "colorMapping": {
+    "default": "#1A1A1A",
+    "brand": "#FF6B9D",
+    "brandHover": "#FF508A",
+    "accent": "#FFB300",
+    "social": "#42A5F5",
+    "success": "#4CAF50",
+    "warning": "#FF9800",
+    "error": "#F44336",
+    "info": "#42A5F5",
+    "purple": "#7B68EE",
+    "disabled": "#D4D4D4",
+    "nightOutline": "#4A4A6A"
+  },
+  "iconSets": {
+    "navigation": {
+      "description": "导航栏图标 - 线性风格",
+      "style": "outlined",
+      "size": "24px",
+      "icons": {
+        "home":      { "name": "首页",   "color": "#1A1A1A", "activeColor": "#FF6B9D" },
+        "chat":      { "name": "聊天",   "color": "#1A1A1A", "activeColor": "#FF6B9D" },
+        "bag":       { "name": "背包",   "color": "#1A1A1A", "activeColor": "#FF6B9D" },
+        "settings":  { "name": "设置",   "color": "#1A1A1A", "activeColor": "#FF6B9D" },
+        "profile":   { "name": "我的",   "color": "#1A1A1A", "activeColor": "#FF6B9D" },
+        "achieve":   { "name": "成就",   "color": "#FFB300" }
+      }
+    },
+    "friends": {
+      "description": "朋友/社交图标 - 线性风格，社交蓝为主色",
+      "style": "outlined",
+      "size": "24px",
+      "color": "#1A1A1A",
+      "activeColor": "#42A5F5",
+      "icons": {
+        "friend-add":      { "name": "添加好友", "color": "#1A1A1A", "shape": "user-plus" },
+        "friend-remove":   { "name": "移除好友", "color": "#F44336", "shape": "user-minus" },
+        "friends":         { "name": "好友列表", "color": "#1A1A1A", "shape": "users" },
+        "friend-request":  { "name": "好友申请", "color": "#42A5F5", "shape": "user-arrow" },
+        "friend-group":    { "name": "好友分组", "color": "#1A1A1A", "shape": "user-group" },
+        "friend-favorite": { "name": "特别关心", "color": "#FF6B9D", "shape": "user-heart" },
+        "friend-block":    { "name": "拉黑",     "color": "#F44336", "shape": "user-slash" },
+        "friend-level":    { "name": "亲密度",   "color": "#FFB300", "shape": "user-star" },
+        "user-profile":    { "name": "用户资料", "color": "#1A1A1A", "shape": "user-dot" },
+        "friend-search":   { "name": "搜索好友", "color": "#1A1A1A", "shape": "user-search" },
+        "online-friends":  { "name": "在线好友", "color": "#4CAF50", "shape": "users-online" },
+        "invite":          { "name": "邀请",     "color": "#FF6B9D", "shape": "user-plus-box" }
+      }
+    },
+    "chat": {
+      "description": "聊天/消息图标 - 线性风格，品牌粉高亮关键操作",
+      "style": "outlined",
+      "size": "24px",
+      "color": "#1A1A1A",
+      "activeColor": "#FF6B9D",
+      "icons": {
+        "chat-bubble":    { "name": "对话气泡", "color": "#1A1A1A", "shape": "message" },
+        "chat-new":       { "name": "新消息",   "color": "#FF6B9D", "shape": "message-plus" },
+        "send":           { "name": "发送",     "color": "#FF6B9D", "shape": "send" },
+        "image-msg":      { "name": "图片消息", "color": "#1A1A1A", "shape": "image" },
+        "voice-msg":      { "name": "语音消息", "color": "#1A1A1A", "shape": "mic" },
+        "video-msg":      { "name": "视频消息", "color": "#1A1A1A", "shape": "video" },
+        "emoji":          { "name": "表情",     "color": "#FFB300", "shape": "smile" },
+        "sticker":        { "name": "贴纸",     "color": "#FF6B9D", "shape": "sticker" },
+        "file-msg":       { "name": "文件",     "color": "#1A1A1A", "shape": "file-text" },
+        "location":       { "name": "位置",     "color": "#42A5F5", "shape": "map-pin" },
+        "at-mention":     { "name": "@提及",    "color": "#7B68EE", "shape": "at" },
+        "read-receipt":   { "name": "已读回执", "color": "#4CAF50", "shape": "double-check" },
+        "quote-reply":    { "name": "引用回复", "color": "#1A1A1A", "shape": "corner-up-left" },
+        "forward":        { "name": "转发",     "color": "#1A1A1A", "shape": "corner-up-right" },
+        "pin-message":    { "name": "置顶消息", "color": "#FF6B9D", "shape": "pin" },
+        "msg-search":     { "name": "消息搜索", "color": "#1A1A1A", "shape": "message-search" },
+        "unread-badge":   { "name": "未读提醒", "color": "#1A1A1A", "badgeColor": "#F44336", "shape": "bell-dot" },
+        "translate":      { "name": "翻译",     "color": "#42A5F5", "shape": "translate" }
+      }
+    },
+    "mood": {
+      "description": "心情/情绪图标 - 面性填充，每种情绪独立三色体系",
+      "style": "filled-emotion",
+      "size": "40px",
+      "icons": {
+        "happy":    { "name": "开心",   "bg": "#FFF9C4", "features": "#FF6B9D", "blush": "#FFD4E5" },
+        "sad":      { "name": "难过",   "bg": "#E3F2FD", "features": "#42A5F5", "tear": "#90CAF9" },
+        "shy":      { "name": "害羞",   "bg": "#FCE4EC", "features": "#EC407A", "blush": "#F48FB1" },
+        "excited":  { "name": "兴奋",   "bg": "#FFF8E1", "features": "#FF6F00", "spark": "#FFB74D" },
+        "sleepy":   { "name": "困倦",   "bg": "#EDE7F6", "features": "#7B68EE", "zzz": "#B39DDB" },
+        "angry":    { "name": "生气",   "bg": "#FFEBEE", "features": "#EF5350", "brows": "#EF5350" },
+        "love":     { "name": "心动",   "bg": "#FCE4EC", "features": "#EC407A", "heart": "#F48FB1" },
+        "surprised":{ "name": "惊讶",   "bg": "#E8F5E9", "features": "#4CAF50", "excl": "#81C784" },
+        "nostalgic":{ "name": "怀旧",   "bg": "#FFF3E0", "features": "#FF9800", "trail": "#FFB74D" },
+        "sick":     { "name": "不适",   "bg": "#E3F2FD", "features": "#42A5F5", "cross": "#90CAF9" },
+        "confident":{ "name": "自信",   "bg": "#FFF9C4", "features": "#FFB300", "glow": "#FFD54F" },
+        "calm":     { "name": "平静",   "bg": "#E8EAF6", "features": "#5C6BC0", "aura": "#9FA8DA" }
+      }
+    },
+    "schedule": {
+      "description": "日程待办图标 - 线性风格，品牌粉主操作",
+      "style": "outlined",
+      "size": "24px",
+      "color": "#1A1A1A",
+      "activeColor": "#FF6B9D",
+      "icons": {
+        "todo-list":     { "name": "待办清单", "color": "#1A1A1A", "shape": "list" },
+        "todo-check":    { "name": "完成任务", "color": "#4CAF50", "shape": "check-square" },
+        "todo-add":      { "name": "添加任务", "color": "#FF6B9D", "shape": "plus-circle" },
+        "reminder":      { "name": "提醒",     "color": "#FF9800", "shape": "bell-dot" },
+        "alarm":         { "name": "闹钟",     "color": "#1A1A1A", "shape": "alarm-clock" },
+        "calendar-event":{ "name": "日程事件", "color": "#FF6B9D", "shape": "calendar-dot" },
+        "recurring":     { "name": "重复",     "color": "#7B68EE", "shape": "repeat" },
+        "priority-high": { "name": "高优先级", "color": "#F44336", "shape": "alert-triangle" },
+        "flag":          { "name": "标记",     "color": "#FF6B9D", "shape": "flag" },
+        "countdown":     { "name": "倒计时",   "color": "#FF6B9D", "shape": "clock" },
+        "schedule":      { "name": "日程表",   "color": "#1A1A1A", "shape": "calendar-grid" },
+        "clock":         { "name": "时钟",     "color": "#1A1A1A", "shape": "clock" },
+        "snooze":        { "name": "稍后提醒", "color": "#999",    "shape": "bell-off" },
+        "due-date":      { "name": "截止日期", "color": "#F44336", "shape": "clock-red" },
+        "subtask":       { "name": "子任务",   "color": "#1A1A1A", "shape": "arrow-sub" },
+        "progress":      { "name": "进度",     "color": "#4CAF50", "shape": "bar-chart" }
+      }
+    },
+    "calendar": {
+      "description": "日历图标 - 线性+面性混合，品牌粉标识选中日",
+      "style": "mixed",
+      "size": "24px",
+      "color": "#1A1A1A",
+      "activeColor": "#FF6B9D",
+      "icons": {
+        "calendar":      { "name": "日历",     "color": "#1A1A1A", "shape": "calendar" },
+        "calendar-month":{ "name": "月视图",   "color": "#1A1A1A", "fillActive": "#FF6B9D", "shape": "calendar-grid" },
+        "calendar-week": { "name": "周视图",   "color": "#1A1A1A", "fillActive": "#FF6B9D", "shape": "calendar-cols" },
+        "calendar-day":  { "name": "日视图",   "color": "#1A1A1A", "fillActive": "#FF6B9D", "shape": "calendar-focus" },
+        "date-range":    { "name": "日期范围", "color": "#FF6B9D", "shape": "range" },
+        "today":         { "name": "今天",     "color": "#FF6B9D", "shape": "calendar-today" },
+        "next":          { "name": "下一天",   "color": "#1A1A1A", "shape": "chevron-right" },
+        "prev":          { "name": "上一天",   "color": "#1A1A1A", "shape": "chevron-left" },
+        "calendar-add":  { "name": "新建日程", "color": "#FF6B9D", "shape": "calendar-plus" },
+        "calendar-delete":{ "name": "删除日程","color": "#F44336", "shape": "calendar-minus" },
+        "all-day":       { "name": "全天",     "color": "#FFB300", "shape": "sun" },
+        "time-slot":     { "name": "时间段",   "color": "#1A1A1A", "fillActive": "#FF6B9D", "shape": "time-slots" }
+      }
+    },
+    "status": {
+      "description": "状态指示图标 - 面性+线性混合，语义色严格对应状态",
+      "style": "mixed",
+      "size": "24px",
+      "icons": {
+        "online":        { "name": "在线",     "bg": "#E8F5E9", "dot": "#4CAF50", "shape": "circle-dot" },
+        "offline":       { "name": "离线",     "bg": "#F5F5F5", "dot": "#BDBDBD", "shape": "circle-dot" },
+        "busy":          { "name": "忙碌",     "bg": "#FFEBEE", "mark": "#F44336", "shape": "circle-minus" },
+        "away":          { "name": "离开",     "bg": "#FFF3E0", "mark": "#FF9800", "shape": "clock-half" },
+        "dnd":           { "name": "勿扰",     "bg": "#FFEBEE", "mark": "#F44336", "shape": "circle-half" },
+        "invisible":     { "name": "隐身",     "color": "#9E9E9E", "shape": "eye-off" },
+        "pet-sleeping":  { "name": "睡觉中",   "color": "#7B68EE", "shape": "moon-zzz" },
+        "pet-eating":    { "name": "进食中",   "color": "#FF9800", "shape": "cup" },
+        "pet-playing":   { "name": "玩耍中",   "color": "#FF6B9D", "shape": "play" },
+        "pet-working":   { "name": "工作中",   "color": "#42A5F5", "shape": "monitor" },
+        "pet-bathing":   { "name": "洗澡中",   "color": "#42A5F5", "shape": "bath" },
+        "update":        { "name": "更新可用", "color": "#4CAF50", "shape": "sync-arrows" },
+        "syncing":       { "name": "同步中",   "color": "#42A5F5", "shape": "sync" },
+        "low-energy":    { "name": "低能量",   "color": "#F44336", "shape": "battery-low" },
+        "level-up":      { "name": "升级",     "color": "#FFB300", "shape": "chevron-up" }
+      }
+    },
+    "actions": {
+      "description": "互动动作图标 - 线性+品牌色",
+      "style": "outlined-accent",
+      "size": "24px",
+      "icons": {
+        "pet":     { "name": "摸摸头", "color": "#FF6B9D" },
+        "feed":    { "name": "喂食",   "color": "#FF6B9D" },
+        "play":    { "name": "玩耍",   "color": "#FF6B9D" },
+        "dress":   { "name": "换装",   "color": "#FF6B9D" },
+        "bath":    { "name": "洗澡",   "color": "#42A5F5" },
+        "lullaby": { "name": "哄睡",   "color": "#7B68EE" },
+        "photo":   { "name": "拍照",   "color": "#FF6B9D" },
+        "gift":    { "name": "礼物",   "color": "#FFB300" }
+      }
+    },
+    "items": {
+      "description": "道具/食物图标 - 面性彩色",
+      "style": "filled-colorful",
+      "size": "32px",
+      "icons": {
+        "fish":       { "name": "小鱼干",   "colors": ["#42A5F5", "#64B5F6", "#FFFFFF"] },
+        "milk":       { "name": "牛奶",     "colors": ["#E3F2FD", "#90CAF9", "#FF6B9D"] },
+        "bow":        { "name": "蝴蝶结",   "colors": ["#FF6B9D", "#FF508A"] },
+        "starCandy":  { "name": "星星糖",   "colors": ["#FFD54F", "#FFB300", "#FF6B9D"] },
+        "ball":       { "name": "彩虹球",   "colors": ["#FF9A76", "#FF6B9D", "#FFFFFF"] },
+        "cookie":     { "name": "爱心饼干", "colors": ["#FFCC80", "#FF9800"] },
+        "flower":     { "name": "小花",     "colors": ["#F48FB1", "#FFD54F", "#66BB6A"] },
+        "medicine":   { "name": "药品",     "colors": ["#E3F2FD", "#42A5F5", "#FFFFFF"] }
+      }
+    },
+    "feedback": {
+      "description": "通知/反馈图标",
+      "icons": {
+        "success":          { "bg": "#E8F5E9", "icon": "#4CAF50" },
+        "successCircle":    { "bg": "#E8F5E9", "icon": "#4CAF50", "shape": "check-circle" },
+        "warning":          { "bg": "#FFF3E0", "icon": "#FF9800" },
+        "warningTriangle":  { "bg": "#FFF3E0", "icon": "#FF9800", "shape": "triangle-alert" },
+        "error":            { "bg": "#FFEBEE", "icon": "#F44336" },
+        "errorX":           { "bg": "#FFEBEE", "icon": "#F44336", "shape": "x-circle" },
+        "info":             { "bg": "#E3F2FD", "icon": "#42A5F5" },
+        "infoI":            { "bg": "#E3F2FD", "icon": "#42A5F5", "shape": "i-circle" }
+      }
+    },
+    "emotions": {
+      "description": "情绪头像图标 (v1 基础版)",
+      "style": "filled-emotion",
+      "size": "40px",
+      "icons": {
+        "happy":   { "name": "开心", "bg": "#FFF9C4", "features": "#FF6B9D", "blush": "#FFD54F" },
+        "sleepy":  { "name": "困倦", "bg": "#EDE7F6", "features": "#7B68EE", "zzz": "#B39DDB" },
+        "hungry":  { "name": "饥饿", "bg": "#FFF3E0", "features": "#FF8A65", "cheeks": "#FFCC80" },
+        "angry":   { "name": "生气", "bg": "#FFEBEE", "features": "#EF5350", "brows": "#EF5350" },
+        "love":    { "name": "恋爱", "bg": "#FCE4EC", "features": "#EC407A", "heart": "#F48FB1" },
+        "cold":    { "name": "生病/冷", "bg": "#E3F2FD", "features": "#42A5F5", "snowflake": "#90CAF9" },
+        "excited": { "name": "兴奋", "bg": "#FFF8E1", "features": "#FF6F00", "spark": "#FFB74D" },
+        "normal":  { "name": "日常", "bg": "#FFF0F5", "features": "#FFB7C5" }
+      }
+    },
+    "utility": {
+      "description": "通用操作图标 - 线性",
+      "style": "outlined",
+      "size": "24px",
+      "icons": {
+        "close":    { "name": "关闭", "color": "#1A1A1A" },
+        "back":     { "name": "返回", "color": "#1A1A1A" },
+        "more":     { "name": "更多", "color": "#1A1A1A" },
+        "search":   { "name": "搜索", "color": "#1A1A1A" },
+        "share":    { "name": "分享", "color": "#1A1A1A" },
+        "download": { "name": "下载", "color": "#1A1A1A" },
+        "edit":     { "name": "编辑", "color": "#1A1A1A" },
+        "delete":   { "name": "删除", "color": "#F44336" },
+        "check":    { "name": "确认", "color": "#4CAF50" },
+        "help":     { "name": "帮助", "color": "#42A5F5" },
+        "view":     { "name": "查看", "color": "#1A1A1A" },
+        "favorite": { "name": "收藏", "color": "#FF6B9D" }
+      }
+    }
+  },
+  "sceneColorMapping": {
+    "friends":  { "primary": "#42A5F5", "secondary": "#1A1A1A", "accent": "#4CAF50", "note": "社交蓝为主，绿色标识在线" },
+    "chat":     { "primary": "#FF6B9D", "secondary": "#1A1A1A", "accent": "#F44336", "note": "品牌粉主操作，红色角标未读" },
+    "mood":     { "primary": "多色",   "secondary": "情绪色",   "accent": "bg色系", "note": "每种情绪独立三色体系" },
+    "schedule": { "primary": "#FF6B9D", "secondary": "#FF9800", "accent": "#F44336", "note": "品牌粉主操作，橙提醒，红紧急" },
+    "calendar": { "primary": "#FF6B9D", "secondary": "#1A1A1A", "accent": "#FFB300", "note": "选中日品牌粉，全天事件金色" },
+    "status":   { "primary": "语义色", "secondary": "灰色系",   "accent": "红/橙/绿", "note": "严格按状态语义着色" }
+  },
+  "sizeSpec": {
+    "navBar":      "24px",
+    "buttonIcon":  "16px / 20px",
+    "menuItem":    "20px",
+    "feedGrid":    "32px",
+    "emotionBadge":"16px",
+    "emptyState":  "48px / 64px",
+    "toast":       "20px",
+    "badgeDot":    "8px",
+    "badgeNum":    "16px",
+    "friendAvatar":"32px",
+    "moodBadge":   "40px",
+    "statusDot":   "8px / 12px",
+    "calendarCell":"16px"
+  },
+  "interactionStates": {
+    "hover":    { "strokeColor": "currentColor (不变)", "bgOverlay": "rgba(255,107,157,0.06)" },
+    "active":   { "strokeColor": "currentColor (不变)", "bgOverlay": "rgba(255,107,157,0.12)", "scale": 0.95 },
+    "disabled": { "strokeColor": "#D4D4D4", "opacity": 0.4 },
+    "focus":    { "ringColor": "rgba(255,107,157,0.35)", "ringWidth": "2px", "ringOffset": "2px" }
+  },
+  "usageNotes": [
+    "所有线性图标使用 stroke='currentColor'，颜色由父容器 CSS color 控制",
+    "激活态通过切换 CSS color 为 #FF6B9D 实现，无需替换 SVG",
+    "面性图标颜色硬编码在 SVG fill 中，切换皮肤时需程序替换色值",
+    "道具图标(32px)使用渐变色时通过 <defs><radialGradient> 定义",
+    "情绪图标(40px)的 bg/features/blush 三色对应情绪色彩体系的 primary/secondary/glow",
+    "所有图标 viewBox 统一为 0 0 24 24（道具32px/情绪40px除外），通过 width/height 缩放",
+    "朋友/聊天场景图标激活态使用社交蓝 #42A5F5 而非品牌粉，区分社交功能层级",
+    "状态类图标严格按语义色着色：绿=在线/正常、橙=离开/警告、红=忙碌/错误",
+    "心情图标(v2)新增4种情绪：害羞(#EC407A)、怀旧(#FF9800)、自信(#FFB300)、平静(#5C6BC0)"
+  ]
+}

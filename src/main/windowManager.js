@@ -117,14 +117,14 @@ function createChatWindow() {
   // 确保 y 不小于 0
   y = Math.max(0, y);
 
-  // 根据皮肤设置背景色（基于配色方案设计稿）
+  // 根据皮肤设置背景色（v2 设计系统：中性色阶）
   const SKIN_BG_COLORS = {
-    classic: '#FFF0F5',
-    macaron: '#FFF9F0',
-    neon: '#1A1A2E',
-    night: '#1A1A2E',
-    spring: '#FFF5F7',
-    christmas: '#FFF8F0',
+    classic: '#FAFAFA',
+    macaron: '#FAFAFA',
+    neon: '#121212',
+    night: '#121212',
+    spring: '#FAFAFA',
+    christmas: '#FAFAFA',
   };
   // 旧皮肤 ID 迁移映射
   const LEGACY_SKIN_MAP = {
@@ -135,7 +135,7 @@ function createChatWindow() {
   };
   const rawSkinId = store.get('skinId', 'classic');
   const skinId = SKIN_BG_COLORS[rawSkinId] ? rawSkinId : (LEGACY_SKIN_MAP[rawSkinId] || 'classic');
-  const bgColor = SKIN_BG_COLORS[skinId] || '#FFF0F5';
+  const bgColor = SKIN_BG_COLORS[skinId] || '#FAFAFA';
 
   chatWindow = new BrowserWindow({
     width: chatWidth,

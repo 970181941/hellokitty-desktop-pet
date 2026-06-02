@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HelloKitty Desktop Pet - Icon 设计系统</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --brand: #FF6B9D;
+    --brand-hover: #FF508A;
+    --brand-light: #FFD4E5;
+    --brand-ultra-light: #FFF0F5;
+    --accent: #FFB300;
+    --success: #4CAF50;
+    --warning: #FF9800;
+    --error: #F44336;
+    --info: #42A5F5;
+    --text-900: #1A1A1A;
+    --text-600: #666666;
+    --text-500: #999999;
+    --text-400: #BDBDBD;
+    --bg: #FAFAFA;
+    --surface: #FFFFFF;
+    --border: #F0F0F0;
+    --divider: #F0F0F0;
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+    background: #F5F0F3;
+    color: var(--text-900);
+    line-height: 1.5;
+  }
+
+  .page { max-width: 1200px; margin: 0 auto; padding: 40px 24px 60px; }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .page-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #FF6B9D, #FF9A76);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+  }
+  .page-header p {
+    font-size: 13px;
+    color: var(--text-500);
+  }
+  .page-header .tag {
+    display: inline-block;
+    background: var(--brand-ultra-light);
+    color: var(--brand);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 999px;
+    margin-top: 8px;
+  }
+
+  .section { margin-bottom: 48px; }
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .section-num {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: var(--brand);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .section-head h2 { font-size: 18px; font-weight: 700; }
+  .section-head .en { font-size: 12px; color: var(--text-500); font-weight: 400; margin-left: 4px; }
+  .section-desc {
+    font-size: 12px;
+    color: var(--text-500);
+    margin-bottom: 20px;
+    padding-left: 38px;
+  }
+
+  .divider-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #FFD4E5, transparent);
+    margin: 40px 0;
+  }
+
+  /* Icon Grid */
+  .icon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+  }
+  .icon-card {
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    padding: 20px 12px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    cursor: default;
+  }
+  .icon-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  .icon-card .icon-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .icon-card .icon-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-900);
+    text-align: center;
+  }
+  .icon-card .icon-en {
+    font-size: 9px;
+    color: var(--text-400);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: -6px;
+  }
+
+  /* Size variants */
+  .size-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 24px;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+  }
+  .size-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .size-label {
+    font-size: 10px;
+    color: var(--text-400);
+    font-family: 'SF Mono', monospace;
+  }
+
+  /* State variants */
+  .state-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .state-label {
+    font-size: 11px;
+    color: var(--text-500);
+    width: 50px;
+    flex-shrink: 0;
+  }
+  .state-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .state-name {
+    font-size: 9px;
+    color: var(--text-400);
+  }
+
+  /* Nav bar mock */
+  .nav-mock {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 12px 16px;
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 16px;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 4px 12px;
+    border-radius: 8px;
+    transition: background 0.15s;
+  }
+  .nav-item:hover { background: var(--brand-ultra-light); }
+  .nav-item.active .nav-label { color: var(--brand); }
+  .nav-label {
+    font-size: 10px;
+    color: var(--text-500);
+    font-weight: 500;
+  }
+  .nav-item.active .nav-label { color: var(--brand); font-weight: 600; }
+
+  /* Badge */
+  .badge-wrap { position: relative; display: inline-flex; }
+  .badge-dot {
+    position: absolute;
+    top: -2px; right: -4px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--error);
+    border: 2px solid var(--surface);
+  }
+  .badge-num {
+    position: absolute;
+    top: -6px; right: -10px;
+    min-width: 16px; height: 16px;
+    border-radius: 8px;
+    background: var(--error);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    border: 2px solid var(--surface);
+  }
+
+  /* Emotion row */
+  .emotion-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 12px;
+  }
+  .emotion-card {
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    padding: 16px 12px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+  }
+  .emotion-card .emo-name {
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 8px;
+  }
+  .emotion-card .emo-en {
+    font-size: 9px;
+    color: var(--text-400);
+  }
+  .emotion-card .emo-colors {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    margin-top: 8px;
+  }
+  .emotion-card .emo-dot {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+  }
+
+  /* Skin row */
+  .skin-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+  }
+  .skin-card {
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+  }
+  .skin-card .skin-name { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+  .skin-card .skin-icons { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* Spec table */
+  .spec-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    font-size: 12px;
+  }
+  .spec-table th {
+    background: #FFF0F5;
+    color: var(--brand);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .spec-table td {
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .spec-table tr:last-child td { border-bottom: none; }
+  .spec-table tr:hover td { background: var(--brand-ultra-light); }
+  .mono { font-family: 'SF Mono', monospace; font-size: 11px; color: var(--text-600); }
+
+  .footer {
+    text-align: center;
+    padding: 32px 0 16px;
+    font-size: 12px;
+    color: var(--text-400);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="page-header">
+    <h1>HelloKitty Desktop Pet - Icon Design System</h1>
+    <p>图标设计系统 · 基于品牌色 #FF6B9D · 圆角线性风格 · 全场景覆盖</p>
+    <span class="tag">v1.0 - 48 Icons</span>
+  </div>
+
+  <!-- ============================================
+       DESIGN PRINCIPLES
+       ============================================ -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">!</div>
+      <h2>设计规范 <span class="en">Design Principles</span></h2>
+    </div>
+    <div class="spec-table" style="margin-left:38px;margin-right:24px;">
+      <thead><tr><th>属性</th><th>规范</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>风格</td><td class="mono">圆角线性 + 面性填充混合</td><td>导航/动作类用线性，状态/情绪类用面性</td></tr>
+        <tr><td>网格</td><td class="mono">24 × 24 px (基准)</td><td>关键图形贴合 20×20 安全区</td></tr>
+        <tr><td>线宽</td><td class="mono">2px (linear) / 0 (filled)</td><td>圆角端点 cap: round, join: round</td></tr>
+        <tr><td>圆角</td><td class="mono">2px (小元素) / 4px (大元素)</td><td>与 UI 圆角体系呼应</td></tr>
+        <tr><td>默认色</td><td class="mono">#1A1A1A (linear) / #FF6B9D (accent)</td><td>线性图标用中性色，强调色用于激活/品牌元素</td></tr>
+        <tr><td>激活色</td><td class="mono">#FF6B9D</td><td>选中态、Tab 激活、通知红点</td></tr>
+        <tr><td>禁用色</td><td class="mono">#D4D4D4</td><td>opacity: 0.4 或直接赋色</td></tr>
+        <tr><td>可用尺寸</td><td class="mono">16 / 20 / 24 / 32 / 48 px</td><td>24px 为基准，等比缩放</td></tr>
+      </tbody>
+    </div>
+  </div>
+
+  <div class="divider-line"></div>
+
+  <!-- ============================================
+       1. NAVIGATION ICONS
+       ============================================ -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">1</div>
+      <h2>导航图标 <span class="en">Navigation</span></h2>
+    </div>
+    <div class="section-desc">底部导航栏 / 顶部 Tab 使用，线性风格，24px 基准。含 normal / active 双态。</div>
+
+    <!-- Nav Mock -->
+    <div class="nav-mock" style="margin-left:38px;margin-right:24px;max-width:500px;">
+      <div class="nav-item active">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B9D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+        <span class="nav-label">首页</span>
+      </div>
+      <div class="nav-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+        <span class="nav-label">聊天</span>
+      </div>
+      <div class="nav-item">
+        <div class="badge-wrap">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          <span class="badge-num">3</span>
+        </div>
+        <span class="nav-label">背包</span>
+      </div>
+      <div class="nav-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        <span class="nav-label">设置</span>
+      </div>
+    </div>
+
+    <div class="icon-grid" style="padding-left:38px;">
+      <!-- Home -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+        </div>
+        <div class="icon-name">首页</div><div class="icon-en">Home</div>
+      </div>
+      <!-- Home Active -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B9D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+        </div>
+        <div class="icon-name">首页·激活</div><div class="icon-en">Home·Active</div>
+      </div>
+      <!-- Chat -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+        </div>
+        <div class="icon-name">聊天</div><div class="icon-en">Chat</div>
+      </div>
+      <!-- Backpack -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        </div>
+        <div class="icon-name">背包</div><div class="icon-en">Bag</div>
+      </div>
+      <!-- Settings -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        </div>
+        <div class="icon-name">设置</div><div class="icon-en">Settings</div>
+      </div>
+      <!-- Profile -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="icon-name">我的</div><div class="icon-en">Profile</div>
+      </div>
+      <!-- Achievement -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFB300" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+        </div>
+        <div class="icon-name">成就</div><div class="icon-en">Achieve</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider-line"></div>
+
+  <!-- ============================================
+       2. STATUS ICONS
+       ============================================ -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">2</div>
+      <h2>状态图标 <span class="en">Status Indicators</span></h2>
+    </div>
+    <div class="section-desc">状态面板使用，面性填充风格，配合彩色进度条。每个图标含高/中/低三档颜色。</div>
+
+    <div class="icon-grid" style="padding-left:38px;">
+      <!-- Heart / Mood -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#FF6B9D"/></svg>
+        </div>
+        <div class="icon-name">心情</div><div class="icon-en">Mood</div>
+      </div>
+      <!-- Lightning / Energy -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="#42A5F5"/></svg>
+        </div>
+        <div class="icon-name">精力</div><div class="icon-en">Energy</div>
+      </div>
+      <!-- Food / Hunger -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24"><path d="M18.06 22.99h1.66c.84 0 1.53-.64 1.63-1.46L23 5.05h-5V1h-1.97v4.05h-4.97l.3 2.34c1.71.47 3.31 1.32 4.27 2.26 1.44 1.42 2.43 2.89 2.43 5.29v8.05zM1 22.99h10c.01 0 .01-.01.01-.01v-1.97c0-.55-.45-1-1-1H2.01c-.55 0-1 .45-1 1v1.97c0 .01 0 .01.01.01zM3 18.02V5.05H1v12.97c0 .83.67 1.5 1.5 1.5h.5v-1.5z" fill="#FF9800"/></svg>
+        </div>
+        <div class="icon-name">饱食</div><div class="icon-en">Hunger</div>
+      </div>
+      <!-- Moon / Sleep -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" fill="#7B68EE"/></svg>
+        </div>
+        <div class="icon-name">睡眠</div><div class="icon-en">Sleep</div>
+      </div>
+      <!-- Star / Level -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#FFB300"/></svg>
+        </div>
+        <div class="icon-name">等级</div><div class="icon-en">Level</div>
+      </div>
+      <!-- Coin -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#FFD54F" stroke="#FFB300" stroke-width="1.5"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="700" fill="#FFB300">$</text></svg>
+        </div>
+        <div class="icon-name">金币</div><div class="icon-en">Coin</div>
+      </div>
+      <!-- Diamond / Premium -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 13L2 9z" fill="#42A5F5" opacity="0.85"/><path d="M2 9h20M12 22L6 3h12l-6 19z" fill="none" stroke="#fff" stroke-width="1" opacity="0.5"/></svg>
+        </div>
+        <div class="icon-name">钻石</div><div class="icon-en">Diamond</div>
+      </div>
+      <!-- Online dot -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="#4CAF50"/></svg>
+        </div>
+        <div class="icon-name">在线</div><div class="icon-en">Online</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider-line"></div>
+
+  <!-- ============================================
+       3. ACTION ICONS
+       ============================================ -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">3</div>
+      <h2>互动动作图标 <span class="en">Interaction Actions</span></h2>
+    </div>
+    <div class="section-desc">右键菜单 / 互动面板使用，线性风格 + 品牌色强调，hover 时填充 brand-ultra-light。</div>
+
+    <div class="icon-grid" style="padding-left:38px;">
+      <!-- Pet / Touch -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B9D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 00-4 0v1M14 10V4a2 2 0 00-4 0v6M10 10.5V5a2 2 0 00-4 0v9"/><path d="M18 11a2 2 0 014 0v3a8 8 0 01-8 8h-2c-2.5 0-4.7-1.3-6-3.3L4 15"/></svg>
+        </div>
+        <div class="icon-name">摸摸头</div><div class="icon-en">Pet</div>
+      </div>
+      <!-- Feed -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B9D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+        </div>
+        <div class="icon-name">喂食</div><div class="icon-en">Feed</div>
+      </div>
+      <!-- Play -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B9D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="#FF6B9D" stroke="none"/></svg>
+        </div>
+        <div class="icon-name">玩耍</div><div class="icon-en">Play</div>
+      </div>
+      <!-- Dress up -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B9D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46L16 2 12 3.46 8 2 3.62 3.46a2 2 0 00-1.34 1.77L2 22l10-3 10 3-.28-16.77a2 2 0 00-1.34-1.77z"/></svg>
+        </div>
+        <div class="icon-name">换装</div><div class="icon-en">Dress</div>
+      </div>
+      <!-- Bath -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#42A5F5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16a1 1 0 011 1v3a4 4 0 01-4 4H7a4 4 0 01-4-4v-3a1 1 0 011-1z"/><path d="M6 12V5a2 2 0 012-2h3v2.25"/><line x1="4" y1="20" x2="4" y2="21"/><line x1="20" y1="20" x2="20" y2="21"/></svg>
+        </div>
+        <div class="icon-name">洗澡</div><div class="icon-en">Bath</div>
+      </div>
+      <!-- Sleep action -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7B68EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/><path d="M15 7l2 2m0 0l2 2m-2-2l-2 2m2-2l2-2" stroke="#7B68EE" stroke-width="1.5" opacity="0.5"/></svg>
+        </div>
+        <div class="icon-name">哄睡</div><div class="icon-en">Lullaby</div>
+      </div>
+      <!-- Photo -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B9D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </div>
+        <div class="icon-name">拍照</div><div class="icon-en">Photo</div>
+      </div>
+      <!-- Gift -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFB300" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+        </div>
+        <div class="icon-name">礼物</div><div class="icon-en">Gift</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider-line"></div>
+
+  <!-- ============================================
+       4. FEED / ITEM ICONS
+       ============================================ -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">4</div>
+      <h2>道具 / 食物图标 <span class="en">Feed & Items</span></h2>
+    </div>
+    <div class="section-desc">背包网格 / 商店使用，面性彩色风格，每个道具有独特造型和辨识度。</div>
+
+    <div class="icon-grid" style="padding-left:38px;">
+      <!-- Fish -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="32" height="32" viewBox="0 0 32 32"><path d="M24 16c-2-4-6-6-10-6S6 12 4 16c2 4 6 6 10 6s8-2 10-6z" fill="#42A5F5"/><path d="M24 16l5-4v8l-5-4z" fill="#64B5F6"/><circle cx="12" cy="15" r="1.5" fill="#fff"/></svg>
+        </div>
+        <div class="icon-name">小鱼干</div><div class="icon-en">Fish</div>
+      </div>
+      <!-- Milk -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="32" height="32" viewBox="0 0 32 32"><rect x="10" y="8" width="12" height="18" rx="2" fill="#E3F2FD"/><rect x="12" y="4" width="8" height="6" rx="1" fill="#90CAF9"/><rect x="13" y="14" width="6" height="4" rx="1" fill="#FF6B9D" opacity="0.6"/></svg>
+        </div>
+        <div class="icon-name">牛奶</div><div class="icon-en">Milk</div>
+      </div>
+      <!-- Bow -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="32" height="32" viewBox="0 0 32 32"><path d="M16 18c-3-1-6-4-6-7a3 3 0 016 0c0-3 3-4 5-2s1 5-2 7l-3 2z" fill="#FF6B9D"/><circle cx="16" cy="18" r="2.5" fill="#FF508A"/></svg>
+        </div>
+        <div class="icon-name">蝴蝶结</div><div class="icon-en">Bow</div>
+      </div>
+      <!-- Star candy -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="32" height="32" viewBox="0 0 32 32"><path d="M16 6l2.5 5.5L24 12l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z" fill="#FFD54F" stroke="#FFB300" stroke-width="1"/><rect x="14" y="18" width="4" height="8" rx="1" fill="#FF6B9D" opacity="0.5"/></svg>
+        </div>
+        <div class="icon-name">星星糖</div><div class="icon-en">Star Candy</div>
+      </div>
+      <!-- Ball -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="10" fill="url(#ballGrad)"/><path d="M16 6a10 10 0 010 20" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.4"/><path d="M6 16h20" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.4"/><defs><radialGradient id="ballGrad" cx="40%" cy="35%"><stop offset="0%" stop-color="#FF9A76"/><stop offset="100%" stop-color="#FF6B9D"/></radialGradient></defs></svg>
+        </div>
+        <div class="icon-name">彩虹球</div><div class="icon-en">Ball</div>
+      </div>
+      <!-- Cookie -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="32" height="32" viewBox="0 0 32 32"><path d="M16 6c-5.5 0-10 4.5-10 10s4.5 10 10 10 10-4.5 10-10S21.5 6 16 6z" fill="#FFCC80"/><circle cx="12" cy="13" r="1.5" fill="#FF9800"/><circle cx="18" cy="12" r="1" fill="#FF9800"/><circle cx="14" cy="18" r="1.5" fill="#FF9800"/><circle cx="20" cy="17" r="1" fill="#FF9800"/><circle cx="16" cy="15" r="1" fill="#FF9800"/><path d="M16 6c-1 2-3 3-5 3" fill="none" stroke="#FF9800" stroke-width="1" opacity="0.3"/></svg>
+        </div>
+        <div class="icon-name">爱心饼干</div><div class="icon-en">Cookie</div>
+      </div>
+      <!-- Flower -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="10" r="3" fill="#F48FB1"/><circle cx="10" cy="14" r="3" fill="#F48FB1"/><circle cx="22" cy="14" r="3" fill="#F48FB1"/><circle cx="12" cy="20" r="3" fill="#F48FB1"/><circle cx="20" cy="20" r="3" fill="#F48FB1"/><circle cx="16" cy="15" r="3" fill="#FFD54F"/><line x1="16" y1="23" x2="16" y2="30" stroke="#66BB6A" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="icon-name">小花</div><div class="icon-en">Flower</div>
+      </div>
+      <!-- Medicine -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="32" height="32" viewBox="0 0 32 32"><rect x="8" y="10" width="16" height="16" rx="3" fill="#E3F2FD"/><rect x="8" y="10" width="16" height="8" rx="3" fill="#42A5F5"/><line x1="16" y1="10" x2="16" y2="26" stroke="#fff" stroke-width="2"/><line x1="11" y1="14" x2="21" y2="14" stroke="#fff" stroke-width="2"/></svg>
+        </div>
+        <div class="icon-name">药品</div><div class="icon-en">Medicine</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider-line"></div>
+
+  <!-- ============================================
+       5. NOTIFICATION ICONS
+       ============================================ -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">5</div>
+      <h2>通知 / 反馈图标 <span class="en">Notifications & Feedback</span></h2>
+    </div>
+    <div class="section-desc">Toast / 弹窗 / 角标使用，配合功能色（success/warning/error/info）。</div>
+
+    <!-- State rows -->
+    <div class="state-row" style="margin-left:38px;margin-right:24px;">
+      <span class="state-label">Success</span>
+      <div class="state-item">
+        <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#E8F5E9"/><path d="M8 12l3 3 5-5" fill="none" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="state-name">成功</span>
+      </div>
+      <div class="state-item">
+        <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#E8F5E9"/><path d="M8 12l3 3 5-5" fill="none" stroke="#388E3C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="state-name">成功·深</span>
+      </div>
+    </div>
+
+    <div class="state-row" style="margin-left:38px;margin-right:24px;">
+      <span class="state-label">Warning</span>
+      <div class="state-item">
+        <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 2L2 20h20L12 2z" fill="#FFF3E0"/><path d="M12 10v4" stroke="#FF9800" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="#FF9800"/></svg>
+        <span class="state-name">警告</span>
+      </div>
+      <div class="state-item">
+        <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#FFF3E0"/><path d="M12 8v4m0 4h.01" stroke="#F57C00" stroke-width="2" stroke-linecap="round"/></svg>
+        <span class="state-name">注意</span>
+      </div>
+    </div>
+
+    <div class="state-row" style="margin-left:38px;margin-right:24px;">
+      <span class="state-label">Error</span>
+      <div class="state-item">
+        <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#FFEBEE"/><path d="M15 9l-6 6M9 9l6 6" stroke="#F44336" stroke-width="2" stroke-linecap="round"/></svg>
+        <span class="state-name">错误</span>
+      </div>
+      <div class="state-item">
+        <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#FFEBEE"/><path d="M12 8v4m0 4h.01" stroke="#D32F2F" stroke-width="2.5" stroke-linecap="round"/></svg>
+        <span class="state-name">严重</span>
+      </div>
+    </div>
+
+    <div class="state-row" style="margin-left:38px;margin-right:24px;">
+      <span class="state-label">Info</span>
+      <div class="state-item">
+        <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#E3F2FD"/><path d="M12 16v-4m0-4h.01" stroke="#42A5F5" stroke-width="2" stroke-linecap="round"/></svg>
+        <span class="state-name">信息</span>
+      </div>
+      <div class="state-item">
+        <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#E3F2FD"/><path d="M12 16v-4m0-4h.01" stroke="#1E88E5" stroke-width="2" stroke-linecap="round"/></svg>
+        <span class="state-name">信息·深</span>
+      </div>
+    </div>
+
+    <!-- Badge variants -->
+    <div style="padding-left:38px;margin-top:20px;">
+      <div style="font-size:12px;font-weight:600;color:var(--text-600);margin-bottom:12px;">角标样式</div>
+      <div class="state-row" style="margin:0;padding:16px 20px;">
+        <span class="state-label">红点</span>
+        <div class="badge-wrap">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <span class="badge-dot"></span>
+        </div>
+        <div style="width:24px;"></div>
+        <span class="state-label">数字</span>
+        <div class="badge-wrap">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          <span class="badge-num">5</span>
+        </div>
+        <div style="width:24px;"></div>
+        <span class="state-label">大数字</span>
+        <div class="badge-wrap">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          <span class="badge-num">99+</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider-line"></div>
+
+  <!-- ============================================
+       6. EMOTION ICONS
+       ============================================ -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">6</div>
+      <h2>情绪图标 <span class="en">Emotion States</span></h2>
+    </div>
+    <div class="section-desc">宠物头顶情绪标识 / 聊天头像角标，面性彩色风格，与情绪色彩体系完全对应。</div>
+
+    <div class="emotion-row" style="padding-left:38px;">
+      <!-- Happy -->
+      <div class="emotion-card">
+        <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="#FFF9C4"/><circle cx="14" cy="17" r="2" fill="#FF6B9D"/><circle cx="26" cy="17" r="2" fill="#FF6B9D"/><path d="M13 23c2 3 5 4 7 4s5-1 7-4" fill="none" stroke="#FF6B9D" stroke-width="2" stroke-linecap="round"/><circle cx="10" cy="22" r="3" fill="#FFD54F" opacity="0.5"/><circle cx="30" cy="22" r="3" fill="#FFD54F" opacity="0.5"/></svg>
+        <div class="emo-name">开心</div><div class="emo-en">Happy</div>
+        <div class="emo-colors">
+          <div class="emo-dot" style="background:#FF6B9D;"></div>
+          <div class="emo-dot" style="background:#FFD54F;"></div>
+          <div class="emo-dot" style="background:#FFF9C4;"></div>
+        </div>
+      </div>
+      <!-- Sleepy -->
+      <div class="emotion-card">
+        <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="#EDE7F6"/><line x1="11" y1="17" x2="17" y2="17" stroke="#7B68EE" stroke-width="2.5" stroke-linecap="round"/><line x1="23" y1="17" x2="29" y2="17" stroke="#7B68EE" stroke-width="2.5" stroke-linecap="round"/><path d="M15 24c2 1.5 3.5 2 5 2s3-.5 5-2" fill="none" stroke="#7B68EE" stroke-width="1.5" stroke-linecap="round"/><text x="30" y="12" font-size="10" fill="#B39DDB">z</text><text x="34" y="8" font-size="7" fill="#B39DDB">z</text></svg>
+        <div class="emo-name">困倦</div><div class="emo-en">Sleepy</div>
+        <div class="emo-colors">
+          <div class="emo-dot" style="background:#7B68EE;"></div>
+          <div class="emo-dot" style="background:#B39DDB;"></div>
+          <div class="emo-dot" style="background:#EDE7F6;"></div>
+        </div>
+      </div>
+      <!-- Hungry -->
+      <div class="emotion-card">
+        <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="#FFF3E0"/><circle cx="14" cy="16" r="2.5" fill="#FF8A65"/><circle cx="26" cy="16" r="2.5" fill="#FF8A65"/><ellipse cx="20" cy="24" rx="4" ry="5" fill="#FF8A65"/><circle cx="10" cy="14" r="2" fill="#FFCC80" opacity="0.6"/><circle cx="30" cy="14" r="2" fill="#FFCC80" opacity="0.6"/></svg>
+        <div class="emo-name">饥饿</div><div class="emo-en">Hungry</div>
+        <div class="emo-colors">
+          <div class="emo-dot" style="background:#FF8A65;"></div>
+          <div class="emo-dot" style="background:#FFCC80;"></div>
+          <div class="emo-dot" style="background:#FFF3E0;"></div>
+        </div>
+      </div>
+      <!-- Angry -->
+      <div class="emotion-card">
+        <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="#FFEBEE"/><line x1="10" y1="14" x2="17" y2="17" stroke="#EF5350" stroke-width="2.5" stroke-linecap="round"/><line x1="30" y1="14" x2="23" y2="17" stroke="#EF5350" stroke-width="2.5" stroke-linecap="round"/><circle cx="14" cy="19" r="2" fill="#EF5350"/><circle cx="26" cy="19" r="2" fill="#EF5350"/><path d="M15 27c2-2 3.5-2.5 5-2.5s3 .5 5 2.5" fill="none" stroke="#EF5350" stroke-width="2" stroke-linecap="round"/></svg>
+        <div class="emo-name">生气</div><div class="emo-en">Angry</div>
+        <div class="emo-colors">
+          <div class="emo-dot" style="background:#EF5350;"></div>
+          <div class="emo-dot" style="background:#FF8A80;"></div>
+          <div class="emo-dot" style="background:#FFEBEE;"></div>
+        </div>
+      </div>
+      <!-- Love -->
+      <div class="emotion-card">
+        <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="#FCE4EC"/><circle cx="14" cy="17" r="2" fill="#EC407A"/><circle cx="26" cy="17" r="2" fill="#EC407A"/><path d="M15 24c2 2 3.5 2.5 5 2.5s3-.5 5-2.5" fill="none" stroke="#EC407A" stroke-width="2" stroke-linecap="round"/><path d="M20 8c-1-2-3-2-3 0 0-3-3-3-3 0 0 2 3 4 3 5 0-1 3-3 3-5 0-3-3-3-3 0 0-2-2-2-3 0z" fill="#F48FB1" transform="scale(0.5) translate(16,4)"/></svg>
+        <div class="emo-name">恋爱</div><div class="emo-en">In Love</div>
+        <div class="emo-colors">
+          <div class="emo-dot" style="background:#EC407A;"></div>
+          <div class="emo-dot" style="background:#F48FB1;"></div>
+          <div class="emo-dot" style="background:#FCE4EC;"></div>
+        </div>
+      </div>
+      <!-- Cold -->
+      <div class="emotion-card">
+        <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="#E3F2FD"/><circle cx="14" cy="17" r="2" fill="#42A5F5"/><circle cx="26" cy="17" r="2" fill="#42A5F5"/><path d="M16 24c2 1 3 1 4 1s2 0 4-1" fill="none" stroke="#42A5F5" stroke-width="1.5" stroke-linecap="round"/><path d="M8 8l4 4M32 8l-4 4M6 20h4M34 20h-4" stroke="#90CAF9" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/><circle cx="10" cy="28" r="1.5" fill="#90CAF9" opacity="0.4"/><circle cx="30" cy="28" r="1.5" fill="#90CAF9" opacity="0.4"/></svg>
+        <div class="emo-name">生病/冷</div><div class="emo-en">Cold</div>
+        <div class="emo-colors">
+          <div class="emo-dot" style="background:#42A5F5;"></div>
+          <div class="emo-dot" style="background:#90CAF9;"></div>
+          <div class="emo-dot" style="background:#E3F2FD;"></div>
+        </div>
+      </div>
+      <!-- Excited -->
+      <div class="emotion-card">
+        <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="#FFF8E1"/><circle cx="14" cy="16" r="3" fill="#FF6F00"/><circle cx="26" cy="16" r="3" fill="#FF6F00"/><circle cx="14" cy="16" r="1.2" fill="#fff"/><circle cx="26" cy="16" r="1.2" fill="#fff"/><path d="M13 23c2 3 4 4 7 4s5-1 7-4" fill="#FFB74D"/><line x1="6" y1="8" x2="8" y2="12" stroke="#FFB74D" stroke-width="1.5" stroke-linecap="round"/><line x1="34" y1="8" x2="32" y2="12" stroke="#FFB74D" stroke-width="1.5" stroke-linecap="round"/><line x1="4" y1="20" x2="8" y2="20" stroke="#FFB74D" stroke-width="1.5" stroke-linecap="round"/><line x1="36" y1="20" x2="32" y2="20" stroke="#FFB74D" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <div class="emo-name">兴奋</div><div class="emo-en">Excited</div>
+        <div class="emo-colors">
+          <div class="emo-dot" style="background:#FF6F00;"></div>
+          <div class="emo-dot" style="background:#FFB74D;"></div>
+          <div class="emo-dot" style="background:#FFF8E1;"></div>
+        </div>
+      </div>
+      <!-- Normal -->
+      <div class="emotion-card">
+        <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="#FFF0F5"/><circle cx="14" cy="17" r="2" fill="#FFB7C5"/><circle cx="26" cy="17" r="2" fill="#FFB7C5"/><line x1="15" y1="24" x2="25" y2="24" stroke="#FFB7C5" stroke-width="2" stroke-linecap="round"/></svg>
+        <div class="emo-name">日常</div><div class="emo-en">Normal</div>
+        <div class="emo-colors">
+          <div class="emo-dot" style="background:#FFB7C5;"></div>
+          <div class="emo-dot" style="background:#FFFFFF;"></div>
+          <div class="emo-dot" style="background:#FFF0F5;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider-line"></div>
+
+  <!-- ============================================
+       7. UTILITY ICONS
+       ============================================ -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">7</div>
+      <h2>通用操作图标 <span class="en">Utility Icons</span></h2>
+    </div>
+    <div class="section-desc">关闭/返回/更多/搜索/分享等通用操作，线性风格，全局复用。</div>
+
+    <div class="icon-grid" style="padding-left:38px;">
+      <!-- Close -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+        <div class="icon-name">关闭</div><div class="icon-en">Close</div>
+      </div>
+      <!-- Back -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </div>
+        <div class="icon-name">返回</div><div class="icon-en">Back</div>
+      </div>
+      <!-- More -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#1A1A1A"><circle cx="12" cy="12" r="1.5"/><circle cx="6" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/></svg>
+        </div>
+        <div class="icon-name">更多</div><div class="icon-en">More</div>
+      </div>
+      <!-- Search -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <div class="icon-name">搜索</div><div class="icon-en">Search</div>
+      </div>
+      <!-- Share -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </div>
+        <div class="icon-name">分享</div><div class="icon-en">Share</div>
+      </div>
+      <!-- Download -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <div class="icon-name">下载</div><div class="icon-en">Download</div>
+      </div>
+      <!-- Edit -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </div>
+        <div class="icon-name">编辑</div><div class="icon-en">Edit</div>
+      </div>
+      <!-- Delete -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F44336" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+        </div>
+        <div class="icon-name">删除</div><div class="icon-en">Delete</div>
+      </div>
+      <!-- Check -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="icon-name">确认</div><div class="icon-en">Check</div>
+      </div>
+      <!-- Help -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#42A5F5" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="icon-name">帮助</div><div class="icon-en">Help</div>
+      </div>
+      <!-- Eye / Visibility -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <div class="icon-name">查看</div><div class="icon-en">View</div>
+      </div>
+      <!-- Heart outline (favorite) -->
+      <div class="icon-card">
+        <div class="icon-display">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B9D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        </div>
+        <div class="icon-name">收藏</div><div class="icon-en">Favorite</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider-line"></div>
+
+  <!-- ============================================
+       8. SIZE SPEC
+       ============================================ -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">8</div>
+      <h2>尺寸规范 <span class="en">Size Specification</span></h2>
+    </div>
+    <div class="section-desc">所有 icon 以 24px 为基准设计，等比缩放到各场景尺寸。</div>
+
+    <div class="size-row" style="margin-left:38px;margin-right:24px;">
+      <div class="size-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF6B9D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        <span class="size-label">16px</span>
+      </div>
+      <div class="size-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF6B9D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        <span class="size-label">20px</span>
+      </div>
+      <div class="size-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B9D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        <span class="size-label">24px · 基准</span>
+      </div>
+      <div class="size-item">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FF6B9D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        <span class="size-label">32px</span>
+      </div>
+      <div class="size-item">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#FF6B9D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        <span class="size-label">48px</span>
+      </div>
+    </div>
+
+    <table class="spec-table" style="margin-left:38px;margin-right:24px;">
+      <thead><tr><th>场景</th><th>推荐尺寸</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>导航栏图标</td><td class="mono">24px</td><td>底部 Tab / 顶部导航</td></tr>
+        <tr><td>按钮内图标</td><td class="mono">16px / 20px</td><td>配合文字使用，小一档</td></tr>
+        <tr><td>列表/菜单项图标</td><td class="mono">20px</td><td>右键菜单、设置列表</td></tr>
+        <tr><td>道具网格图标</td><td class="mono">32px</td><td>背包/商店格子内</td></tr>
+        <tr><td>情绪头像角标</td><td class="mono">16px</td><td>聊天头像右下角小标</td></tr>
+        <tr><td>空状态/引导页大图标</td><td class="mono">48px / 64px</td><td>页面中心装饰</td></tr>
+        <tr><td>Toast 图标</td><td class="mono">20px</td><td>轻提示左侧</td></tr>
+        <tr><td>角标/红点</td><td class="mono">8px (dot) / 16px (num)</td><td>通知计数</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    HelloKitty Desktop Pet - Icon Design System v1.0 &mdash; QoderWork
+  </div>
+
+</div>
+</body>
+</html>

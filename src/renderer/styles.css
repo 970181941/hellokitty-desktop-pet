@@ -138,7 +138,7 @@ html, body {
   white-space: nowrap;
 }
 #quick-chat::before {
-  content: '💭'; position: absolute; left: -18px; top: -8px;
+  content: ''; position: absolute; left: -18px; top: -8px;
   font-size: 10px; opacity: 0; transition: opacity 0.3s;
   animation: none;
 }

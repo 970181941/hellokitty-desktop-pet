@@ -1,0 +1,296 @@
+{
+  "name": "HelloKitty Desktop Pet - 角色形象设计系统",
+  "version": "1.0.0",
+  "designSpec": {
+    "headBodyRatio": "2:1 (大头小身)",
+    "headShape": "圆形 + 微椭圆",
+    "headProportion": "宽高比约 1:0.95",
+    "eyes": "黑色圆点 · 无高光 · 经典 Hello Kitty 风格",
+    "nose": "黄色椭圆 · #FFB300 · 位于面部中央偏上",
+    "whiskers": "3 对 · 短线 · 左右各 3 根",
+    "bow": "粉色 · #FF6B9D · 左耳上方",
+    "body": "简笔椭圆/梯形 · 无四肢细节或简化肢体",
+    "stroke": "深灰 #333 · 1.5px",
+    "fill": "白色 #FFFFFF · 角色主体白色",
+    "blush": "粉色圆 · #FFD4E5 · 两侧脸颊",
+    "grid": "100x100 viewBox (基准)",
+    "scaling": "可缩放至任意尺寸"
+  },
+  "colorTokens": {
+    "body": "#FFFFFF",
+    "stroke": "#333333",
+    "bow": "#FF6B9D",
+    "bowCenter": "#FFB300",
+    "nose": "#FFB300",
+    "eyes": "#333333",
+    "blush": "#FFD4E5",
+    "blushColors": {
+      "normal": "#FFF0F5",
+      "happy": "#FFD4E5",
+      "sad": "#E3F2FD",
+      "angry": "#FFEBEE",
+      "surprised": "#E8F5E9",
+      "shy": "#F48FB1",
+      "sleepy": "#EDE7F6",
+      "thinking": "#FFF3E0",
+      "excited": "#FFF9C4",
+      "inLove": "#FCE4EC"
+    }
+  },
+  "characterPoses": {
+    "base": {
+      "description": "基础姿态 - 角色静止状态",
+      "poses": [
+        {
+          "id": "standing",
+          "name": "站立",
+          "description": "默认待机姿态，双手自然下垂",
+          "useCase": "待机、默认显示"
+        },
+        {
+          "id": "sitting",
+          "name": "坐姿",
+          "description": "放松休息，双腿前伸",
+          "useCase": "休息、等待"
+        },
+        {
+          "id": "walking",
+          "name": "行走",
+          "description": "迈步姿态，手臂摆动",
+          "useCase": "移动、切换场景"
+        },
+        {
+          "id": "running",
+          "name": "奔跑",
+          "description": "身体前倾，快速移动",
+          "useCase": "紧急、加速"
+        }
+      ]
+    },
+    "expressions": {
+      "description": "表情系统 - 通过眼睛、嘴巴、眉毛、腮红表达情绪",
+      "expressions": [
+        {
+          "id": "happy",
+          "name": "开心",
+          "eyes": "弯月眼 (closed arcs)",
+          "mouth": "大笑嘴 (smile arc)",
+          "blush": "#FFD4E5 (加深)",
+          "blushSize": "4px",
+          "features": "弯月眼 + 大笑嘴 + 加深腮红",
+          "useCase": "互动成功、任务完成"
+        },
+        {
+          "id": "sad",
+          "name": "难过",
+          "eyes": "下垂眼 (droopy)",
+          "mouth": "下弯嘴 (frown)",
+          "blush": "#E3F2FD (冷色)",
+          "blushSize": "3px",
+          "features": "下垂眼 + 泪滴 + 冷色腮红",
+          "useCase": "失败、低状态"
+        },
+        {
+          "id": "angry",
+          "name": "生气",
+          "eyes": "怒视 (angry dots)",
+          "eyebrows": "下压眉 (downward)",
+          "mouth": "锯齿嘴 (zigzag)",
+          "blush": "#FFEBEE (红)",
+          "blushSize": "3px",
+          "features": "下压眉 + 锯齿嘴 + 红色腮红",
+          "useCase": "被忽视、状态差"
+        },
+        {
+          "id": "surprised",
+          "name": "惊讶",
+          "eyes": "大圆眼 (big round)",
+          "mouth": "O型嘴 (O shape)",
+          "blush": "#E8F5E9 (绿)",
+          "blushSize": "3px",
+          "features": "大圆眼 + O型嘴 + 绿色腮红",
+          "useCase": "意外事件、通知"
+        },
+        {
+          "id": "shy",
+          "name": "害羞",
+          "eyes": "横线眼 (horizontal line)",
+          "mouth": "小嘴 (small)",
+          "blush": "#F48FB1 (超大)",
+          "blushSize": "5px",
+          "features": "横线眼 + 小嘴 + 超大腮红",
+          "useCase": "被夸奖、亲密互动"
+        },
+        {
+          "id": "sleepy",
+          "name": "困倦",
+          "eyes": "闭眼线 (closed)",
+          "mouth": "平直线 (flat)",
+          "blush": "#EDE7F6 (紫)",
+          "blushSize": "3px",
+          "accessories": "zzz 睡眠符号",
+          "features": "闭眼线 + zzz + 紫色腮红",
+          "useCase": "疲劳、低精力"
+        },
+        {
+          "id": "thinking",
+          "name": "思考",
+          "eyes": "向上看 (looking up)",
+          "mouth": "歪嘴 (tilted)",
+          "blush": "#FFF3E0 (橙)",
+          "blushSize": "3px",
+          "accessories": "手托下巴",
+          "features": "向上看 + 歪嘴 + 手托下巴",
+          "useCase": "等待、加载"
+        },
+        {
+          "id": "excited",
+          "name": "兴奋",
+          "eyes": "星星眼 (star shape)",
+          "mouth": "大笑嘴 (big smile)",
+          "blush": "#FFF9C4 (黄)",
+          "blushSize": "4px",
+          "features": "星星眼 + 大笑嘴 + 黄色腮红",
+          "useCase": "升级、获得奖励"
+        },
+        {
+          "id": "inLove",
+          "name": "恋爱",
+          "eyes": "心形眼 (heart shape)",
+          "mouth": "微笑 (smile)",
+          "blush": "#FCE4EC (粉)",
+          "blushSize": "5px",
+          "features": "心形眼 + 微笑 + 粉色腮红",
+          "useCase": "恋爱状态、亲密互动"
+        },
+        {
+          "id": "normal",
+          "name": "日常",
+          "eyes": "标准圆点 (standard dots)",
+          "mouth": "小微笑 (small smile)",
+          "blush": "#FFF0F5 (默认)",
+          "blushSize": "3px",
+          "features": "标准表情",
+          "useCase": "默认状态"
+        }
+      ]
+    },
+    "actions": {
+      "description": "动作姿态 - 角色互动行为",
+      "actions": [
+        {
+          "id": "waving",
+          "name": "打招呼",
+          "description": "抬手挥手，欢迎姿态",
+          "expression": "happy",
+          "pose": "standing",
+          "useCase": "欢迎页、初次见面"
+        },
+        {
+          "id": "hugging",
+          "name": "抱抱",
+          "description": "张开双臂，温暖拥抱",
+          "expression": "happy",
+          "pose": "standing",
+          "useCase": "感谢、鼓励"
+        },
+        {
+          "id": "eating",
+          "name": "吃东西",
+          "description": "手持食物，开心咀嚼",
+          "expression": "happy",
+          "pose": "sitting",
+          "accessories": "食物 (#FF9800)",
+          "useCase": "喂食互动"
+        },
+        {
+          "id": "drinking",
+          "name": "喝水",
+          "description": "手持杯子，补充水分",
+          "expression": "normal",
+          "pose": "sitting",
+          "accessories": "杯子 (#E3F2FD)",
+          "useCase": "喝水互动"
+        },
+        {
+          "id": "sleeping",
+          "name": "睡觉",
+          "description": "躺卧姿态，zzz 睡眠",
+          "expression": "sleepy",
+          "pose": "lying",
+          "accessories": "枕头 (#FFF0F5), zzz 符号",
+          "useCase": "休息、夜间模式"
+        },
+        {
+          "id": "working",
+          "name": "工作",
+          "description": "戴眼镜 + 敲键盘",
+          "expression": "thinking",
+          "pose": "sitting",
+          "accessories": "眼镜 (#42A5F5), 电脑 (#E3F2FD)",
+          "useCase": "工作模式、专注状态"
+        },
+        {
+          "id": "playing",
+          "name": "玩耍",
+          "description": "举手 + 玩球",
+          "expression": "excited",
+          "pose": "standing",
+          "accessories": "球 (#FF6B9D)",
+          "useCase": "游戏互动"
+        },
+        {
+          "id": "takingPhotos",
+          "name": "拍照",
+          "description": "手持相机，记录瞬间",
+          "expression": "happy",
+          "pose": "standing",
+          "accessories": "相机 (#333 + #42A5F5)",
+          "useCase": "拍照功能、截图"
+        }
+      ]
+    }
+  },
+  "accessories": {
+    "description": "配件装扮系统",
+    "items": [
+      {
+        "id": "bow",
+        "name": "蝴蝶结",
+        "color": "#FF6B9D",
+        "centerColor": "#FFB300",
+        "position": "左耳上方",
+        "default": true
+      },
+      {
+        "id": "glasses",
+        "name": "眼镜",
+        "color": "#42A5F5",
+        "position": "眼睛",
+        "useCase": "工作、学习状态"
+      },
+      {
+        "id": "pillow",
+        "name": "枕头",
+        "color": "#FFF0F5",
+        "position": "头部下方",
+        "useCase": "睡觉姿态"
+      }
+    ]
+  },
+  "sizeSpec": {
+    "avatar": "80px (头像)",
+    "character": "100-150px (全身)",
+    "mini": "40-60px (迷你版)",
+    "large": "200px+ (展示用)",
+    "viewBox": "100x100 (基准)"
+  },
+  "usageNotes": [
+    "所有角色形象使用 SVG 矢量绘制，可无损缩放至任意尺寸",
+    "表情变化主要通过眼睛、嘴巴、腮红、眉毛实现，身体姿态保持不变",
+    "腮红颜色随情绪变化，这是表达情绪的重要视觉信号",
+    "配件系统可扩展，通过替换/叠加 SVG 元素实现换装",
+    "动作姿态可与表情自由组合，如 happy + eating = 开心吃东西",
+    "viewBox 统一为 0 0 100 100，通过 width/height 控制实际显示尺寸"
+  ]
+}

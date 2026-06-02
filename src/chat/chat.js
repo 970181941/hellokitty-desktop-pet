@@ -1,7 +1,8 @@
 // === SVG 图标常量 ===
-const SVG_CLOSE = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-const SVG_EDIT = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
-const SVG_CHAT = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>';
+const SVG_CLOSE = (s) => `<svg width="${s||11}" height="${s||11}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+const SVG_EDIT = (s) => `<svg width="${s||11}" height="${s||11}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+const SVG_CHAT = (s) => `<svg width="${s||12}" height="${s||12}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>`;
+const SVG_SEARCH = (s) => `<svg width="${s||14}" height="${s||14}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px;margin-top:-2px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`;
 
 // === DOM 元素 ===
 const messageList = document.getElementById('message-list');
@@ -153,47 +154,30 @@ async function loadAndApplySkin() {
 function applySkin(skinId) {
   const skin = SKINS[skinId] || SKINS.classic;
   const root = document.getElementById('app-wrapper');
-  root.style.setProperty('--color-bg', skin.bg);
-  root.style.setProperty('--color-bg-alt', skin.bgAlt);
+
+  // Brand colors
   root.style.setProperty('--color-primary', skin.primary);
+  root.style.setProperty('--color-primary-hover', skin.primaryHover || skin.primary);
+  root.style.setProperty('--color-primary-active', skin.primaryActive || skin.primary);
   root.style.setProperty('--color-primary-light', skin.primaryLight);
-  root.style.setProperty('--color-primary-dark', skin.primaryDark);
-  root.style.setProperty('--color-border', skin.border);
-  root.style.setProperty('--color-text-muted', skin.textMuted);
-  root.style.setProperty('--color-surface', skin.surface);
+  root.style.setProperty('--color-primary-ultra-light', skin.primaryUltraLight || skin.primaryLight);
+  root.style.setProperty('--color-secondary', skin.secondary || skin.primaryLight);
   root.style.setProperty('--color-accent', skin.accent || skin.primary);
-  root.style.setProperty('--color-shadow', skin.shadowColor || 'rgba(255,107,157,0.22)');
-  root.style.setProperty('--bubble-user-bg', skin.bubbleUser || `linear-gradient(135deg, ${skin.primary}, ${skin.primaryDark})`);
-  // Header 渐变
-  const headerGradient = skin.gradient || `linear-gradient(135deg, ${skin.primaryLight}, ${skin.primary})`;
-  document.getElementById('chat-header').style.background = headerGradient;
-  const sidePanelHeader = document.querySelector('.side-panel-header');
-  if (sidePanelHeader) {
-    sidePanelHeader.style.background = headerGradient;
-  }
-  // 消息区域装饰图案
-  if (skin.pattern) {
-    root.style.setProperty('--skin-pattern', skin.pattern);
-  }
-  // 阴影体系
-  if (skin.shadowColor) {
-    root.style.setProperty('--shadow-sm', `0 1px 4px ${skin.shadowColor.replace('0.22', '0.08').replace('0.25', '0.08').replace('0.20', '0.08')}`);
-    root.style.setProperty('--shadow-md', `0 4px 14px ${skin.shadowColor.replace('0.22', '0.14').replace('0.25', '0.14').replace('0.20', '0.14')}`);
-    root.style.setProperty('--shadow-lg', `0 8px 24px ${skin.shadowColor.replace('0.22', '0.20').replace('0.25', '0.20').replace('0.20', '0.20')}`);
-    root.style.setProperty('--shadow-glow', `0 0 20px ${skin.shadowColor.replace('0.22', '0.25').replace('0.25', '0.28').replace('0.20', '0.25')}`);
-  }
-  // 暗夜模式处理
+  root.style.setProperty('--text-brand', skin.textBrand || skin.primary);
+  root.style.setProperty('--shadow-brand', skin.shadowBrand || 'rgba(0,0,0,0.1)');
+  root.style.setProperty('--hover-overlay', skin.hoverOverlay || 'rgba(0,0,0,0.04)');
+  root.style.setProperty('--active-overlay', skin.activeOverlay || 'rgba(0,0,0,0.08)');
+  root.style.setProperty('--focus-ring', skin.focusRing || 'rgba(0,0,0,0.2)');
+  root.style.setProperty('--divider-brand', skin.dividerBrand || skin.primaryLight);
+  root.style.setProperty('--bubble-user-bg', skin.bubbleUser || skin.primary);
+
+  // Dark mode handling
   if (skin.dark) {
     root.setAttribute('data-theme', 'dark');
-    // 暗夜皮肤需要反转文字颜色
-    root.style.setProperty('--color-primary-dark', '#E0E0F0');
-    root.style.setProperty('--glass-bg', 'rgba(37,37,64,0.72)');
-    root.style.setProperty('--glass-border', 'rgba(58,58,92,0.5)');
   } else {
     root.removeAttribute('data-theme');
-    root.style.setProperty('--glass-bg', 'rgba(255,255,255,0.72)');
-    root.style.setProperty('--glass-border', 'rgba(255,255,255,0.5)');
   }
+
   currentSkinId = skinId;
 }
 
@@ -442,7 +426,7 @@ function renderScheduleList() {
 
     const delBtn = document.createElement('button');
     delBtn.className = 'event-delete';
-    delBtn.innerHTML = SVG_CLOSE;
+    delBtn.innerHTML = SVG_CLOSE();
     delBtn.setAttribute('aria-label', '删除日程');
     delBtn.addEventListener('click', () => {
       deleteScheduleEvent(event.id);
@@ -550,7 +534,7 @@ function renderTodoList() {
 
     const delBtn = document.createElement('button');
     delBtn.className = 'todo-delete';
-    delBtn.innerHTML = SVG_CLOSE;
+    delBtn.innerHTML = SVG_CLOSE();
     delBtn.setAttribute('aria-label', '删除待办');
     delBtn.addEventListener('click', () => deleteTodo(todo.id));
 
@@ -722,11 +706,11 @@ function renderSkinGrid() {
 
     const preview = document.createElement('div');
     preview.className = 'skin-preview';
-    // 使用径向渐变模拟柔光圆底效果
+    // 使用品牌色展示皮肤预览
     if (skin.dark) {
-      preview.style.background = `radial-gradient(circle at 40% 35%, ${skin.surface} 0%, ${skin.primary}66 50%, ${skin.primaryLight}33 100%)`;
+      preview.style.background = `linear-gradient(135deg, #1A1A2E 0%, ${skin.primary} 100%)`;
     } else {
-      preview.style.background = `radial-gradient(circle at 40% 35%, #FFFFFF 0%, ${skin.primaryLight}66 50%, ${skin.primary}33 100%)`;
+      preview.style.background = `linear-gradient(135deg, ${skin.primaryLight} 0%, ${skin.primary} 100%)`;
     }
 
     const name = document.createElement('span');
@@ -1484,9 +1468,9 @@ function showEmptyState() {
   empty.className = 'empty-state';
   empty.id = 'empty-state';
   if (currentChatMode === 'friend') {
-    empty.innerHTML = `<div class="empty-icon empty-icon-friend">💬</div><div class="empty-text">和 ${currentFriendName || '好友'} 打个招呼吧~</div>`;
+    empty.innerHTML = `<div class="empty-icon empty-icon-friend"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg></div><div class="empty-text">和 ${currentFriendName || '好友'} 打个招呼吧~</div>`;
   } else {
-    empty.innerHTML = '<div class="empty-icon"><img src="assets/empty-state.png" alt="Kitty" class="empty-illustration"></div><div class="empty-text">和 Kitty 打个招呼吧~</div><div class="empty-subtext">发送消息开始你们的旅程 ✨</div>';
+    empty.innerHTML = '<div class="empty-icon"><img src="assets/empty-state.png" alt="Kitty" class="empty-illustration"></div><div class="empty-text">和 Kitty 打个招呼吧~</div><div class="empty-subtext">发送消息开始你们的旅程</div>';
   }
   messageList.appendChild(empty);
 }
@@ -1510,12 +1494,12 @@ function initFriendsPanel() {
       if (isScanning) {
         await window.chatAPI.lanStopDiscovery();
         isScanning = false;
-        scanBtn.textContent = '🔍 搜索附近的好友';
+        scanBtn.innerHTML = SVG_SEARCH() + '搜索附近的好友';
         scanBtn.classList.remove('scanning');
       } else {
         await window.chatAPI.lanStartDiscovery();
         isScanning = true;
-        scanBtn.textContent = '⏹ 停止搜索';
+        scanBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:inline-block;vertical-align:middle;margin-right:4px;margin-top:-2px"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>停止搜索`;
         scanBtn.classList.add('scanning');
         document.getElementById('friends-scan-status').textContent = '正在搜索局域网好友...';
         // 定时刷新发现列表
@@ -1733,7 +1717,7 @@ function renderFriendsList() {
     // 聊天按钮
     const chatBtn = document.createElement('button');
     chatBtn.className = 'friend-action-btn chat-btn';
-    chatBtn.innerHTML = SVG_CHAT;
+    chatBtn.innerHTML = SVG_CHAT();
     chatBtn.title = '聊天';
     chatBtn.setAttribute('aria-label', '聊天');
     chatBtn.addEventListener('click', (e) => {
@@ -1744,7 +1728,7 @@ function renderFriendsList() {
     // 编辑按钮
     const editBtn = document.createElement('button');
     editBtn.className = 'friend-action-btn';
-    editBtn.innerHTML = SVG_EDIT;
+    editBtn.innerHTML = SVG_EDIT();
     editBtn.title = '修改备注';
     editBtn.setAttribute('aria-label', '修改备注');
     editBtn.addEventListener('click', (e) => {
@@ -1755,7 +1739,7 @@ function renderFriendsList() {
     // 删除按钮
     const delBtn = document.createElement('button');
     delBtn.className = 'friend-action-btn delete-btn';
-    delBtn.innerHTML = SVG_CLOSE;
+    delBtn.innerHTML = SVG_CLOSE();
     delBtn.title = '删除好友';
     delBtn.setAttribute('aria-label', '删除好友');
     delBtn.addEventListener('click', async (e) => {
@@ -1935,7 +1919,7 @@ function handleLANEvent(payload) {
       isScanning = false;
       const scanBtn = document.getElementById('friends-scan-btn');
       if (scanBtn) {
-        scanBtn.textContent = '🔍 搜索附近的好友';
+        scanBtn.innerHTML = SVG_SEARCH() + '搜索附近的好友';
         scanBtn.classList.remove('scanning');
       }
       const scanStatus = document.getElementById('friends-scan-status');
