@@ -5,6 +5,11 @@ const { WINDOW_CONFIG } = require('../renderer/utils/constants');
 
 let mainWindow = null;
 let chatWindow = null;
+let isQuitting = false;
+
+function setQuitting(val) {
+  isQuitting = val;
+}
 
 function createWindow() {
   const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
@@ -112,23 +117,23 @@ function createChatWindow() {
   // 确保 y 不小于 0
   y = Math.max(0, y);
 
-  // 根据皮肤设置背景色（低饱和度柔和色调）
+  // 根据皮肤设置背景色（2025 高饱和清新配色）
   const SKIN_BG_COLORS = {
-    sakura: '#fdf5f7',
-    ocean: '#f2f6fa',
-    lavender: '#f5f2fa',
-    mint: '#f2f7f4',
-    peach: '#faf5f0',
-    starry: '#f2f2f8',
-    candy: '#faf2f5',
-    matcha: '#f4f3ec',
-    sunset: '#faf4f0',
-    rose: '#f8f2f0',
-    honey: '#faf7ef',
-    arctic: '#f0f5f8',
+    sakura: '#FFF0F6',
+    candy: '#FDF2F8',
+    rose: '#FFF1F2',
+    ocean: '#F0F9FF',
+    starry: '#EEF2FF',
+    arctic: '#ECFEFF',
+    lavender: '#F5F3FF',
+    grape: '#FAF5FF',
+    mint: '#ECFDF5',
+    matcha: '#F0FDF4',
+    peach: '#FFF7ED',
+    sunset: '#FEF2F2',
   };
   const skinId = store.get('skinId', 'sakura');
-  const bgColor = SKIN_BG_COLORS[skinId] || '#fdf5f7';
+  const bgColor = SKIN_BG_COLORS[skinId] || '#FFF0F6';
 
   chatWindow = new BrowserWindow({
     width: chatWidth,
@@ -151,10 +156,13 @@ function createChatWindow() {
 
   chatWindow.loadFile(path.join(__dirname, '..', 'chat', 'index.html'));
 
-  // 关闭时隐藏而非销毁
+  // 关闭时：退出流程中销毁，否则隐藏到后台
   chatWindow.on('close', (e) => {
-    e.preventDefault();
-    chatWindow.hide();
+    if (!isQuitting) {
+      e.preventDefault();
+      chatWindow.hide();
+    }
+    // isQuitting 时不拦截，允许正常关闭
   });
 
   chatWindow.on('closed', () => {
@@ -186,4 +194,5 @@ module.exports = {
   createChatWindow,
   getChatWindow,
   showChatWindow,
+  setQuitting,
 };

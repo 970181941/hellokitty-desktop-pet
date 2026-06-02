@@ -1,12 +1,23 @@
 const { app, ipcMain, Menu, dialog, Notification } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { createWindow, getWindow, saveWindowPosition, getScreenSize, showChatWindow, getChatWindow } = require('./windowManager');
+const { createWindow, getWindow, saveWindowPosition, getScreenSize, showChatWindow, getChatWindow, setQuitting } = require('./windowManager');
 const { createTray, updateTrayMenu } = require('./trayManager');
 const store = require('./store');
 const AIService = require('./AIService');
 const Updater = require('./updater');
 const LANService = require('./LANService');
+
+// === 单实例锁：防止重复启动 ===
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  // 已有实例在运行，直接退出
+  app.quit();
+  return;
+}
+
+// 全局退出标志
+let isQuitting = false;
 
 // 隐藏 Dock 图标 (macOS)
 if (process.platform === 'darwin') {
@@ -149,6 +160,7 @@ app.whenReady().then(() => {
   ipcMain.on('quit-app', () => {
     saveWindowPosition();
     store.set('lastCloseTime', Date.now());
+    lanService.stop();
     app.quit();
   });
 
@@ -547,9 +559,40 @@ app.whenReady().then(() => {
   });
 });
 
+// === 退出流程管理 ===
+
+app.on('before-quit', () => {
+  isQuitting = true;
+  setQuitting(true);  // 通知 windowManager 允许关闭聊天窗口
+  // 强制销毁聊天窗口
+  const chatWin = getChatWindow();
+  if (chatWin && !chatWin.isDestroyed()) {
+    chatWin.destroy();
+  }
+  // 安全网：5 秒后仍未退出则强制退出
+  setTimeout(() => {
+    console.error('[App] 退出超时，强制退出');
+    process.exit(0);
+  }, 5000).unref();
+});
+
+// 安全网：如果 3 秒后还没退出，强制退出
+app.on('will-quit', () => {
+  // 正常退出，不需要额外处理
+});
+
+// 第二个实例启动时，聚焦已有窗口
+app.on('second-instance', () => {
+  const win = getWindow();
+  if (win) {
+    if (!win.isVisible()) win.show();
+    win.focus();
+  }
+});
+
 // macOS: 关闭窗口时隐藏到托盘而非退出
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+  if (process.platform !== 'darwin' || isQuitting) {
     app.quit();
   }
 });
