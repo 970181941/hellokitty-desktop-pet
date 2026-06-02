@@ -1,0 +1,131 @@
+{
+  "name": "HelloKitty Desktop Pet - Color System",
+  "version": "1.0.0",
+  "skins": {
+    "classic_pink": {
+      "name": "经典原版",
+      "bow": "#FF6B9D",
+      "body": "#FFFFFF",
+      "glow_inner": "#FFD4E5",
+      "glow_outer": "#FF6B9D",
+      "nose": "#FFB300",
+      "outline": "#333333",
+      "glow_opacity": { "inner": 0.6, "outer": 0.15 }
+    },
+    "macaron_cream": {
+      "name": "奶油马卡龙",
+      "bow": "#B5D8CC",
+      "body": "#FFF9F0",
+      "glow_inner": "#F2D7D9",
+      "glow_outer": "#B5D8CC",
+      "nose": "#E8D5B7",
+      "outline": "#6B6B6B",
+      "glow_opacity": { "inner": 0.6, "outer": 0.15 }
+    },
+    "candy_neon": {
+      "name": "糖果霓虹",
+      "bow_gradient_start": "#FF006E",
+      "bow_gradient_end": "#FB5607",
+      "body": "#FFFFFF",
+      "glow_inner": "#8338EC",
+      "glow_outer": "#3A86FF",
+      "accent": "#06D6A0",
+      "nose": "#FFB300",
+      "outline": "#222222",
+      "glow_opacity": { "inner": 0.5, "outer": 0.2 }
+    },
+    "night_mode": {
+      "name": "暗夜星梦",
+      "bow": "#7B68EE",
+      "body": "#E8E0F0",
+      "glow_inner": "#1A1A2E",
+      "glow_outer": "#7B68EE",
+      "nose": "#FFD700",
+      "outline": "#4A4A6A",
+      "glow_opacity": { "inner": 0.85, "outer": 0.3 }
+    },
+    "seasonal_sakura": {
+      "name": "季节限定-春樱",
+      "bow": "#FFB7C5",
+      "body": "#FFF5F7",
+      "glow_gradient_start": "#FFB7C5",
+      "glow_gradient_end": "#FF9AA2",
+      "accent": "#C8E6C9",
+      "nose": "#FFB300",
+      "outline": "#5D4037",
+      "glow_opacity": { "inner": 0.6, "outer": 0.2 }
+    },
+    "holiday_christmas": {
+      "name": "节日限定-圣诞",
+      "bow": "#E53935",
+      "body": "#FFFFFF",
+      "glow_inner": "#2E7D32",
+      "glow_outer": "#E53935",
+      "nose": "#FFD54F",
+      "outline": "#333333",
+      "glow_opacity": { "inner": 0.4, "outer": 0.2 }
+    }
+  },
+  "emotions": {
+    "happy": {
+      "name": "开心",
+      "primary": "#FF6B9D",
+      "secondary": "#FFD54F",
+      "glow": "#FFF9C4"
+    },
+    "sleepy": {
+      "name": "困倦",
+      "primary": "#7B68EE",
+      "secondary": "#B39DDB",
+      "glow": "#EDE7F6"
+    },
+    "hungry": {
+      "name": "饥饿",
+      "primary": "#FF8A65",
+      "secondary": "#FFCC80",
+      "glow": "#FFF3E0"
+    },
+    "angry": {
+      "name": "生气",
+      "primary": "#EF5350",
+      "secondary": "#FF8A80",
+      "glow": "#FFEBEE"
+    },
+    "love": {
+      "name": "恋爱",
+      "primary": "#EC407A",
+      "secondary": "#F48FB1",
+      "glow": "#FCE4EC"
+    },
+    "cold": {
+      "name": "生病/冷",
+      "primary": "#42A5F5",
+      "secondary": "#90CAF9",
+      "glow": "#E3F2FD"
+    },
+    "excited": {
+      "name": "兴奋",
+      "primary": "#FF6F00",
+      "secondary": "#FFB74D",
+      "glow": "#FFF8E1"
+    },
+    "normal": {
+      "name": "日常",
+      "primary": "#FFB7C5",
+      "secondary": "#FFFFFF",
+      "glow": "#FFF0F5"
+    }
+  },
+  "transitions": {
+    "skin_switch": { "duration": "500ms", "easing": "ease-in-out" },
+    "emotion_switch": { "duration": "300ms", "easing": "ease-out", "bow_delay": "100ms" },
+    "day_night": { "duration": "800ms", "easing": "ease-in-out" },
+    "click_bounce": { "duration": "200ms", "easing": "cubic-bezier(0.34, 1.56, 0.64, 1)", "scale": [1.0, 1.15, 1.0] },
+    "idle_breathing": { "duration": "2000ms", "easing": "ease-in-out", "loop": true, "glow_scale": [0.8, 1.0, 0.8] }
+  },
+  "glow_radius": {
+    "pet_size_64": { "inner": 32, "outer": 48 },
+    "pet_size_96": { "inner": 48, "outer": 72 },
+    "pet_size_128": { "inner": 64, "outer": 96 }
+  }
+}

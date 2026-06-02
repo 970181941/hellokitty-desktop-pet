@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HelloKitty 桌面宠物 - 配色方案设计</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+    background: #FFF0F5;
+    color: #333;
+    line-height: 1.6;
+  }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #FF6B9D;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+  .header .subtitle {
+    font-size: 15px;
+    color: #999;
+    font-weight: 400;
+  }
+
+  /* Section Title */
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title .icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .section-desc {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 28px;
+    padding-left: 38px;
+  }
+
+  /* Skin Cards */
+  .skins-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 24px;
+    margin-bottom: 56px;
+  }
+  .skin-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 2px 20px rgba(255,107,157,0.08);
+    border: 1px solid rgba(255,107,157,0.1);
+    transition: transform 0.2s;
+  }
+  .skin-card:hover { transform: translateY(-2px); }
+
+  .skin-name {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .skin-en {
+    font-size: 12px;
+    color: #bbb;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+
+  /* Color Rows */
+  .color-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .color-swatch {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    flex-shrink: 0;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+  }
+  .color-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .color-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+  }
+  .color-hex {
+    font-size: 12px;
+    color: #aaa;
+    font-family: 'SF Mono', 'Menlo', monospace;
+  }
+  .color-usage {
+    font-size: 11px;
+    color: #ccc;
+    margin-top: 1px;
+  }
+
+  /* Preview Circle */
+  .preview-area {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px dashed #f0e0e8;
+  }
+  .preview-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    flex-shrink: 0;
+  }
+  .preview-desc {
+    font-size: 12px;
+    color: #999;
+    line-height: 1.5;
+  }
+
+  /* Emotion Section */
+  .emotion-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 56px;
+  }
+  .emotion-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px 16px;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    border: 1px solid #f5f5f5;
+  }
+  .emotion-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+  .emotion-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 2px;
+  }
+  .emotion-en {
+    font-size: 11px;
+    color: #bbb;
+    margin-bottom: 12px;
+  }
+  .emotion-colors {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .emotion-swatch {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    position: relative;
+  }
+  .emotion-swatch-label {
+    font-size: 9px;
+    color: #ccc;
+    text-align: center;
+    margin-top: 4px;
+    font-family: 'SF Mono', monospace;
+  }
+
+  /* Background Section */
+  .bg-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    margin-bottom: 56px;
+  }
+  .bg-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  }
+  .bg-name {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .bg-preview {
+    width: 100%;
+    height: 80px;
+    border-radius: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    font-size: 28px;
+  }
+  .bg-colors {
+    display: flex;
+    gap: 8px;
+  }
+  .bg-swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+  }
+  .bg-hex {
+    font-size: 11px;
+    color: #bbb;
+    font-family: 'SF Mono', monospace;
+    margin-left: 4px;
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #f5d0e0, transparent);
+    margin: 48px 0;
+  }
+
+  /* Specs Table */
+  .specs-section { margin-bottom: 56px; }
+  .specs-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  }
+  .specs-table th {
+    background: #FFF0F5;
+    color: #FF6B9D;
+    font-weight: 600;
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .specs-table td {
+    padding: 10px 16px;
+    border-top: 1px solid #f9f0f5;
+    vertical-align: middle;
+  }
+  .specs-table tr:hover td { background: #FFFAFC; }
+  .spec-color {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  .spec-code {
+    font-family: 'SF Mono', monospace;
+    font-size: 12px;
+    color: #888;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 32px 0 16px;
+    font-size: 13px;
+    color: #ccc;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>HelloKitty Desktop Pet</h1>
+    <div class="subtitle">Color System Design v1.0 &mdash; 多皮肤 / 柔光底 / 情绪色彩切换</div>
+  </div>
+
+  <!-- ==================== SKIN THEMES ==================== -->
+  <div class="section-title">
+    <span class="icon" style="background:#FFE0EC;">🎨</span>
+    皮肤主题配色
+  </div>
+  <div class="section-desc">6 套可切换皮肤，覆盖经典/清新/糖果/暗夜/季节/节日风格</div>
+
+  <div class="skins-grid">
+
+    <!-- Skin 1: Classic Pink -->
+    <div class="skin-card">
+      <div class="skin-name">经典原版</div>
+      <div class="skin-en">Classic Pink</div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#FF6B9D;"></div>
+        <div class="color-info">
+          <div class="color-label">主色 - 蝴蝶结粉</div>
+          <div class="color-hex">#FF6B9D / rgba(255,107,157,1)</div>
+          <div class="color-usage">蝴蝶结、按钮高亮、状态指示</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#FFFFFF;"></div>
+        <div class="color-info">
+          <div class="color-label">基色 - Kitty白</div>
+          <div class="color-hex">#FFFFFF</div>
+          <div class="color-usage">身体主色、面板背景</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#FFD4E5;"></div>
+        <div class="color-info">
+          <div class="color-label">辅色 - 樱花粉</div>
+          <div class="color-hex">#FFD4E5</div>
+          <div class="color-usage">柔光圆底、hover态</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#FFB300;"></div>
+        <div class="color-info">
+          <div class="color-label">点缀 - 鼻子黄</div>
+          <div class="color-hex">#FFB300</div>
+          <div class="color-usage">鼻子、星星、小装饰</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#333333;"></div>
+        <div class="color-info">
+          <div class="color-label">线条 - 墨黑</div>
+          <div class="color-hex">#333333</div>
+          <div class="color-usage">五官描边、文字</div>
+        </div>
+      </div>
+      <div class="preview-area">
+        <div class="preview-circle" style="background: radial-gradient(circle at 40% 35%, #FFFFFF 0%, #FFD4E5 70%, #FF6B9D33 100%);">🎀</div>
+        <div class="preview-desc">柔光圆底: 中心白 → 樱花粉外晕 → 透明边缘<br>经典粉色调，适配大部分桌面壁纸</div>
+      </div>
+    </div>
+
+    <!-- Skin 2: Macaron Cream -->
+    <div class="skin-card">
+      <div class="skin-name">奶油马卡龙</div>
+      <div class="skin-en">Macaron Cream</div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#B5D8CC;"></div>
+        <div class="color-info">
+          <div class="color-label">主色 - 薄荷绿</div>
+          <div class="color-hex">#B5D8CC</div>
+          <div class="color-usage">蝴蝶结、主视觉元素</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#FFF9F0;"></div>
+        <div class="color-info">
+          <div class="color-label">基色 - 奶油白</div>
+          <div class="color-hex">#FFF9F0</div>
+          <div class="color-usage">身体主色</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#F2D7D9;"></div>
+        <div class="color-info">
+          <div class="color-label">辅色 - 藕粉色</div>
+          <div class="color-hex">#F2D7D9</div>
+          <div class="color-usage">柔光圆底</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#E8D5B7;"></div>
+        <div class="color-info">
+          <div class="color-label">点缀 - 焦糖色</div>
+          <div class="color-hex">#E8D5B7</div>
+          <div class="color-usage">鼻子、配件</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#6B6B6B;"></div>
+        <div class="color-info">
+          <div class="color-label">线条 - 烟灰</div>
+          <div class="color-hex">#6B6B6B</div>
+          <div class="color-usage">描边（降饱和度）</div>
+        </div>
+      </div>
+      <div class="preview-area">
+        <div class="preview-circle" style="background: radial-gradient(circle at 40% 35%, #FFF9F0 0%, #F2D7D9 70%, #B5D8CC33 100%);"></div>
+        <div class="preview-desc">低饱和莫兰迪色系，温柔治愈<br>适合搭配浅色/白色系桌面壁纸</div>
+      </div>
+    </div>
+
+    <!-- Skin 3: Candy Neon -->
+    <div class="skin-card">
+      <div class="skin-name">糖果霓虹</div>
+      <div class="skin-en">Candy Neon</div>
+      <div class="color-row">
+        <div class="color-swatch" style="background: linear-gradient(135deg, #FF006E, #FB5607);"></div>
+        <div class="color-info">
+          <div class="color-label">主色 - 霓虹渐变</div>
+          <div class="color-hex">#FF006E → #FB5607</div>
+          <div class="color-usage">蝴蝶结渐变、边框光晕</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#FFFFFF;"></div>
+        <div class="color-info">
+          <div class="color-label">基色 - 纯白</div>
+          <div class="color-hex">#FFFFFF</div>
+          <div class="color-usage">身体主色（高对比）</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background: linear-gradient(135deg, #8338EC, #3A86FF);"></div>
+        <div class="color-info">
+          <div class="color-label">辅色 - 紫蓝渐变</div>
+          <div class="color-hex">#8338EC → #3A86FF</div>
+          <div class="color-usage">柔光圆底渐变</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#06D6A0;"></div>
+        <div class="color-info">
+          <div class="color-label">点缀 - 荧光绿</div>
+          <div class="color-hex">#06D6A0</div>
+          <div class="color-usage">状态灯、特效粒子</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#222222;"></div>
+        <div class="color-info">
+          <div class="color-label">线条 - 深炭黑</div>
+          <div class="color-hex">#222222</div>
+          <div class="color-usage">描边（深色背景适配）</div>
+        </div>
+      </div>
+      <div class="preview-area">
+        <div class="preview-circle" style="background: radial-gradient(circle at 40% 35%, #FFFFFF 0%, #8338EC66 50%, #3A86FF33 100%);">✨</div>
+        <div class="preview-desc">高饱和渐变色，赛博霓虹感<br>适合搭配深色/暗色桌面壁纸</div>
+      </div>
+    </div>
+
+    <!-- Skin 4: Night Mode -->
+    <div class="skin-card">
+      <div class="skin-name">暗夜星梦</div>
+      <div class="skin-en">Night Mode</div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#7B68EE;"></div>
+        <div class="color-info">
+          <div class="color-label">主色 - 星紫</div>
+          <div class="color-hex">#7B68EE</div>
+          <div class="color-usage">蝴蝶结、光晕</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#E8E0F0;"></div>
+        <div class="color-info">
+          <div class="color-label">基色 - 月光白</div>
+          <div class="color-hex">#E8E0F0</div>
+          <div class="color-usage">身体主色（偏紫白）</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#1a1a2e;"></div>
+        <div class="color-info">
+          <div class="color-label">辅色 - 夜幕蓝</div>
+          <div class="color-hex">#1A1A2E</div>
+          <div class="color-usage">柔光圆底（深色底+光晕）</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#FFD700;"></div>
+        <div class="color-info">
+          <div class="color-label">点缀 - 星光金</div>
+          <div class="color-hex">#FFD700</div>
+          <div class="color-usage">星星特效、鼻子</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#4A4A6A;"></div>
+        <div class="color-info">
+          <div class="color-label">线条 - 暮色灰</div>
+          <div class="color-hex">#4A4A6A</div>
+          <div class="color-usage">描边</div>
+        </div>
+      </div>
+      <div class="preview-area">
+        <div class="preview-circle" style="background: radial-gradient(circle at 40% 35%, #E8E0F0 0%, #1A1A2E 70%, #7B68EE44 100%);">🌙</div>
+        <div class="preview-desc">深色模式专属，紫色系夜光感<br>自动在夜间/暗色壁纸时切换</div>
+      </div>
+    </div>
+
+    <!-- Skin 5: Seasonal Sakura -->
+    <div class="skin-card">
+      <div class="skin-name">季节限定 - 春樱</div>
+      <div class="skin-en">Seasonal - Spring Sakura</div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#FFB7C5;"></div>
+        <div class="color-info">
+          <div class="color-label">主色 - 樱粉</div>
+          <div class="color-hex">#FFB7C5</div>
+          <div class="color-usage">蝴蝶结、花瓣</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#FFF5F7;"></div>
+        <div class="color-info">
+          <div class="color-label">基色 - 雪绒白</div>
+          <div class="color-hex">#FFF5F7</div>
+          <div class="color-usage">身体主色</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background: linear-gradient(135deg, #FFB7C5, #FF9AA2);"></div>
+        <div class="color-info">
+          <div class="color-label">辅色 - 落樱渐变</div>
+          <div class="color-hex">#FFB7C5 → #FF9AA2</div>
+          <div class="color-usage">柔光圆底、飘落花瓣</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#C8E6C9;"></div>
+        <div class="color-info">
+          <div class="color-label">点缀 - 嫩叶绿</div>
+          <div class="color-hex">#C8E6C9</div>
+          <div class="color-usage">叶片、小装饰</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#5D4037;"></div>
+        <div class="color-info">
+          <div class="color-label">线条 - 枝干棕</div>
+          <div class="color-hex">#5D4037</div>
+          <div class="color-usage">描边</div>
+        </div>
+      </div>
+      <div class="preview-area">
+        <div class="preview-circle" style="background: radial-gradient(circle at 40% 35%, #FFF5F7 0%, #FFB7C566 60%, #FF9AA233 100%);">🌸</div>
+        <div class="preview-desc">春季限定皮肤，樱花主题<br>3-5月自动切换，花瓣飘落特效</div>
+      </div>
+    </div>
+
+    <!-- Skin 6: Holiday Christmas -->
+    <div class="skin-card">
+      <div class="skin-name">节日限定 - 圣诞</div>
+      <div class="skin-en">Holiday - Christmas</div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#E53935;"></div>
+        <div class="color-info">
+          <div class="color-label">主色 - 圣诞红</div>
+          <div class="color-hex">#E53935</div>
+          <div class="color-usage">蝴蝶结、圣诞帽</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#FFFFFF;"></div>
+        <div class="color-info">
+          <div class="color-label">基色 - 雪白</div>
+          <div class="color-hex">#FFFFFF</div>
+          <div class="color-usage">身体主色、雪边</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#2E7D32;"></div>
+        <div class="color-info">
+          <div class="color-label">辅色 - 松绿</div>
+          <div class="color-hex">#2E7D32</div>
+          <div class="color-usage">柔光圆底、圣诞树</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#FFD54F;"></div>
+        <div class="color-info">
+          <div class="color-label">点缀 - 铃铛金</div>
+          <div class="color-hex">#FFD54F</div>
+          <div class="color-usage">铃铛、星星、灯光</div>
+        </div>
+      </div>
+      <div class="color-row">
+        <div class="color-swatch" style="background:#333333;"></div>
+        <div class="color-info">
+          <div class="color-label">线条 - 墨黑</div>
+          <div class="color-hex">#333333</div>
+          <div class="color-usage">描边</div>
+        </div>
+      </div>
+      <div class="preview-area">
+        <div class="preview-circle" style="background: radial-gradient(circle at 40% 35%, #FFFFFF 0%, #2E7D3244 60%, #E5393533 100%);">🎄</div>
+        <div class="preview-desc">圣诞节日限定，红绿金配色<br>12月自动切换，雪花飘落特效</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==================== EMOTION COLORS ==================== -->
+  <div class="divider"></div>
+  <div class="section-title">
+    <span class="icon" style="background:#E8F5E9;">💫</span>
+    情绪色彩切换体系
+  </div>
+  <div class="section-desc">宠物根据当前状态自动切换主题色调，柔光圆底同步变化</div>
+
+  <div class="emotion-grid">
+    <!-- Happy -->
+    <div class="emotion-card">
+      <div class="emotion-icon">😊</div>
+      <div class="emotion-name">开心</div>
+      <div class="emotion-en">Happy</div>
+      <div class="emotion-colors">
+        <div>
+          <div class="emotion-swatch" style="background:#FF6B9D;"></div>
+          <div class="emotion-swatch-label">#FF6B9D</div>
+        </div>
+        <div>
+          <div class="emotion-swatch" style="background:#FFD54F;"></div>
+          <div class="emotion-swatch-label">#FFD54F</div>
+        </div>
+        <div>
+          <div class="emotion-swatch" style="background:#FFF9C4;"></div>
+          <div class="emotion-swatch-label">#FFF9C4</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sleepy -->
+    <div class="emotion-card">
+      <div class="emotion-icon">😴</div>
+      <div class="emotion-name">困倦</div>
+      <div class="emotion-en">Sleepy</div>
+      <div class="emotion-colors">
+        <div>
+          <div class="emotion-swatch" style="background:#7B68EE;"></div>
+          <div class="emotion-swatch-label">#7B68EE</div>
+        </div>
+        <div>
+          <div class="emotion-swatch" style="background:#B39DDB;"></div>
+          <div class="emotion-swatch-label">#B39DDB</div>
+        </div>
+        <div>
+          <div class="emotion-swatch" style="background:#EDE7F6;"></div>
+          <div class="emotion-swatch-label">#EDE7F6</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hungry -->
+    <div class="emotion-card">
+      <div class="emotion-icon">🤤</div>
+      <div class="emotion-name">饥饿</div>
+      <div class="emotion-en">Hungry</div>
+      <div class="emotion-colors">
+        <div>
+          <div class="emotion-swatch" style="background:#FF8A65;"></div>
+          <div class="emotion-swatch-label">#FF8A65</div>
+        </div>
+        <div>
+          <div class="emotion-swatch" style="background:#FFCC80;"></div>
+          <div class="emotion-swatch-label">#FFCC80</div>
+        </div>
+        <div>
+          <div class="emotion-swatch" style="background:#FFF3E0;"></div>
+          <div class="emotion-swatch-label">#FFF3E0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Angry -->
+    <div class="emotion-card">
+      <div class="emotion-icon">😤</div>
+      <div class="emotion-name">生气</div>
+      <div class="emotion-en">Angry</div>
+      <div class="emotion-colors">
+        <div>
+          <div class="emotion-swatch" style="background:#EF5350;"></div>
+          <div class="emotion-swatch-label">#EF5350</div>
+        </div>
+        <div>
+          <div class="emotion-swatch" style="background:#FF8A80;"></div>
+          <div class="emotion-swatch-label">#FF8A80</div>
+        </div>
+        <div>
+          <div class="emotion-swatch" style="background:#FFEBEE;"></div>
+          <div class="emotion-swatch-label">#FFEBEE</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Love -->
+    <div class="emotion-card">
+      <div class="emotion-icon"></div>
+      <div class="emotion-name">恋爱</div>
+      <div class="emotion-en">In Love</div>
+      <div class="emotion-colors">
+        <div>
+          <div class="emotion-swatch" style="background:#EC407A;"></div>
+          <div class="emotion-swatch-label">#EC407A</div>
+        </div>
+        <div>
+          <div class="emotion-swatch" style="background:#F48FB1;"></div>
+          <div class="emotion-swatch-label">#F48FB1</div>
+        </div>
+        <div>
+          <div class="emotion-swatch" style="background:#FCE4EC;"></div>
+          <div class="emotion-swatch-label">#FCE4EC</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cold/Sick -->
+    <div class="emotion-card">
+      <div class="emotion-icon"></div>
+      <div class="emotion-name">生病/冷</div>
+      <div class="emotion-en">Cold</div>
+      <div class="emotion-colors">
+        <div>
+          <div class="emotion-swatch" style="background:#42A5F5;"></div>
+          <div class="emotion-swatch-label">#42A5F5</div>
+        </div>
+        <div>
+          <div class="emotion-swatch" style="background:#90CAF9;"></div>
+          <div class="emotion-swatch-label">#90CAF9</div>
+        </div>
+        <div>
+          <div class="emotion-swatch" style="background:#E3F2FD;"></div>
+          <div class="emotion-swatch-label">#E3F2FD</div>
+        </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Excited -->
+    <div class="emotion-card">
+      <div class="emotion-icon">🤩</div>
+      <div class="emotion-name">兴奋</div>
+      <div class="emotion-en">Excited</div>
+      <div class="emotion-colors">
+        <div>
+          <div class="emotion-swatch" style="background:#FF6F00;"></div>
+          <div class="emotion-swatch-label">#FF6F00</div>
+        </div>
+        <div>
+          <div class="emotion-swatch" style="background:#FFB74D;"></div>
+          <div class="emotion-swatch-label">#FFB74D</div>
+        </div>
+        <div>
+          <div class="emotion-swatch" style="background:#FFF8E1;"></div>
+          <div class="emotion-swatch-label">#FFF8E1</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Normal -->
+    <div class="emotion-card">
+      <div class="emotion-icon">😐</div>
+      <div class="emotion-name">日常</div>
+      <div class="emotion-en">Normal</div>
+      <div class="emotion-colors">
+        <div>
+          <div class="emotion-swatch" style="background:#FFB7C5;"></div>
+          <div class="emotion-swatch-label">#FFB7C5</div>
+        </div>
+        <div>
+          <div class="emotion-swatch" style="background:#FFFFFF;"></div>
+          <div class="emotion-swatch-label">#FFFFFF</div>
+        </div>
+        <div>
+          <div class="emotion-swatch" style="background:#FFF0F5;"></div>
+          <div class="emotion-swatch-label">#FFF0F5</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== BACKGROUND GLOW ==================== -->
+  <div class="divider"></div>
+  <div class="section-title">
+    <span class="icon" style="background:#FFF3E0;">🔆</span>
+    柔光圆底设计规范
+  </div>
+  <div class="section-desc">所有皮肤统一使用径向渐变柔光底，确保在任何桌面壁纸上都可辨识</div>
+
+  <div class="bg-grid">
+    <!-- Light Wallpaper -->
+    <div class="bg-card">
+      <div class="bg-name">浅色壁纸适配</div>
+      <div class="bg-preview" style="background: radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,212,229,0.6) 50%, rgba(255,107,157,0.15) 80%, transparent 100%);">
+        <span style="font-size:36px;"></span>
+      </div>
+      <div style="font-size:12px;color:#999;margin-bottom:10px;">径向渐变: 不透明白 → 主色60% → 主色15% → 全透明</div>
+      <div class="bg-colors">
+        <div class="bg-swatch" style="background:#FFFFFF;"></div><span class="bg-hex">#FFFFFF 95%</span>
+        <div class="bg-swatch" style="background:#FFD4E5;"></div><span class="bg-hex">#FFD4E5 60%</span>
+        <div class="bg-swatch" style="background:#FF6B9D;opacity:0.3;"></div><span class="bg-hex">#FF6B9D 15%</span>
+        <div class="bg-swatch" style="background:repeating-conic-gradient(#eee 0% 25%, #fff 0% 50%) 0 0/8px 8px;"></div><span class="bg-hex">transparent</span>
+      </div>
+    </div>
+
+    <!-- Dark Wallpaper -->
+    <div class="bg-card">
+      <div class="bg-name">深色壁纸适配</div>
+      <div class="bg-preview" style="background: radial-gradient(circle, rgba(40,40,60,0.9) 0%, rgba(123,104,238,0.4) 50%, rgba(123,104,238,0.1) 80%, transparent 100%);">
+        <span style="font-size:36px;">🐱</span>
+      </div>
+      <div style="font-size:12px;color:#999;margin-bottom:10px;">深色模式下: 深色底+紫色光晕，增强辨识度</div>
+      <div class="bg-colors">
+        <div class="bg-swatch" style="background:#28283C;"></div><span class="bg-hex">#28283C 90%</span>
+        <div class="bg-swatch" style="background:#7B68EE;opacity:0.5;"></div><span class="bg-hex">#7B68EE 40%</span>
+        <div class="bg-swatch" style="background:#7B68EE;opacity:0.15;"></div><span class="bg-hex">#7B68EE 10%</span>
+        <div class="bg-swatch" style="background:repeating-conic-gradient(#333 0% 25%, #222 0% 50%) 0 0/8px 8px;"></div><span class="bg-hex">transparent</span>
+      </div>
+    </div>
+
+    <!-- Photo Wallpaper -->
+    <div class="bg-card">
+      <div class="bg-name">照片壁纸适配</div>
+      <div class="bg-preview" style="background: radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.4) 40%, transparent 70%); background-color: #ddd;">
+        <span style="font-size:36px;"></span>
+      </div>
+      <div style="font-size:12px;color:#999;margin-bottom:10px;">照片壁纸: 白色柔光遮罩，保证在任何背景上都可见</div>
+      <div class="bg-colors">
+        <div class="bg-swatch" style="background:#FFFFFF;"></div><span class="bg-hex">#FFFFFF 85%</span>
+        <div class="bg-swatch" style="background:#FFFFFF;opacity:0.4;"></div><span class="bg-hex">#FFFFFF 40%</span>
+        <div class="bg-swatch" style="background:repeating-conic-gradient(#ccc 0% 25%, #bbb 0% 50%) 0 0/8px 8px;"></div><span class="bg-hex">transparent</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TECH SPECS ==================== -->
+  <div class="divider"></div>
+  <div class="section-title">
+    <span class="icon" style="background:#E3F2FD;">📐</span>
+    技术实现规范
+  </div>
+  <div class="section-desc">开发可直接引用的色值参数与动画过渡规则</div>
+
+  <div class="specs-section">
+    <table class="specs-table">
+      <thead>
+        <tr>
+          <th>用途</th>
+          <th>色值 (HEX)</th>
+          <th>透明度</th>
+          <th>说明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="spec-color" style="background:#FF6B9D;"></span> 蝴蝶结主色</td>
+          <td class="spec-code">#FF6B9D</td>
+          <td>100%</td>
+          <td>经典皮肤蝴蝶结，hover 时变亮 10%</td>
+        </tr>
+        <tr>
+          <td><span class="spec-color" style="background:#FFB7C5;"></span> 蝴蝶结浅色</td>
+          <td class="spec-code">#FFB7C5</td>
+          <td>100%</td>
+          <td>樱皮肤/日常情绪态蝴蝶结</td>
+        </tr>
+        <tr>
+          <td><span class="spec-color" style="background:#FFFFFF;"></span> 身体基色</td>
+          <td class="spec-code">#FFFFFF</td>
+          <td>100%</td>
+          <td>Kitty 身体白色，始终不透明</td>
+        </tr>
+        <tr>
+          <td><span class="spec-color" style="background:#FFB300;"></span> 鼻子/装饰</td>
+          <td class="spec-code">#FFB300</td>
+          <td>100%</td>
+          <td>椭圆形鼻子，所有皮肤通用</td>
+        </tr>
+        <tr>
+          <td><span class="spec-color" style="background:#333333;"></span> 描边线条</td>
+          <td class="spec-code">#333333</td>
+          <td>100%</td>
+          <td>2px 描边，夜间皮肤改为 #4A4A6A</td>
+        </tr>
+        <tr>
+          <td><span class="spec-color" style="background:#FFD4E5;opacity:0.6;"></span> 柔光内圈</td>
+          <td class="spec-code">#FFD4E5</td>
+          <td>60%</td>
+          <td>径向渐变 40%-70% 位置</td>
+        </tr>
+        <tr>
+          <td><span class="spec-color" style="background:#FF6B9D;opacity:0.15;"></span> 柔光外晕</td>
+          <td class="spec-code">#FF6B9D</td>
+          <td>15%</td>
+          <td>径向渐变 70%-90% 位置</td>
+        </tr>
+        <tr>
+          <td><span class="spec-color" style="background:transparent;border:1px dashed #ccc;"></span> 柔光边缘</td>
+          <td class="spec-code">transparent</td>
+          <td>0%</td>
+          <td>90%-100% 完全透明，融入桌面</td>
+        </tr>
+        <tr>
+          <td><span class="spec-color" style="background:linear-gradient(135deg,#FF006E,#FB5607);"></span> 糖果渐变起始</td>
+          <td class="spec-code">#FF006E</td>
+          <td>100%</td>
+          <td>糖果皮肤蝴蝶结渐变 start</td>
+        </tr>
+        <tr>
+          <td><span class="spec-color" style="background:linear-gradient(135deg,#FB5607,#FF006E);"></span> 糖果渐变终止</td>
+          <td class="spec-code">#FB5607</td>
+          <td>100%</td>
+          <td>糖果皮肤蝴蝶结渐变 end</td>
+        </tr>
+        <tr>
+          <td><span class="spec-color" style="background:#7B68EE;"></span> 夜间主色</td>
+          <td class="spec-code">#7B68EE</td>
+          <td>100%</td>
+          <td>暗夜皮肤蝴蝶结 + 柔光外晕</td>
+        </tr>
+        <tr>
+          <td><span class="spec-color" style="background:#1A1A2E;"></span> 夜间底色</td>
+          <td class="spec-code">#1A1A2E</td>
+          <td>80%</td>
+          <td>暗夜皮肤柔光内圈（深色）</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Transition Rules -->
+  <div class="specs-section">
+    <table class="specs-table">
+      <thead>
+        <tr>
+          <th>动画场景</th>
+          <th>过渡时长</th>
+          <th>缓动函数</th>
+          <th>说明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>皮肤切换</td>
+          <td class="spec-code">500ms</td>
+          <td class="spec-code">ease-in-out</td>
+          <td>整体色值平滑过渡，蝴蝶结颜色最后变</td>
+        </tr>
+        <tr>
+          <td>情绪切换</td>
+          <td class="spec-code">300ms</td>
+          <td class="spec-code">ease-out</td>
+          <td>柔光底色快速响应，蝴蝶结延迟 100ms</td>
+        </tr>
+        <tr>
+          <td>昼夜自动切换</td>
+          <td class="spec-code">800ms</td>
+          <td class="spec-code">ease-in-out</td>
+          <td>渐变式过渡，避免突兀</td>
+        </tr>
+        <tr>
+          <td>点击弹跳反馈</td>
+          <td class="spec-code">200ms</td>
+          <td class="spec-code">cubic-bezier(0.34, 1.56, 0.64, 1)</td>
+          <td>弹性缩放 1.0 → 1.15 → 1.0</td>
+        </tr>
+        <tr>
+          <td> idle 呼吸光晕</td>
+          <td class="spec-code">2000ms</td>
+          <td class="spec-code">ease-in-out infinite</td>
+          <td>柔光圆底 0.8 → 1.0 → 0.8 缓慢呼吸</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    HelloKitty Desktop Pet - Color System Design &mdash; Generated by QoderWork
+  </div>
+
+</div>
+</body>
+</html>

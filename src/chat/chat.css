@@ -13,20 +13,20 @@ html, body {
 
 /* === App Wrapper === */
 #app-wrapper {
-  --color-bg: #FFF0F6; --color-bg-alt: #FFF5F9;
-  --color-primary: #EC4899; --color-primary-light: #F9A8D4;
-  --color-primary-dark: #BE185D; --color-border: #FBCFE8;
-  --color-text-muted: #9D174D; --color-surface: #FCE7F3;
-  --color-accent: #F472B6;
-  --color-shadow: rgba(236, 72, 153, 0.20);
-  --bubble-user-bg: linear-gradient(135deg, #EC4899, #DB2777);
+  --color-bg: #FFF0F5; --color-bg-alt: #FFF5F9;
+  --color-primary: #FF6B9D; --color-primary-light: #FFD4E5;
+  --color-primary-dark: #E0527D; --color-border: #FFD4E5;
+  --color-text-muted: #8B5A6B; --color-surface: #FFE4EC;
+  --color-accent: #FFB300;
+  --color-shadow: rgba(255, 107, 157, 0.20);
+  --bubble-user-bg: linear-gradient(135deg, #FF6B9D, #E0527D);
   --skin-pattern: none;
   --chat-bg-image: none;
   --chat-bg-opacity: 0.18;
-  --shadow-sm: 0 1px 4px rgba(236,72,153,0.06);
-  --shadow-md: 0 4px 14px rgba(236,72,153,0.10);
-  --shadow-lg: 0 8px 24px rgba(236,72,153,0.14);
-  --shadow-glow: 0 0 20px rgba(236,72,153,0.18);
+  --shadow-sm: 0 1px 4px rgba(255,107,157,0.08);
+  --shadow-md: 0 4px 14px rgba(255,107,157,0.14);
+  --shadow-lg: 0 8px 24px rgba(255,107,157,0.20);
+  --shadow-glow: 0 0 20px rgba(255,107,157,0.25);
   --glass-bg: rgba(255,255,255,0.72);
   --glass-border: rgba(255,255,255,0.5);
   --radius-sm: 10px; --radius-md: 16px; --radius-lg: 20px;
@@ -35,10 +35,85 @@ html, body {
   --color-neutral-bg: #f0f0f0; --color-neutral-bg-hover: #e0e0e0;
   --color-text-neutral: #888;
   --color-online: #66bb6a; --color-offline: #bbb;
+  /* 情绪色彩变量 */
+  --emotion-primary: #FFB7C5;
+  --emotion-secondary: #FFFFFF;
+  --emotion-bg: #FFF0F5;
   display: flex; flex-direction: row; width: 100%; height: 100vh;
   overflow: hidden; border-radius: var(--radius-lg);
   border: 2px solid var(--color-border);
   background: var(--color-bg);
+  /* 皮肤切换过渡动画 */
+  transition: background 500ms ease-in-out, border-color 500ms ease-in-out;
+}
+
+/* 子元素过渡动画 */
+#app-wrapper .side-panel-header,
+#app-wrapper #chat-header,
+#app-wrapper .msg-bubble,
+#app-wrapper .side-section,
+#app-wrapper .settings-section {
+  transition: background 500ms ease-in-out, border-color 500ms ease-in-out, color 300ms ease-out;
+}
+
+/* === 暗夜模式 === */
+#app-wrapper[data-theme="dark"] {
+  --color-primary-dark: #E0E0F0;
+  --glass-bg: rgba(37,37,64,0.72);
+  --glass-border: rgba(58,58,92,0.5);
+}
+#app-wrapper[data-theme="dark"] .side-section-title,
+#app-wrapper[data-theme="dark"] .settings-section-title,
+#app-wrapper[data-theme="dark"] .side-owner-name,
+#app-wrapper[data-theme="dark"] .side-mood-text,
+#app-wrapper[data-theme="dark"] .side-stat-value,
+#app-wrapper[data-theme="dark"] .side-view-title,
+#app-wrapper[data-theme="dark"] .skin-name,
+#app-wrapper[data-theme="dark"] .bg-name,
+#app-wrapper[data-theme="dark"] .header-name {
+  color: #E0E0F0;
+}
+#app-wrapper[data-theme="dark"] .side-owner-greeting,
+#app-wrapper[data-theme="dark"] .side-progress-label,
+#app-wrapper[data-theme="dark"] .side-next-level,
+#app-wrapper[data-theme="dark"] #side-affinity-num,
+#app-wrapper[data-theme="dark"] .side-stat-label,
+#app-wrapper[data-theme="dark"] .side-section-title,
+#app-wrapper[data-theme="dark"] .update-label,
+#app-wrapper[data-theme="dark"] .update-status-text,
+#app-wrapper[data-theme="dark"] .bg-opacity-label,
+#app-wrapper[data-theme="dark"] .friends-section-title,
+#app-wrapper[data-theme="dark"] .header-status {
+  color: #A0A0C0;
+}
+#app-wrapper[data-theme="dark"] .settings-row input,
+#app-wrapper[data-theme="dark"] #chat-input,
+#app-wrapper[data-theme="dark"] .schedule-add-row input,
+#app-wrapper[data-theme="dark"] .schedule-add-row select,
+#app-wrapper[data-theme="dark"] #todo-input,
+#app-wrapper[data-theme="dark"] .friends-nickname-row input,
+#app-wrapper[data-theme="dark"] .friends-add-dialog input {
+  background: var(--color-surface);
+  color: #E0E0F0;
+  border-color: var(--color-border);
+}
+#app-wrapper[data-theme="dark"] .update-changelog-content,
+#app-wrapper[data-theme="dark"] .update-release-notes {
+  background: var(--color-surface);
+  color: #C0C0E0;
+}
+#app-wrapper[data-theme="dark"] #status-bar {
+  background: linear-gradient(90deg, var(--color-surface), var(--color-bg-alt));
+  color: #C0C0E0;
+}
+
+/* === 情绪色彩呼吸光晕 === */
+@keyframes emotionBreath {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+#app-wrapper .side-mood-emoji {
+  transition: filter 300ms ease-out;
 }
 
 /* === Side Panel === */

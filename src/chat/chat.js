@@ -18,7 +18,7 @@ let currentSchedule = { mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], su
 let selectedDay = 'mon';
 let latestStatusData = null;
 let todos = [];
-let currentSkinId = 'sakura';
+let currentSkinId = 'classic';
 // 当前侧边面板视图
 let currentView = 'status';
 // 聊天模式: 'kitty' 或 'friend'
@@ -84,6 +84,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 加载并应用皮肤
   loadAndApplySkin();
 
+  // 初始化情绪色彩
+  applyEmotion('normal');
+
   // 加载并应用聊天背景
   loadAndApplyBackground();
 
@@ -97,6 +100,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     updatePlayButtonStates(data);
     // 始终更新侧边面板状态视图
     updateSidePanelContent(data);
+    // 情绪色彩联动
+    updateEmotionFromMood(data.moodLevel);
   });
 
   // 监听番茄钟倒计时
@@ -131,8 +136,14 @@ async function loadAndApplySkin() {
   try {
     const skinId = await window.chatAPI.getSkin();
     if (skinId) {
-      currentSkinId = skinId;
-      applySkin(skinId);
+      // 迁移旧皮肤 ID
+      const migratedId = migrateSkinId(skinId);
+      currentSkinId = migratedId;
+      applySkin(migratedId);
+      // 如果发生了迁移，保存新 ID
+      if (migratedId !== skinId) {
+        try { await window.chatAPI.setSkin(migratedId); } catch (_) {}
+      }
     }
   } catch (e) {
     // ignore
@@ -140,7 +151,7 @@ async function loadAndApplySkin() {
 }
 
 function applySkin(skinId) {
-  const skin = SKINS[skinId] || SKINS.sakura;
+  const skin = SKINS[skinId] || SKINS.classic;
   const root = document.getElementById('app-wrapper');
   root.style.setProperty('--color-bg', skin.bg);
   root.style.setProperty('--color-bg-alt', skin.bgAlt);
@@ -150,27 +161,38 @@ function applySkin(skinId) {
   root.style.setProperty('--color-border', skin.border);
   root.style.setProperty('--color-text-muted', skin.textMuted);
   root.style.setProperty('--color-surface', skin.surface);
-  // 新增增强属性
   root.style.setProperty('--color-accent', skin.accent || skin.primary);
-  root.style.setProperty('--color-shadow', skin.shadowColor || 'rgba(255,105,180,0.22)');
+  root.style.setProperty('--color-shadow', skin.shadowColor || 'rgba(255,107,157,0.22)');
   root.style.setProperty('--bubble-user-bg', skin.bubbleUser || `linear-gradient(135deg, ${skin.primary}, ${skin.primaryDark})`);
-  // 更新 header 渐变（使用皮肤的专属渐变）
+  // Header 渐变
   const headerGradient = skin.gradient || `linear-gradient(135deg, ${skin.primaryLight}, ${skin.primary})`;
   document.getElementById('chat-header').style.background = headerGradient;
   const sidePanelHeader = document.querySelector('.side-panel-header');
   if (sidePanelHeader) {
     sidePanelHeader.style.background = headerGradient;
   }
-  // 更新消息区域装饰图案
+  // 消息区域装饰图案
   if (skin.pattern) {
     root.style.setProperty('--skin-pattern', skin.pattern);
   }
-  // 更新阴影体系
+  // 阴影体系
   if (skin.shadowColor) {
-    root.style.setProperty('--shadow-sm', `0 1px 4px ${skin.shadowColor.replace('0.22', '0.08')}`);
-    root.style.setProperty('--shadow-md', `0 4px 14px ${skin.shadowColor.replace('0.22', '0.14')}`);
-    root.style.setProperty('--shadow-lg', `0 8px 24px ${skin.shadowColor.replace('0.22', '0.20')}`);
-    root.style.setProperty('--shadow-glow', `0 0 20px ${skin.shadowColor.replace('0.22', '0.25')}`);
+    root.style.setProperty('--shadow-sm', `0 1px 4px ${skin.shadowColor.replace('0.22', '0.08').replace('0.25', '0.08').replace('0.20', '0.08')}`);
+    root.style.setProperty('--shadow-md', `0 4px 14px ${skin.shadowColor.replace('0.22', '0.14').replace('0.25', '0.14').replace('0.20', '0.14')}`);
+    root.style.setProperty('--shadow-lg', `0 8px 24px ${skin.shadowColor.replace('0.22', '0.20').replace('0.25', '0.20').replace('0.20', '0.20')}`);
+    root.style.setProperty('--shadow-glow', `0 0 20px ${skin.shadowColor.replace('0.22', '0.25').replace('0.25', '0.28').replace('0.20', '0.25')}`);
+  }
+  // 暗夜模式处理
+  if (skin.dark) {
+    root.setAttribute('data-theme', 'dark');
+    // 暗夜皮肤需要反转文字颜色
+    root.style.setProperty('--color-primary-dark', '#E0E0F0');
+    root.style.setProperty('--glass-bg', 'rgba(37,37,64,0.72)');
+    root.style.setProperty('--glass-border', 'rgba(58,58,92,0.5)');
+  } else {
+    root.removeAttribute('data-theme');
+    root.style.setProperty('--glass-bg', 'rgba(255,255,255,0.72)');
+    root.style.setProperty('--glass-border', 'rgba(255,255,255,0.5)');
   }
   currentSkinId = skinId;
 }
@@ -182,10 +204,29 @@ async function selectSkin(skinId) {
   } catch (e) {
     // ignore
   }
-  // 更新皮肤卡片选中状态
   document.querySelectorAll('.skin-card').forEach(card => {
     card.classList.toggle('active', card.dataset.skinId === skinId);
   });
+}
+
+// === 情绪色彩体系 ===
+let currentEmotionId = 'normal';
+
+function applyEmotion(emotionId) {
+  const emotion = EMOTIONS[emotionId] || EMOTIONS.normal;
+  const root = document.getElementById('app-wrapper');
+  root.style.setProperty('--emotion-primary', emotion.primary);
+  root.style.setProperty('--emotion-secondary', emotion.secondary);
+  root.style.setProperty('--emotion-bg', emotion.bg);
+  currentEmotionId = emotionId;
+}
+
+function updateEmotionFromMood(moodLevel) {
+  if (moodLevel === undefined) return;
+  const emotionId = MOOD_TO_EMOTION[moodLevel] || 'normal';
+  if (emotionId !== currentEmotionId) {
+    applyEmotion(emotionId);
+  }
 }
 
 // === 视图切换 ===
@@ -681,8 +722,12 @@ function renderSkinGrid() {
 
     const preview = document.createElement('div');
     preview.className = 'skin-preview';
-    // 使用皮肤的专属渐变，而非简单的双色渐变
-    preview.style.background = skin.gradient || `linear-gradient(135deg, ${skin.primaryLight}, ${skin.primary})`;
+    // 使用径向渐变模拟柔光圆底效果
+    if (skin.dark) {
+      preview.style.background = `radial-gradient(circle at 40% 35%, ${skin.surface} 0%, ${skin.primary}66 50%, ${skin.primaryLight}33 100%)`;
+    } else {
+      preview.style.background = `radial-gradient(circle at 40% 35%, #FFFFFF 0%, ${skin.primaryLight}66 50%, ${skin.primary}33 100%)`;
+    }
 
     const name = document.createElement('span');
     name.className = 'skin-name';

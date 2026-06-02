@@ -117,23 +117,25 @@ function createChatWindow() {
   // 确保 y 不小于 0
   y = Math.max(0, y);
 
-  // 根据皮肤设置背景色（2025 高饱和清新配色）
+  // 根据皮肤设置背景色（基于配色方案设计稿）
   const SKIN_BG_COLORS = {
-    sakura: '#FFF0F6',
-    candy: '#FDF2F8',
-    rose: '#FFF1F2',
-    ocean: '#F0F9FF',
-    starry: '#EEF2FF',
-    arctic: '#ECFEFF',
-    lavender: '#F5F3FF',
-    grape: '#FAF5FF',
-    mint: '#ECFDF5',
-    matcha: '#F0FDF4',
-    peach: '#FFF7ED',
-    sunset: '#FEF2F2',
+    classic: '#FFF0F5',
+    macaron: '#FFF9F0',
+    neon: '#1A1A2E',
+    night: '#1A1A2E',
+    spring: '#FFF5F7',
+    christmas: '#FFF8F0',
   };
-  const skinId = store.get('skinId', 'sakura');
-  const bgColor = SKIN_BG_COLORS[skinId] || '#FFF0F6';
+  // 旧皮肤 ID 迁移映射
+  const LEGACY_SKIN_MAP = {
+    sakura: 'classic', candy: 'neon', rose: 'classic',
+    ocean: 'macaron', starry: 'night', arctic: 'night',
+    lavender: 'night', grape: 'night', mint: 'macaron',
+    matcha: 'macaron', peach: 'christmas', sunset: 'christmas',
+  };
+  const rawSkinId = store.get('skinId', 'classic');
+  const skinId = SKIN_BG_COLORS[rawSkinId] ? rawSkinId : (LEGACY_SKIN_MAP[rawSkinId] || 'classic');
+  const bgColor = SKIN_BG_COLORS[skinId] || '#FFF0F5';
 
   chatWindow = new BrowserWindow({
     width: chatWidth,
