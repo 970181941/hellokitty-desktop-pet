@@ -1,412 +1,277 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:focus-visible { outline: 2px solid #ff69b4; outline-offset: 2px; }
 
 html, body {
-  background: transparent;
-  overflow: hidden;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-app-region: no-drag;
+  background: transparent; overflow: hidden; user-select: none;
+  -webkit-user-select: none; -webkit-app-region: no-drag;
 }
 
 #pet-container {
-  position: relative;
-  width: 192px;
-  height: 243px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: grab;
+  position: relative; width: 192px; height: 243px;
+  display: flex; align-items: center; justify-content: center; cursor: grab;
 }
-
-#pet-container.dragging {
-  cursor: grabbing;
-}
+#pet-container.dragging { cursor: grabbing; }
 
 #pet-container img {
-  position: absolute;
-  width: 179px;
-  height: auto;
-  mix-blend-mode: screen;
-  opacity: 0;
+  position: absolute; width: 179px; height: auto;
+  mix-blend-mode: screen; opacity: 0;
   transition: opacity 0.3s ease;
-  user-select: none;
-  -webkit-user-drag: none;
-  pointer-events: none;
-  image-rendering: auto;
+  user-select: none; -webkit-user-drag: none;
+  pointer-events: none; image-rendering: auto;
 }
+#pet-container img.active { opacity: 1; }
 
-#pet-container img.active {
-  opacity: 1;
-}
-
-/* === 气泡容器 === */
+/* === Bubble Container === */
 #bubble-container {
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  min-height: 24px;
-  max-width: 160px;
-  background: linear-gradient(135deg, #fff0f5 0%, #ffe4ec 100%);
-  color: #d63384;
-  border-radius: 16px;
-  font-size: 11px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", sans-serif;
-  border: 1.5px solid #ffb6c1;
-  box-shadow: 0 2px 12px rgba(255, 105, 180, 0.2);
-  z-index: 10;
-  opacity: 1;
+  position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+  min-height: 24px; max-width: 168px;
+  background: linear-gradient(135deg, #fff5f8 0%, #ffe4ec 50%, #fff0f5 100%);
+  color: #d63384; border-radius: 20px; font-size: 11px;
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+  font-weight: 600;
+  border: 2px solid #ffb6c1;
+  box-shadow:
+    0 4px 16px rgba(255,105,180,0.2),
+    0 0 0 3px rgba(255,182,193,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.7);
+  z-index: 10; opacity: 1;
   transition: opacity 0.4s ease, transform 0.2s ease;
-  pointer-events: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0;
+  pointer-events: none; display: flex; flex-direction: column;
+  align-items: center; padding: 0;
 }
-
-#bubble-container.hidden {
-  opacity: 0;
-  pointer-events: none !important;
+#bubble-container::before {
+  content: ''; position: absolute; top: -2px; left: 20px; right: 20px; height: 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.35), transparent);
+  border-radius: 20px 20px 0 0; pointer-events: none;
 }
-
+#bubble-container.hidden { opacity: 0; pointer-events: none !important; }
 #bubble-container.birthday-theme {
   background: linear-gradient(135deg, #fff0f5, #ffd1dc, #fff0f5);
   border: 2px solid #ff69b4;
-  box-shadow: 0 2px 16px rgba(255, 105, 180, 0.35);
+  box-shadow: 0 4px 20px rgba(255,105,180,0.35), inset 0 1px 0 rgba(255,255,255,0.7);
 }
 
-/* 气泡文本内容 */
+/* Bubble text */
 #bubble-content {
-  padding: 6px 12px;
-  text-align: center;
-  line-height: 1.5;
-  white-space: normal;
-  word-break: break-all;
-  max-height: 70px;
-  overflow: hidden;
+  padding: 7px 14px; text-align: center; line-height: 1.5;
+  white-space: normal; word-break: break-all; max-height: 70px; overflow: hidden;
 }
+#bubble-content.small-text { font-size: 10px; }
 
-#bubble-content.small-text {
-  font-size: 10px;
-}
-
-/* 气泡小三角 */
+/* Bubble tail */
 .bubble-tail {
-  width: 0;
-  height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 5px solid #ffb6c1;
-  margin-top: -1px;
+  width: 0; height: 0;
+  border-left: 6px solid transparent; border-right: 6px solid transparent;
+  border-top: 6px solid #ffb6c1; margin-top: -1px;
 }
+#bubble-container.birthday-theme .bubble-tail { border-top-color: #ff69b4; }
 
-#bubble-container.birthday-theme .bubble-tail {
-  border-top-color: #ff69b4;
-}
-
-/* === 输入框模式 === */
-#bubble-input-wrap {
-  padding: 4px 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#bubble-input-wrap.hidden {
-  display: none;
-}
+/* === Input Mode === */
+#bubble-input-wrap { padding: 4px 6px; display: flex; align-items: center; justify-content: center; }
+#bubble-input-wrap.hidden { display: none; }
 
 #bubble-input {
-  width: 145px;
-  height: 24px;
-  border: 1.5px solid #ff99cc;
-  border-radius: 12px;
-  padding: 0 8px;
-  font-size: 10px;
-  font-family: inherit;
-  outline: none;
-  background: #fff5f8;
-  color: #d63384;
-  pointer-events: auto;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 148px; height: 26px; border: 2px solid #ff99cc; border-radius: 14px;
+  padding: 0 10px; font-size: 10px; font-family: 'Nunito', inherit; font-weight: 600;
+  outline: none; background: #fff5f8; color: #d63384; pointer-events: auto;
+  transition: all 0.25s;
 }
-
 #bubble-input:focus {
   border-color: #ff69b4;
-  box-shadow: 0 0 8px rgba(255, 105, 180, 0.3);
+  box-shadow: 0 0 10px rgba(255,105,180,0.3), 0 0 0 3px rgba(255,105,180,0.1);
 }
+#bubble-input::placeholder { color: #ffb6c1; }
 
-#bubble-input::placeholder {
-  color: #ffb6c1;
-}
-
-/* === 计时器模式 === */
+/* === Timer Mode === */
 #bubble-timer {
-  padding: 5px 12px;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
-  display: flex;
-  align-items: center;
-  gap: 5px;
+  padding: 6px 14px; text-align: center; font-variant-numeric: tabular-nums;
+  display: flex; align-items: center; gap: 6px;
 }
-
-#bubble-timer.hidden {
-  display: none;
-}
-
-#bubble-timer .timer-label {
-  font-size: 11px;
-  color: #e75480;
-}
-
+#bubble-timer.hidden { display: none; }
+#bubble-timer .timer-label { font-size: 11px; color: #e75480; font-weight: 600; }
 #bubble-timer .timer-value {
-  font-size: 14px;
-  font-weight: 600;
-  color: #ff69b4;
+  font-family: 'Fredoka', sans-serif; font-size: 16px;
+  font-weight: 600; color: #ff69b4;
 }
 
-/* === 睡觉 Z 字动画 === */
+/* === Zzz Animation === */
 @keyframes zzz {
-  0% { opacity: 0; transform: translate(0, 0) scale(0.5); }
+  0% { opacity: 0; transform: translate(0, 0) scale(0.5) rotate(0); }
   50% { opacity: 1; }
-  100% { opacity: 0; transform: translate(15px, -25px) scale(1.2); }
+  100% { opacity: 0; transform: translate(15px, -28px) scale(1.3) rotate(10deg); }
 }
-
 .zzz-indicator {
-  position: absolute;
-  top: 50px;
-  right: 15px;
-  font-size: 14px;
-  color: #ff99cc;
-  text-shadow: 0 0 4px rgba(255, 105, 180, 0.4);
-  animation: zzz 2s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 10;
+  position: absolute; top: 50px; right: 15px; font-size: 14px;
+  color: #ff99cc; text-shadow: 0 0 8px rgba(255,105,180,0.5);
+  animation: zzz 2s ease-in-out infinite; pointer-events: none; z-index: 10;
 }
 
-/* 轻微弹跳动画 (行走时) */
+/* Walking bounce */
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
+  50% { transform: translateY(-5px); }
 }
+.walking #gif-current, .walking #gif-next { animation: bounce 0.4s ease-in-out infinite; }
 
-.walking #gif-current,
-.walking #gif-next {
-  animation: bounce 0.4s ease-in-out infinite;
-}
-
-/* 输入框出现动画 */
+/* Bubble pop-in */
 @keyframes bubblePop {
-  0% { transform: translateX(-50%) scale(0.85); opacity: 0; }
-  100% { transform: translateX(-50%) scale(1); opacity: 1; }
+  0% { transform: translateX(-50%) scale(0.6) rotate(-4deg); opacity: 0; }
+  60% { transform: translateX(-50%) scale(1.06) rotate(1deg); opacity: 1; }
+  100% { transform: translateX(-50%) scale(1) rotate(0); opacity: 1; }
+}
+#bubble-container.pop-in { animation: bubblePop 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+
+/* === Quick Chat Bar === */
+#quick-chat {
+  position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%) translateY(8px);
+  display: flex; align-items: center; gap: 4px;
+  background: rgba(255,245,248,0.95);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 2px solid #ffb6c1; border-radius: 22px;
+  padding: 3px 4px 3px 12px;
+  box-shadow: 0 6px 24px rgba(255,105,180,0.25), 0 0 0 3px rgba(255,182,193,0.12);
+  z-index: 20; opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  white-space: nowrap;
+}
+#quick-chat::before {
+  content: '💭'; position: absolute; left: -18px; top: -8px;
+  font-size: 10px; opacity: 0; transition: opacity 0.3s;
+  animation: none;
+}
+#quick-chat.visible::before { opacity: 0.6; animation: thoughtBubble 2s ease-in-out 2; }
+#quick-chat.visible {
+  opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0);
+}
+@keyframes thoughtBubble {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-3px) scale(1.15); }
 }
 
-#bubble-container.pop-in {
-  animation: bubblePop 0.25s ease-out;
-}
-
-/* === 悬浮快捷按钮 === */
-#hover-buttons {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 20;
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-
-#hover-buttons.visible {
-  opacity: 1;
-}
-
-.hover-btn {
-  position: absolute;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: 1.5px solid #ff99cc;
-  background: #fff0f5;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
+#quick-chat-input {
+  width: 110px; height: 24px; border: none; border-radius: 12px;
+  padding: 0 8px; font-size: 10px; font-family: 'Nunito', inherit; font-weight: 600;
+  outline: none; background: transparent; color: #d63384;
   pointer-events: auto;
-  box-shadow: 0 2px 8px rgba(255, 105, 180, 0.25);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  padding: 0;
-  outline: none;
 }
+#quick-chat-input::placeholder { color: #ffb6c1; }
+#quick-chat-input:focus { background: rgba(255,255,255,0.5); }
 
-.hover-btn:hover {
-  transform: scale(1.2);
-  box-shadow: 0 3px 12px rgba(255, 105, 180, 0.45);
-  border-color: #ff69b4;
+.quick-chat-btn {
+  width: 26px; height: 26px; border: none; border-radius: 50%;
+  background: linear-gradient(135deg, #ff99cc, #ff69b4);
+  color: #fff; font-size: 13px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; pointer-events: auto;
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 2px 8px rgba(255,105,180,0.3);
+  padding: 0; line-height: 1; position: relative;
 }
+.quick-chat-btn::after {
+  content: ''; position: absolute; inset: -3px; border-radius: 50%;
+  background: rgba(255,105,180,0.15); opacity: 0;
+  transition: opacity 0.2s;
+}
+.quick-chat-btn:hover::after { opacity: 1; }
+.quick-chat-btn:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 14px rgba(255,105,180,0.5);
+}
+.quick-chat-btn:active { transform: scale(0.9); }
 
-.hover-btn:active {
-  transform: scale(0.9);
-}
+#quick-chat-send { font-size: 16px; }
+#quick-chat-open { font-size: 12px; }
 
-#btn-dialogue {
-  top: 64px;
-  left: 2px;
-  width: 42px;
-  height: 42px;
-  font-size: 20px;
-  border-width: 2px;
-  box-shadow: 0 3px 12px rgba(255, 105, 180, 0.4);
-  background: linear-gradient(135deg, #fff0f5, #ffe4ec);
-}
-#btn-dialogue:hover {
-  transform: scale(1.25);
-  box-shadow: 0 4px 16px rgba(255, 105, 180, 0.6);
-}
-#btn-feed { top: 70px; right: 4px; }
-#btn-status {
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-#btn-status:hover {
-  transform: translateX(-50%) scale(1.2);
-}
-#btn-status:active {
-  transform: translateX(-50%) scale(0.9);
-}
-
-/* === 状态卡片 === */
+/* === Status Card (Glassmorphism) === */
 #status-card {
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 172px;
-  background: #fff0f5;
-  border: 1.5px solid #ffb6c1;
-  border-radius: 14px;
-  box-shadow: 0 4px 16px rgba(255, 105, 180, 0.3);
-  z-index: 25;
-  pointer-events: auto;
-  overflow: hidden;
+  position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+  width: 178px;
+  background: rgba(255,245,248,0.88);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 2px solid rgba(255,182,193,0.5); border-radius: 18px;
+  box-shadow: 0 8px 28px rgba(255,105,180,0.2), inset 0 1px 0 rgba(255,255,255,0.6);
+  z-index: 25; pointer-events: auto; overflow: hidden;
 }
-
-#status-card.hidden {
-  display: none;
+#status-card::before {
+  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: conic-gradient(from 0deg, transparent 0%, rgba(255,182,193,0.06) 10%, transparent 20%);
+  animation: cardShine 30s linear infinite; pointer-events: none;
 }
-
-#status-card.visible {
-  animation: cardIn 0.3s ease-out;
+#status-card.hidden { display: none; }
+#status-card.visible { animation: cardIn 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes cardShine {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 @keyframes cardIn {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(-8px) scale(0.92);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0) scale(1);
-  }
+  from { opacity: 0; transform: translateX(-50%) translateY(-12px) scale(0.88); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
 }
 
 .card-header {
-  padding: 8px 10px 6px;
-  background: #ff99cc;
-  color: #fff;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  padding: 9px 12px 7px;
+  background: linear-gradient(135deg, #ff99cc, #ff69b4);
+  color: #fff; display: flex; justify-content: space-between; align-items: center;
+  position: relative;
 }
-
+.card-header::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.15), transparent);
+  pointer-events: none;
+}
 .owner-name {
-  font-size: 12px;
-  font-weight: 600;
+  font-family: 'Fredoka', sans-serif; font-size: 13px;
+  font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
-
 .days-badge {
-  font-size: 9px;
-  background: rgba(255, 255, 255, 0.3);
-  padding: 1px 6px;
-  border-radius: 8px;
+  font-size: 9px; font-weight: 700;
+  background: rgba(255,255,255,0.3); padding: 2px 8px; border-radius: 10px;
 }
 
-.card-body {
-  padding: 8px 10px;
-}
-
-.status-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 6px;
-  gap: 5px;
-}
-
-.status-row:last-child {
-  margin-bottom: 0;
-}
-
-.status-label {
-  font-size: 10px;
-  color: #d63384;
-  min-width: 24px;
-  font-weight: 500;
-}
+.card-body { padding: 10px 12px; }
+.status-row { display: flex; align-items: center; margin-bottom: 7px; gap: 6px; }
+.status-row:last-child { margin-bottom: 0; }
+.status-label { font-size: 10px; color: #d63384; min-width: 24px; font-weight: 600; }
 
 .status-bar {
-  flex: 1;
-  height: 6px;
-  background: rgba(255, 182, 193, 0.3);
-  border-radius: 3px;
-  overflow: hidden;
+  flex: 1; height: 8px; background: rgba(255,182,193,0.2);
+  border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,182,193,0.25);
 }
-
-.bar-fill {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 0.5s ease;
-}
-
-.mood-fill {
-  background: #ff69b4;
-}
-
-.affinity-fill {
-  background: #e91e63;
-}
+.bar-fill { height: 100%; border-radius: 6px; transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+.mood-fill { background: linear-gradient(90deg, #ff99cc, #ff69b4); }
+.affinity-fill { background: linear-gradient(90deg, #ff69b4, #e91e63); }
 
 .status-value {
-  font-size: 9px;
-  color: #e75480;
-  min-width: 28px;
-  text-align: right;
-  font-weight: 600;
+  font-family: 'Fredoka', sans-serif; font-size: 10px;
+  color: #e75480; min-width: 28px; text-align: right; font-weight: 600;
 }
 
 .card-footer {
-  padding: 6px 10px;
-  background: rgba(255, 182, 193, 0.12);
-  border-top: 1px solid rgba(255, 182, 193, 0.25);
+  padding: 7px 12px;
+  background: rgba(255,182,193,0.08);
+  border-top: 1.5px dashed rgba(255,182,193,0.25);
 }
+.greeting-text { font-size: 9px; color: #d63384; font-weight: 600; }
 
-.greeting-text {
-  font-size: 9px;
-  color: #d63384;
-}
-
-/* === 悬浮微动画 === */
+/* === Hover Wiggle === */
 @keyframes hoverWiggle {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
+  0% { transform: translateY(0) rotate(0); }
+  25% { transform: translateY(-5px) rotate(-3deg); }
+  50% { transform: translateY(-2px) rotate(0); }
+  75% { transform: translateY(-4px) rotate(3deg); }
+  100% { transform: translateY(0) rotate(0); }
 }
+#pet-container.hovering img.active { animation: hoverWiggle 0.6s ease-in-out; }
 
-#pet-container.hovering img.active {
-  animation: hoverWiggle 0.5s ease-in-out;
+/* === Accessibility === */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

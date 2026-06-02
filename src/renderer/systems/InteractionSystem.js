@@ -53,18 +53,36 @@ class InteractionSystem {
       window.petAPI.onMenuAction((action) => this._handleMenuAction(action));
     }
 
-    // 悬浮按钮点击
-    document.getElementById('btn-dialogue').addEventListener('click', (e) => {
+    // 快捷聊天栏
+    const quickInput = document.getElementById('quick-chat-input');
+    const quickSend = document.getElementById('quick-chat-send');
+    const quickOpen = document.getElementById('quick-chat-open');
+
+    quickSend.addEventListener('click', (e) => {
       e.stopPropagation();
-      this._onHoverAction('dialogue');
+      this._onQuickChatSend(quickInput);
     });
-    document.getElementById('btn-feed').addEventListener('click', (e) => {
+    quickInput.addEventListener('keydown', (e) => {
       e.stopPropagation();
-      this._onHoverAction('feed');
+      if (e.key === 'Enter') {
+        this._onQuickChatSend(quickInput);
+      } else if (e.key === 'Escape') {
+        quickInput.value = '';
+        quickInput.blur();
+      }
     });
-    document.getElementById('btn-status').addEventListener('click', (e) => {
+    // 阻止输入框内的鼠标事件冒泡到容器（避免拖拽）
+    quickInput.addEventListener('mousedown', (e) => e.stopPropagation());
+    quickInput.addEventListener('click', (e) => e.stopPropagation());
+
+    quickOpen.addEventListener('click', (e) => {
       e.stopPropagation();
-      this._onHoverAction('status');
+      this._hideQuickChat();
+      if (window.petAPI && window.petAPI.openChatWindow) {
+        window.petAPI.openChatWindow();
+      } else if (this.dialogueSys) {
+        this.dialogueSys.startConversation();
+      }
     });
 
     // 状态卡片点击关闭
@@ -86,7 +104,7 @@ class InteractionSystem {
 
   async _onMouseDown(e) {
     if (e.button === 2) return;
-    if (e.target.closest('.hover-btn') || e.target.closest('#status-card')) return;
+    if (e.target.closest('#quick-chat') || e.target.closest('#status-card')) return;
 
     this.dragStartX = e.screenX;
     this.dragStartY = e.screenY;
@@ -110,7 +128,7 @@ class InteractionSystem {
     if (!this.isDragging && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
       this.isDragging = true;
       this.hasMoved = true;
-      this._hideHoverButtons();
+      this._hideQuickChat();
 
       if (this.timeBehavior.getIsSleeping()) {
         this.timeBehavior.wakeUp();
@@ -538,7 +556,7 @@ class InteractionSystem {
       if (this.pomodoroSys && this.pomodoroSys.isActive()) return;
 
       this.isHovering = true;
-      this._showHoverButtons();
+      this._showQuickChat();
 
       const container = document.getElementById('pet-container');
       container.classList.add('hovering');
@@ -560,56 +578,65 @@ class InteractionSystem {
     const container = document.getElementById('pet-container');
     container.classList.remove('hovering');
 
+    // 如果输入框正在聚焦，不隐藏快捷聊天栏
+    const quickInput = document.getElementById('quick-chat-input');
+    if (quickInput && document.activeElement === quickInput) {
+      // 监听失焦后再隐藏
+      const onBlur = () => {
+        quickInput.removeEventListener('blur', onBlur);
+        // 延迟隐藏，给用户重新聚焦的机会
+        this.hideButtonsTimer = setTimeout(() => {
+          if (document.activeElement !== quickInput) {
+            this.isHovering = false;
+            this._hideQuickChat();
+          }
+        }, 300);
+      };
+      quickInput.addEventListener('blur', onBlur);
+      return;
+    }
+
     this.hideButtonsTimer = setTimeout(() => {
       this.isHovering = false;
-      this._hideHoverButtons();
+      this._hideQuickChat();
       if (this.statusCardTimer) {
         this._hideStatusCard();
       }
     }, 200);
   }
 
-  _showHoverButtons() {
-    const el = document.getElementById('hover-buttons');
-    el.style.display = 'block';
-    // 强制浏览器计算 display:block 后再触发过渡
-    el.offsetHeight;
+  _showQuickChat() {
+    const el = document.getElementById('quick-chat');
     el.classList.add('visible');
   }
 
-  _hideHoverButtons() {
-    const el = document.getElementById('hover-buttons');
+  _hideQuickChat() {
+    const el = document.getElementById('quick-chat');
     el.classList.remove('visible');
-    // 等 opacity 过渡结束后再隐藏
-    this.hideButtonsDisplayTimer = setTimeout(() => {
-      this.hideButtonsDisplayTimer = null;
-      if (!el.classList.contains('visible')) {
-        el.style.display = 'none';
-      }
-    }, 300);
+    const quickInput = document.getElementById('quick-chat-input');
+    if (quickInput && document.activeElement !== quickInput) {
+      quickInput.value = '';
+    }
   }
 
-  async _onHoverAction(action) {
-    this._hideHoverButtons();
+  _onQuickChatSend(input) {
+    const text = input.value.trim();
+    if (!text) return;
+
+    input.value = '';
+    input.blur();
+    this._hideQuickChat();
+
     const container = document.getElementById('pet-container');
     container.classList.remove('hovering');
 
     if (this.selfTalkSys) this.selfTalkSys.recordInteraction();
 
-    switch (action) {
-      case 'dialogue':
-        if (window.petAPI && window.petAPI.openChatWindow) {
-          window.petAPI.openChatWindow();
-        } else if (this.dialogueSys) {
-          this.dialogueSys.startConversation();
-        }
-        break;
-      case 'feed':
-        await this._actionFeed();
-        break;
-      case 'status':
-        this._showStatusCard();
-        break;
+    // 通过 DialogueSystem 处理输入
+    if (this.dialogueSys) {
+      this.dialogueSys.processInput(text);
+    } else if (this.onSpeech) {
+      this.onSpeech('Kitty 听到了~', 2000);
     }
   }
 

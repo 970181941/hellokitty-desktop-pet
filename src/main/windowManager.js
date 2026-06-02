@@ -112,17 +112,23 @@ function createChatWindow() {
   // 确保 y 不小于 0
   y = Math.max(0, y);
 
-  // 根据皮肤设置背景色
+  // 根据皮肤设置背景色（低饱和度柔和色调）
   const SKIN_BG_COLORS = {
-    sakura: '#fff5f8',
-    ocean: '#f0f8ff',
-    lavender: '#f8f0ff',
-    mint: '#f0fff8',
-    peach: '#fff8f0',
-    starry: '#f0f0ff',
+    sakura: '#fdf5f7',
+    ocean: '#f2f6fa',
+    lavender: '#f5f2fa',
+    mint: '#f2f7f4',
+    peach: '#faf5f0',
+    starry: '#f2f2f8',
+    candy: '#faf2f5',
+    matcha: '#f4f3ec',
+    sunset: '#faf4f0',
+    rose: '#f8f2f0',
+    honey: '#faf7ef',
+    arctic: '#f0f5f8',
   };
   const skinId = store.get('skinId', 'sakura');
-  const bgColor = SKIN_BG_COLORS[skinId] || '#fff5f8';
+  const bgColor = SKIN_BG_COLORS[skinId] || '#fdf5f7';
 
   chatWindow = new BrowserWindow({
     width: chatWidth,

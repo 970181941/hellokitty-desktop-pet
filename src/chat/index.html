@@ -61,7 +61,7 @@
       <!-- 玩耍视图 -->
       <div class="side-view" id="view-play">
         <div class="side-view-header">
-          <button class="side-view-back" data-view="status">← 返回</button>
+          <button class="side-view-back" data-view="status" aria-label="返回"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
           <span class="side-view-title">玩耍</span>
         </div>
         <div class="play-grid">
@@ -80,7 +80,7 @@
       <!-- 日程视图 -->
       <div class="side-view" id="view-schedule">
         <div class="side-view-header">
-          <button class="side-view-back" data-view="status">← 返回</button>
+          <button class="side-view-back" data-view="status" aria-label="返回"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
           <span class="side-view-title">每周日程</span>
         </div>
         <div class="day-selector">
@@ -98,7 +98,7 @@
           <span class="time-sep">:</span>
           <select id="schedule-minute"></select>
           <input type="text" id="schedule-text" placeholder="日程内容" />
-          <button id="schedule-add-btn">+</button>
+          <button id="schedule-add-btn" aria-label="添加日程">+</button>
         </div>
         <div class="schedule-actions">
           <button id="schedule-save">保存</button>
@@ -109,20 +109,20 @@
       <!-- 待办视图 -->
       <div class="side-view" id="view-todo">
         <div class="side-view-header">
-          <button class="side-view-back" data-view="status">← 返回</button>
+          <button class="side-view-back" data-view="status" aria-label="返回"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
           <span class="side-view-title">待办事项</span>
         </div>
         <div id="todo-list"></div>
         <div class="todo-add-row">
           <input type="text" id="todo-input" placeholder="添加新的待办事项..." />
-          <button id="todo-add-btn">+</button>
+          <button id="todo-add-btn" aria-label="添加待办">+</button>
         </div>
       </div>
 
       <!-- 设置视图 -->
       <div class="side-view" id="view-settings">
         <div class="side-view-header">
-          <button class="side-view-back" data-view="status">← 返回</button>
+          <button class="side-view-back" data-view="status" aria-label="返回"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
           <span class="side-view-title">设置</span>
         </div>
         <div class="settings-content">
@@ -151,6 +151,15 @@
             <div class="skin-grid" id="skin-grid"></div>
           </div>
           <div class="settings-section">
+            <div class="settings-section-title">聊天背景</div>
+            <div class="bg-grid" id="bg-grid"></div>
+            <div class="bg-opacity-row">
+              <span class="bg-opacity-label">透明度</span>
+              <input type="range" id="bg-opacity-slider" min="5" max="60" value="18" class="bg-opacity-slider">
+              <span class="bg-opacity-value" id="bg-opacity-value">18%</span>
+            </div>
+          </div>
+          <div class="settings-section">
             <div class="settings-section-title">软件更新</div>
             <div class="update-info">
               <div class="update-version-row">
@@ -158,6 +167,7 @@
                 <span class="update-version" id="update-current-version">--</span>
               </div>
               <div class="update-status-text" id="update-status-text">点击检查更新</div>
+              <div class="update-release-notes hidden" id="update-release-notes"></div>
               <div class="update-progress-bar hidden" id="update-progress-bar">
                 <div class="update-progress-fill" id="update-progress-fill"></div>
               </div>
@@ -174,15 +184,47 @@
           </div>
         </div>
       </div>
+
+      <!-- 找朋友视图 -->
+      <div class="side-view" id="view-friends">
+        <div class="side-view-header">
+          <button class="side-view-back" data-view="status" aria-label="返回"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <span class="side-view-title">找朋友</span>
+        </div>
+        <!-- 昵称设置 -->
+        <div class="friends-section">
+          <div class="friends-section-title">我的昵称</div>
+          <div class="friends-nickname-row">
+            <input type="text" id="friends-nickname-input" placeholder="给自己取个名字" maxlength="12">
+            <button id="friends-nickname-save" class="friends-small-btn">保存</button>
+          </div>
+        </div>
+        <!-- 搜索区域 -->
+        <div class="friends-section">
+          <button id="friends-scan-btn" class="friends-scan-btn" aria-label="搜索附近的好友"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px;margin-top:-2px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>搜索附近的好友</button>
+          <div id="friends-scan-status" class="friends-scan-status"></div>
+        </div>
+        <!-- 发现列表 -->
+        <div class="friends-section">
+          <div class="friends-section-title">发现的好友</div>
+          <div id="friends-discovered-list" class="friends-list"></div>
+        </div>
+        <!-- 已添加好友 -->
+        <div class="friends-section">
+          <div class="friends-section-title">我的好友</div>
+          <div id="friends-list" class="friends-list"></div>
+        </div>
+      </div>
     </div>
 
     <!-- 侧边面板底部工具栏 -->
     <div class="side-toolbar">
-      <button class="side-tool-btn active" data-view="status"><img src="assets/icons/status.png" class="side-tool-icon"><span>状态</span></button>
-      <button class="side-tool-btn" data-view="play"><img src="assets/icons/play.png" class="side-tool-icon"><span>玩耍</span></button>
-      <button class="side-tool-btn" data-view="schedule"><img src="assets/icons/schedule.png" class="side-tool-icon"><span>日程</span></button>
-      <button class="side-tool-btn" data-view="todo"><img src="assets/icons/todo.png" class="side-tool-icon"><span>待办</span></button>
-      <button class="side-tool-btn" data-view="settings"><img src="assets/icons/settings.png" class="side-tool-icon"><span>设置</span></button>
+      <button class="side-tool-btn active" data-view="status" aria-label="状态"><img src="assets/icons/status.png" class="side-tool-icon"><span>状态</span></button>
+      <button class="side-tool-btn" data-view="play" aria-label="玩耍"><img src="assets/icons/play.png" class="side-tool-icon"><span>玩耍</span></button>
+      <button class="side-tool-btn" data-view="schedule" aria-label="日程"><img src="assets/icons/schedule.png" class="side-tool-icon"><span>日程</span></button>
+      <button class="side-tool-btn" data-view="todo" aria-label="待办"><img src="assets/icons/todo.png" class="side-tool-icon"><span>待办</span></button>
+      <button class="side-tool-btn" data-view="friends" aria-label="朋友"><img src="assets/icons/friends.png" class="side-tool-icon"><span>朋友</span></button>
+      <button class="side-tool-btn" data-view="settings" aria-label="设置"><img src="assets/icons/settings.png" class="side-tool-icon"><span>设置</span></button>
     </div>
   </aside>
 
@@ -190,13 +232,14 @@
   <div id="chat-app">
     <header id="chat-header">
       <div class="header-left">
+        <button id="chat-back-btn" class="chat-back-btn hidden" aria-label="返回 Kitty 聊天"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
         <div class="avatar-small"><img src="assets/avatar.jpeg" alt="HK"></div>
         <div class="header-info">
-          <div class="header-name">Hello Kitty</div>
-          <div class="header-status">在线 · 陪伴中</div>
+          <div class="header-name" id="chat-header-name">Hello Kitty</div>
+          <div class="header-status" id="chat-header-status">在线 · 陪伴中</div>
         </div>
       </div>
-      <button id="btn-close" class="close-btn">✕</button>
+      <button id="btn-close" class="close-btn" aria-label="关闭窗口"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </header>
 
     <div id="status-bar">
@@ -223,7 +266,7 @@
         placeholder="和 Kitty 说些什么..."
         autocomplete="off"
       />
-      <button id="btn-send">发送</button>
+      <button id="btn-send" aria-label="发送">发送</button>
     </footer>
   </div>
 

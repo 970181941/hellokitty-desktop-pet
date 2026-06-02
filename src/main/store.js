@@ -26,6 +26,13 @@ const store = new Store({
     chatHistory: [],
     chatHistoryMax: 50,
     skinId: 'sakura',
+    chatBackgroundImage: '',  // 聊天背景图路径（空表示不使用背景图）
+    chatBackgroundOpacity: 0.18, // 背景图不透明度
+    // === 局域网找朋友 ===
+    lanFriends: [],            // 好友列表
+    lanNickname: '',           // 本机昵称（默认取 ownerName）
+    lanInstanceId: '',         // 实例唯一 ID（自动生成）
+    lanChatHistory: {},        // 好友聊天记录 { [friendId]: Message[] }
   },
 });
 

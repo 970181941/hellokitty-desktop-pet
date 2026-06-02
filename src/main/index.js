@@ -6,6 +6,7 @@ const { createTray, updateTrayMenu } = require('./trayManager');
 const store = require('./store');
 const AIService = require('./AIService');
 const Updater = require('./updater');
+const LANService = require('./LANService');
 
 // 隐藏 Dock 图标 (macOS)
 if (process.platform === 'darwin') {
@@ -22,6 +23,16 @@ app.whenReady().then(() => {
     const chatWin = getChatWindow();
     if (chatWin) {
       chatWin.webContents.send('update-status', data);
+    }
+  });
+
+  // 初始化局域网服务
+  const lanService = new LANService(store);
+  lanService.start();
+  lanService.setEventCallback((event, data) => {
+    const chatWin = getChatWindow();
+    if (chatWin) {
+      chatWin.webContents.send('lan-event', { event, data });
     }
   });
 
@@ -368,6 +379,115 @@ app.whenReady().then(() => {
     return { ok: true };
   });
 
+  // === Background Image IPC ===
+  // 获取背景图目录（兼容开发环境和打包环境）
+  function getBgDir() {
+    // 打包后: process.resourcesPath/素材/背景
+    const packaged = path.join(process.resourcesPath, '素材', '背景');
+    if (fs.existsSync(packaged)) return packaged;
+    // 开发时: __dirname/../../素材/背景
+    const dev = path.join(__dirname, '..', '..', '素材', '背景');
+    if (fs.existsSync(dev)) return dev;
+    return null;
+  }
+
+  // 列出背景图片
+  ipcMain.handle('bg-list', () => {
+    const bgDir = getBgDir();
+    if (!bgDir) return [];
+    try {
+      const files = fs.readdirSync(bgDir).filter(f =>
+        /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(f)
+      );
+      return files.map(f => ({
+        name: f,
+        path: path.join(bgDir, f),
+      }));
+    } catch (e) {
+      return [];
+    }
+  });
+
+  // 读取背景图片为 base64（用于在聊天窗口中显示）
+  ipcMain.handle('bg-read', (_event, filePath) => {
+    try {
+      if (!fs.existsSync(filePath)) return null;
+      const ext = path.extname(filePath).toLowerCase().replace('.', '');
+      const mimeMap = { jpg: 'jpeg', jpeg: 'jpeg', png: 'png', gif: 'gif', webp: 'webp', bmp: 'bmp' };
+      const mime = mimeMap[ext] || 'jpeg';
+      const buf = fs.readFileSync(filePath);
+      return `data:image/${mime};base64,${buf.toString('base64')}`;
+    } catch (e) {
+      return null;
+    }
+  });
+
+  // 获取当前背景图设置
+  ipcMain.handle('bg-get', () => {
+    return {
+      image: store.get('chatBackgroundImage', ''),
+      opacity: store.get('chatBackgroundOpacity', 0.18),
+    };
+  });
+
+  // 设置背景图
+  ipcMain.handle('bg-set', (_event, data) => {
+    if (data.image !== undefined) store.set('chatBackgroundImage', data.image);
+    if (data.opacity !== undefined) store.set('chatBackgroundOpacity', data.opacity);
+    return { ok: true };
+  });
+
+  // === 局域网找朋友 IPC ===
+
+  ipcMain.handle('lan-start-discovery', () => {
+    return lanService.startDiscovery();
+  });
+
+  ipcMain.handle('lan-stop-discovery', () => {
+    return lanService.stopDiscovery();
+  });
+
+  ipcMain.handle('lan-get-discovered', () => {
+    return lanService.getDiscoveredPeers();
+  });
+
+  ipcMain.handle('lan-add-friend', (_event, peer, nickname) => {
+    return lanService.addFriend(peer, nickname);
+  });
+
+  ipcMain.handle('lan-remove-friend', (_event, friendId) => {
+    return lanService.removeFriend(friendId);
+  });
+
+  ipcMain.handle('lan-update-friend', (_event, friendId, data) => {
+    return lanService.updateFriend(friendId, data);
+  });
+
+  ipcMain.handle('lan-get-friends', () => {
+    return lanService.getFriendsList();
+  });
+
+  ipcMain.handle('lan-send-message', async (_event, friendId, text) => {
+    try {
+      return await lanService.sendMessage(friendId, text);
+    } catch (e) {
+      return { error: e.message };
+    }
+  });
+
+  ipcMain.handle('lan-get-chat-history', (_event, friendId) => {
+    return lanService.getChatHistory(friendId);
+  });
+
+  ipcMain.handle('lan-get-status', () => {
+    return lanService.getStatus();
+  });
+
+  ipcMain.handle('lan-set-nickname', (_event, name) => {
+    lanService.setNickname(name);
+    return { ok: true };
+  });
+
   // === Update IPC ===
   ipcMain.handle('update-check', async () => {
     return await updater.checkForUpdates();
@@ -382,28 +502,17 @@ app.whenReady().then(() => {
     return { ok: true };
   });
 
+  ipcMain.handle('update-open-release', () => {
+    updater.openReleasePage();
+    return { ok: true };
+  });
+
   ipcMain.handle('update-get-version', () => {
     return updater.getAppVersion();
   });
 
-  ipcMain.handle('update-get-changelog', () => {
-    try {
-      // 尝试从打包后的资源路径读取
-      const appPath = app.getAppPath();
-      const changelogPath = path.join(appPath, 'CHANGELOG.md');
-      if (fs.existsSync(changelogPath)) {
-        return fs.readFileSync(changelogPath, 'utf-8');
-      }
-      // 开发模式下从项目根目录读取
-      const devPath = path.join(__dirname, '../../CHANGELOG.md');
-      if (fs.existsSync(devPath)) {
-        return fs.readFileSync(devPath, 'utf-8');
-      }
-      return '# 更新日志\n\n暂无更新记录';
-    } catch (error) {
-      console.error('[Updater] 读取 changelog 失败:', error.message);
-      return '# 更新日志\n\n读取失败';
-    }
+  ipcMain.handle('update-get-changelog', async () => {
+    return await updater.getChangelog();
   });
 
   // 状态推送中继：Kitty -> Chat
@@ -434,6 +543,7 @@ app.whenReady().then(() => {
   mainWindow.on('close', () => {
     saveWindowPosition();
     store.set('lastCloseTime', Date.now());
+    lanService.stop();
   });
 });
 

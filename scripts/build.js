@@ -121,6 +121,10 @@ function main() {
     // 清除 DMG 的 quarantine 属性
     try {
       run('xattr -cr dist/*.dmg', { stdio: 'ignore' });
+      // 仅复制当前版本安装包到桌面
+      const dmgName = `hellokitty-desktop-pet-${newVersion}.dmg`;
+      const zipName = `hellokitty-desktop-pet-${newVersion}.zip`;
+      run(`cp dist/${dmgName} dist/${zipName} ~/Desktop/`, { stdio: 'ignore' });
     } catch (e) {
       // ignore
     }
@@ -162,7 +166,7 @@ function main() {
   console.log('\n[5/5] 发布指引...\n');
   console.log('=== 构建完成 ===');
   console.log(`版本: v${newVersion}`);
-  console.log(`DMG: dist/ 目录下\n`);
+  console.log(`DMG/ZIP: 已复制到桌面\n`);
 
   if (isGitRepo) {
     console.log('推送到 GitHub:');
@@ -172,7 +176,7 @@ function main() {
     console.log('或者手动:');
     console.log('  1. 前往 GitHub 仓库 -> Releases -> Create a new release');
     console.log(`  2. 选择标签 v${newVersion}`);
-    console.log('  3. 上传 dist/ 下的 .dmg 和 .zip 文件');
+    console.log('  3. 上传 dist/ 或桌面上的 .dmg 和 .zip 文件');
     console.log('  4. 粘贴更新内容并发布');
   } else {
     console.log('初始化 Git 仓库后推送:');
