@@ -249,6 +249,12 @@ class Updater {
       this._currentAppPath = path.dirname(path.dirname(process.execPath));
       this._currentPID = process.pid;
       this._tmpDir = tmpDir;
+      this._appName = appName;
+
+      // 检测应用运行位置
+      const isWritable = this._isWritableAppPath(this._currentAppPath);
+      this._canAutoInstall = isWritable;
+
       this._updateReady = true;
       this._pushStatus({ status: 'ready', version: this._latestVersion });
       return { ok: true };
@@ -259,11 +265,38 @@ class Updater {
     }
   }
 
-  installUpdate() {
-    if (this.isDev) return;
-    if (!this._updateReady || !this._stagedAppPath) return;
+  /**
+   * 检测应用路径是否可写（只有在 /Applications 等可写目录才能自动更新）
+   */
+  _isWritableAppPath(appPath) {
+    try {
+      // 检查是否在 /Applications 目录下
+      const normalizedPath = fs.realpathSync(appPath);
+      if (normalizedPath.startsWith('/Applications/') || normalizedPath.startsWith('/Users/')) {
+        // 尝试写入测试
+        const testFile = path.join(appPath, '.write-test-' + Date.now());
+        fs.writeFileSync(testFile, 'test');
+        fs.unlinkSync(testFile);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
 
+  async installUpdate() {
+    if (this.isDev) return { error: 'dev_mode' };
+    if (!this._updateReady || !this._stagedAppPath) return { error: 'not_ready' };
+
+    if (!this._canAutoInstall) {
+      // 应用在只读位置（如 DMG），引导用户手动安装
+      return this._manualInstall();
+    }
+
+    // 自动安装：写脚本 → 退出 → 脚本替换 → 启动
     const scriptPath = path.join(this._tmpDir, 'replace.sh');
+    const logPath = path.join(this._tmpDir, 'update.log');
     const script = [
       '#!/bin/bash',
       '# Hello Kitty 桌面宠物 - 更新替换脚本',
@@ -272,10 +305,17 @@ class Updater {
       'CURRENT="' + this._currentAppPath + '"',
       'PID=' + this._currentPID,
       'TMPDIR_PATH="' + this._tmpDir + '"',
+      'LOG="' + logPath + '"',
+      '',
+      'echo "[$(date)] 开始更新" > "$LOG"',
+      'echo "STAGED=$STAGED" >> "$LOG"',
+      'echo "CURRENT=$CURRENT" >> "$LOG"',
+      'echo "PID=$PID" >> "$LOG"',
       '',
       '# 等待当前进程完全退出',
       'for i in $(seq 1 20); do',
       '  if ! kill -0 $PID 2>/dev/null; then',
+      '    echo "[$(date)] 进程已退出" >> "$LOG"',
       '    break',
       '  fi',
       '  sleep 0.5',
@@ -284,17 +324,28 @@ class Updater {
       '# 额外等待确保文件锁释放',
       'sleep 2',
       '',
-      '# 用新版本覆盖当前应用',
-      'ditto --noqtn "$STAGED" "$CURRENT"',
+      '# 删除旧应用并复制新应用',
+      'echo "[$(date)] 开始替换..." >> "$LOG"',
+      'rm -rf "$CURRENT" 2>/dev/null',
+      'ditto --noqtn "$STAGED" "$CURRENT" 2>>"$LOG"',
+      '',
+      'if [ $? -eq 0 ]; then',
+      '  echo "[$(date)] 替换成功" >> "$LOG"',
+      'else',
+      '  echo "[$(date)] 替换失败" >> "$LOG"',
+      'fi',
       '',
       '# 清除隔离属性',
       'xattr -cr "$CURRENT" 2>/dev/null',
       '',
       '# 启动新版本',
+      'echo "[$(date)] 启动应用" >> "$LOG"',
       'open "$CURRENT"',
       '',
       '# 清理临时文件',
+      'sleep 3',
       'rm -rf "$TMPDIR_PATH"',
+      'echo "[$(date)] 更新完成" >> "$LOG"',
     ].join('\n');
 
     fs.writeFileSync(scriptPath, script, { mode: 0o755 });
@@ -307,6 +358,35 @@ class Updater {
 
     // 退出当前应用，让脚本接管
     app.quit();
+    return { ok: true };
+  }
+
+  /**
+   * 手动安装：挂载 DMG 到 Finder，引导用户拖入 Applications
+   */
+  _manualInstall() {
+    try {
+      // 重新挂载 DMG（之前已卸载），这次不隐藏，让用户看到
+      const dmgPath = path.join(this._tmpDir, 'update.dmg');
+      if (fs.existsSync(dmgPath)) {
+        // 在 Finder 中打开 DMG
+        spawn('open', [dmgPath], { detached: true, stdio: 'ignore' }).unref();
+        this._pushStatus({
+          status: 'error',
+          message: '请将应用拖入“应用程序”文件夹后再试更新。已为你打开安装包。'
+        });
+      } else {
+        // DMG 不存在，引导去 GitHub 下载
+        shell.openExternal(`https://github.com/${GITHUB_REPO}/releases/latest`);
+        this._pushStatus({
+          status: 'error',
+          message: '安装包已丢失，已为你打开下载页面。'
+        });
+      }
+      return { error: 'manual_install_required' };
+    } catch (e) {
+      return { error: e.message };
+    }
   }
 
   openReleasePage() {

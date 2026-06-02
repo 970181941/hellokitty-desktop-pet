@@ -908,8 +908,14 @@ function initUpdateSection() {
     installBtn.disabled = true;
     installBtn.textContent = '安装中...';
     try {
-      await window.chatAPI.installUpdate();
-      setUpdateStatus('正在重启应用...');
+      const result = await window.chatAPI.installUpdate();
+      if (result && result.error) {
+        // 手动安装模式或错误——状态已通过回调推送
+        installBtn.disabled = false;
+        installBtn.textContent = '安装更新';
+      } else {
+        setUpdateStatus('正在重启应用...');
+      }
     } catch (e) {
       setUpdateStatus('安装失败: ' + (e.message || '未知错误'));
       installBtn.disabled = false;

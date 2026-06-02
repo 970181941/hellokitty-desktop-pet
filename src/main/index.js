@@ -509,9 +509,8 @@ app.whenReady().then(() => {
     return await updater.downloadUpdate();
   });
 
-  ipcMain.handle('update-install', () => {
-    updater.installUpdate();
-    return { ok: true };
+  ipcMain.handle('update-install', async () => {
+    return await updater.installUpdate();
   });
 
   ipcMain.handle('update-open-release', () => {

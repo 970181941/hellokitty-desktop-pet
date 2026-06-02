@@ -1,0 +1,260 @@
+{
+  "name": "HelloKitty Desktop Pet - Design Tokens",
+  "version": "2.0.0",
+  "description": "Application-level UI color specification for HelloKitty desktop pet",
+
+  "brand": {
+    "primary":        { "hex": "#FF6B9D", "rgb": "255,107,157", "usage": "按钮、选中态、主链接、Toggle开、Tab下划线" },
+    "primaryHover":   { "hex": "#FF508A", "usage": "Primary按钮hover加深5%" },
+    "primaryActive":  { "hex": "#E0457A", "usage": "Primary按钮active/click态" },
+    "primaryLight":   { "hex": "#FFD4E5", "usage": "头像底、Tab选中背景、皮肤选择器" },
+    "primaryUltraLight": { "hex": "#FFF0F5", "usage": "行hover背景、Tag底、页面装饰" },
+    "secondary":      { "hex": "#FFB7C5", "usage": "辅助装饰、次级标签" },
+    "accent":         { "hex": "#FFB300", "usage": "皇冠/成就徽章/特殊标记" }
+  },
+
+  "functional": {
+    "success":      { "hex": "#4CAF50", "light": "#E8F5E9", "dark": "#388E3C", "usage": "操作成功/完成状态/健康状态条" },
+    "warning":      { "hex": "#FF9800", "light": "#FFF3E0", "dark": "#F57C00", "usage": "饥饿警告/低能量/Toast警告" },
+    "error":        { "hex": "#F44336", "light": "#FFEBEE", "dark": "#D32F2F", "usage": "删除确认/表单错误/Toast错误/危险按钮" },
+    "info":         { "hex": "#42A5F5", "light": "#E3F2FD", "usage": "系统通知/帮助提示/用户气泡备选" }
+  },
+
+  "neutral": {
+    "900": { "hex": "#1A1A1A", "usage": "主标题、弹窗标题" },
+    "800": { "hex": "#2D2D2D", "usage": "Modal标题" },
+    "700": { "hex": "#404040", "usage": "正文文字" },
+    "600": { "hex": "#666666", "usage": "次要文字、Label、Tab未选中hover" },
+    "500": { "hex": "#999999", "usage": "辅助说明、Tab未选中" },
+    "400": { "hex": "#BDBDBD", "usage": "Placeholder、禁用文字" },
+    "300": { "hex": "#D4D4D4", "usage": "强边框、Toggle关状态" },
+    "200": { "hex": "#E8E8E8", "usage": "默认边框、Input默认边框" },
+    "150": { "hex": "#F0F0F0", "usage": "轻边框、分割线、Slider轨道" },
+    "100": { "hex": "#F5F5F5", "usage": "次级背景、Input背景、surface-2" },
+    "50":  { "hex": "#FAFAFA", "usage": "页面底色、Chat背景、surface-1" },
+    "white": { "hex": "#FFFFFF", "usage": "卡片背景、Modal体、surface-0" }
+  },
+
+  "text": {
+    "primary":    { "hex": "#1A1A1A", "usage": "正文、标题、按钮文字(浅色底)" },
+    "secondary":  { "hex": "#666666", "usage": "次要信息、Label、状态数值" },
+    "tertiary":   { "hex": "#999999", "usage": "辅助说明、时间戳、脚注" },
+    "placeholder":{ "hex": "#BDBDBD", "usage": "Input placeholder" },
+    "disabled":   { "hex": "#D4D4D4", "usage": "禁用态文字" },
+    "inverse":    { "hex": "#FFFFFF", "usage": "深色背景上的文字(Primary按钮内)" },
+    "brand":      { "hex": "#FF6B9D", "usage": "品牌色文字链接" }
+  },
+
+  "surfaces": {
+    "app":        { "hex": "#FAFAFA", "usage": "应用全局底色" },
+    "page":       { "hex": "#FFFFFF", "usage": "页面背景" },
+    "surface0":   { "hex": "#FFFFFF", "usage": "卡片、弹窗、Chat气泡(宠物)" },
+    "surface1":   { "hex": "#FAFAFA", "usage": "设置面板头、Tab栏、Input背景" },
+    "surface2":   { "hex": "#F5F5F5", "usage": "Secondary按钮填充" },
+    "surface3":   { "hex": "#F0F0F0", "usage": "状态条轨道、Slider轨道" },
+    "overlay":    { "hex": "rgba(0,0,0,0.45)", "usage": "Modal遮罩层" }
+  },
+
+  "borders": {
+    "strong":  { "hex": "#D4D4D4", "usage": "强边框(强调分隔)" },
+    "default": { "hex": "#E8E8E8", "usage": "默认边框、Input边框、面板边框" },
+    "light":   { "hex": "#F0F0F0", "usage": "轻边框、Chat面板间分割、Context menu分割线" },
+    "divider": { "hex": "#F0F0F0", "usage": "内容分割线" },
+    "brand":   { "hex": "#FFD4E5", "usage": "品牌色分割线(Table header底)" }
+  },
+
+  "shadows": {
+    "xs":    { "value": "0 1px 2px rgba(0,0,0,0.04)",  "usage": "微阴影(color chip)" },
+    "sm":    { "value": "0 2px 8px rgba(0,0,0,0.06)",  "usage": "卡片、Slider thumb" },
+    "md":    { "value": "0 4px 16px rgba(0,0,0,0.08)", "usage": "Toast、悬浮面板" },
+    "lg":    { "value": "0 8px 32px rgba(0,0,0,0.12)", "usage": "Modal、Context Menu" },
+    "brand": { "value": "0 4px 16px rgba(255,107,157,0.25)", "usage": "Primary按钮hover投影" }
+  },
+
+  "interaction": {
+    "hoverOverlay":  { "value": "rgba(255,107,157,0.06)", "usage": "列表行/菜单项/道具格 hover" },
+    "activeOverlay": { "value": "rgba(255,107,157,0.12)", "usage": "点击按压态叠加" },
+    "focusRing":     { "value": "rgba(255,107,157,0.35)", "usage": "Input/按钮 focus 3px 光环" }
+  },
+
+  "radius": {
+    "xs":   { "value": "4px",   "usage": "小元素圆角(color chip内)" },
+    "sm":   { "value": "8px",   "usage": "Input、Context Menu、皮肤选项" },
+    "md":   { "value": "12px",  "usage": "Toast、气泡、Slider thumb" },
+    "lg":   { "value": "16px",  "usage": "面板卡片、Modal内容器" },
+    "xl":   { "value": "20px",  "usage": "主卡片容器、Modal外框" },
+    "full": { "value": "9999px","usage": "按钮pill、Toggle、头像、进度条端点" }
+  },
+
+  "components": {
+    "button": {
+      "primary":    { "bg": "#FF6B9D", "text": "#FFFFFF", "hoverBg": "#FF508A", "activeBg": "#E0457A", "shadow": "0 4px 16px rgba(255,107,157,0.25)" },
+      "secondary":  { "bg": "#F5F5F5", "text": "#1A1A1A", "hoverBg": "#F0F0F0" },
+      "outline":    { "bg": "transparent", "border": "#FF6B9D", "text": "#FF6B9D", "hoverBg": "#FFF0F5" },
+      "ghost":      { "bg": "transparent", "text": "#666666", "hoverBg": "rgba(255,107,157,0.06)", "hoverText": "#FF6B9D" },
+      "danger":     { "bg": "#F44336", "text": "#FFFFFF", "hoverBg": "#D32F2F" },
+      "disabled":   { "opacity": 0.4, "cursor": "not-allowed" }
+    },
+    "input": {
+      "bg": "#FAFAFA",
+      "border": "#E8E8E8",
+      "borderFocus": "#FF6B9D",
+      "focusRing": "0 0 0 3px rgba(255,107,157,0.35)",
+      "borderError": "#F44336",
+      "errorRing": "0 0 0 3px rgba(244,67,54,0.15)",
+      "placeholder": "#BDBDBD",
+      "text": "#1A1A1A"
+    },
+    "chatBubble": {
+      "pet":    { "bg": "#FFFFFF", "border": "#F0F0F0", "text": "#1A1A1A" },
+      "user":   { "bg": "#FF6B9D", "text": "#FFFFFF" }
+    },
+    "contextMenu": {
+      "bg": "#FFFFFF",
+      "shadow": "0 8px 32px rgba(0,0,0,0.12)",
+      "itemHover": "rgba(255,107,157,0.06)",
+      "divider": "#F0F0F0",
+      "dangerText": "#F44336"
+    },
+    "toast": {
+      "bg": "#FFFFFF",
+      "shadow": "0 4px 16px rgba(0,0,0,0.08)",
+      "borderWidth": "3px",
+      "borderLeftColors": {
+        "success": "#4CAF50",
+        "warning": "#FF9800",
+        "error": "#F44336",
+        "info": "#42A5F5"
+      }
+    },
+    "toggle": {
+      "off": { "bg": "#D4D4D4", "knob": "#FFFFFF" },
+      "on":  { "bg": "#FF6B9D", "knob": "#FFFFFF" }
+    },
+    "tab": {
+      "inactive": { "text": "#666666", "bg": "transparent", "borderBottom": "2px solid transparent" },
+      "hover":    { "text": "#FF6B9D", "bg": "rgba(255,107,157,0.06)" },
+      "active":   { "text": "#FF6B9D", "bg": "transparent", "borderBottom": "2px solid #FF6B9D" }
+    },
+    "statusBar": {
+      "track": "#F0F0F0",
+      "happy":  "linear-gradient(90deg, #FF6B9D, #FF9A76)",
+      "energy": "linear-gradient(90deg, #42A5F5, #66BB6A)",
+      "hunger": "linear-gradient(90deg, #FF9800, #FFB74D)",
+      "warningThreshold": 40
+    },
+    "slider": {
+      "track": "#F0F0F0",
+      "trackHeight": "4px",
+      "fill": "#FF6B9D",
+      "thumb": { "bg": "#FFFFFF", "border": "2px solid #FF6B9D", "size": "16px", "shadow": "0 2px 8px rgba(0,0,0,0.06)" }
+    },
+    "skinSelector": {
+      "itemBorder": "#F0F0F0",
+      "itemHoverBorder": "#FFD4E5",
+      "selectedBorder": "#FF6B9D",
+      "selectedRing": "0 0 0 2px rgba(255,107,157,0.35)"
+    },
+    "feedGrid": {
+      "cellGap": "1px",
+      "cellGapColor": "#F0F0F0",
+      "cellHover": "rgba(255,107,157,0.06)",
+      "cellActive": "rgba(255,107,157,0.12)",
+      "emptyOpacity": 0.4
+    },
+    "modal": {
+      "overlay": "rgba(0,0,0,0.45)",
+      "bg": "#FFFFFF",
+      "shadow": "0 8px 32px rgba(0,0,0,0.12)",
+      "radius": "20px",
+      "titleColor": "#1A1A1A",
+      "descColor": "#666666"
+    }
+  },
+
+  "emotions": {
+    "happy":   { "primary": "#FF6B9D", "secondary": "#FFD54F", "glow": "#FFF9C4", "label": "开心" },
+    "sleepy":  { "primary": "#7B68EE", "secondary": "#B39DDB", "glow": "#EDE7F6", "label": "困倦" },
+    "hungry":  { "primary": "#FF8A65", "secondary": "#FFCC80", "glow": "#FFF3E0", "label": "饥饿" },
+    "angry":   { "primary": "#EF5350", "secondary": "#FF8A80", "glow": "#FFEBEE", "label": "生气" },
+    "love":    { "primary": "#EC407A", "secondary": "#F48FB1", "glow": "#FCE4EC", "label": "恋爱" },
+    "cold":    { "primary": "#42A5F5", "secondary": "#90CAF9", "glow": "#E3F2FD", "label": "生病/冷" },
+    "excited": { "primary": "#FF6F00", "secondary": "#FFB74D", "glow": "#FFF8E1", "label": "兴奋" },
+    "normal":  { "primary": "#FFB7C5", "secondary": "#FFFFFF", "glow": "#FFF0F5", "label": "日常" }
+  },
+
+  "transitions": {
+    "hover":         { "duration": "150ms", "easing": "ease" },
+    "focus":         { "duration": "150ms", "easing": "ease" },
+    "toastIn":       { "duration": "250ms", "easing": "ease-out" },
+    "toastOut":      { "duration": "250ms", "easing": "ease-in" },
+    "modalIn":       { "duration": "250ms", "easing": "ease-out" },
+    "modalOut":      { "duration": "200ms", "easing": "ease-in" },
+    "tabSwitch":     { "duration": "250ms", "easing": "ease" },
+    "toggle":        { "duration": "200ms", "easing": "ease" },
+    "skinSwitch":    { "duration": "400ms", "easing": "ease-in-out" },
+    "petBounce":     { "duration": "200ms", "easing": "cubic-bezier(0.34,1.56,0.64,1)", "scale": [1.0, 1.15, 1.0] },
+    "idleBreathing": { "duration": "2000ms", "easing": "ease-in-out", "loop": true },
+    "statusBar":     { "duration": "400ms", "easing": "ease-out" }
+  },
+
+  "skins": {
+    "classic": {
+      "name": "经典原版",
+      "bow": "#FF6B9D",
+      "body": "#FFFFFF",
+      "glowInner": "#FFD4E5",
+      "glowOuter": "#FF6B9D",
+      "nose": "#FFB300",
+      "outline": "#333333"
+    },
+    "macaron": {
+      "name": "奶油马卡龙",
+      "bow": "#B5D8CC",
+      "body": "#FFF9F0",
+      "glowInner": "#F2D7D9",
+      "glowOuter": "#B5D8CC",
+      "nose": "#E8D5B7",
+      "outline": "#6B6B6B"
+    },
+    "candy": {
+      "name": "糖果霓虹",
+      "bowGradientStart": "#FF006E",
+      "bowGradientEnd": "#FB5607",
+      "body": "#FFFFFF",
+      "glowInner": "#8338EC",
+      "glowOuter": "#3A86FF",
+      "accent": "#06D6A0",
+      "nose": "#FFB300",
+      "outline": "#222222"
+    },
+    "night": {
+      "name": "暗夜星梦",
+      "bow": "#7B68EE",
+      "body": "#E8E0F0",
+      "glowInner": "#1A1A2E",
+      "glowOuter": "#7B68EE",
+      "nose": "#FFD700",
+      "outline": "#4A4A6A"
+    },
+    "sakura": {
+      "name": "春樱限定",
+      "bow": "#FFB7C5",
+      "body": "#FFF5F7",
+      "glowGradientStart": "#FFB7C5",
+      "glowGradientEnd": "#FF9AA2",
+      "accent": "#C8E6C9",
+      "nose": "#FFB300",
+      "outline": "#5D4037"
+    },
+    "christmas": {
+      "name": "圣诞限定",
+      "bow": "#E53935",
+      "body": "#FFFFFF",
+      "glowInner": "#2E7D32",
+      "glowOuter": "#E53935",
+      "nose": "#FFD54F",
+      "outline": "#333333"
+    }
+  }
+}
