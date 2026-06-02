@@ -180,7 +180,6 @@ class Updater {
     if (this.isDev) return { error: 'dev_mode' };
 
     if (!this._dmgUrl) {
-      // 没有 DMG 资源，引导用户去 GitHub 页面
       this._pushStatus({ status: 'manual-download', version: this._latestVersion });
       return { error: 'no_download_url' };
     }
@@ -206,11 +205,13 @@ class Updater {
       });
       this._pushStatus({ status: 'downloading', percent: 100 });
 
-      // 安装更新
+      // 解压 DMG 并暂存新应用
       this._pushStatus({ status: 'installing' });
 
       const mountPoint = path.join(tmpDir, 'mnt');
+      const stageDir = path.join(tmpDir, 'staged');
       fs.mkdirSync(mountPoint, { recursive: true });
+      fs.mkdirSync(stageDir, { recursive: true });
 
       // 挂载 DMG
       try {
@@ -220,7 +221,6 @@ class Updater {
           '-nobrowse', '-quiet'
         ]);
       } catch (e) {
-        // 如果已挂载，先卸载
         try { await this._exec('hdiutil', ['detach', mountPoint, '-force']); } catch (_) {}
         await this._exec('hdiutil', [
           'attach', dmgPath,
@@ -229,7 +229,7 @@ class Updater {
         ]);
       }
 
-      // 查找 .app
+      // 查找 .app 并复制到暂存区
       const entries = fs.readdirSync(mountPoint);
       const appName = entries.find(e => e.endsWith('.app'));
       if (!appName) {
@@ -238,37 +238,75 @@ class Updater {
       }
 
       const newAppPath = path.join(mountPoint, appName);
-      // 当前应用路径: process.execPath = /path/to/App.app/Contents/MacOS/exec
-      const currentAppPath = path.dirname(path.dirname(process.execPath));
-
-      // 用 ditto 覆盖当前应用（macOS 允许覆盖运行中应用的资源文件）
-      await this._exec('ditto', ['--noqtn', newAppPath, currentAppPath]);
+      const stagedAppPath = path.join(stageDir, appName);
+      await this._exec('ditto', ['--noqtn', newAppPath, stagedAppPath]);
 
       // 卸载 DMG
       try { await this._exec('hdiutil', ['detach', mountPoint, '-force', '-quiet']); } catch (_) {}
 
-      // 清除 quarantine 属性
-      try { await this._exec('xattr', ['-cr', currentAppPath]); } catch (_) {}
-
-      // 清理临时文件
-      try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch (_) {}
-
+      // 保存关键路径供 installUpdate 使用
+      this._stagedAppPath = stagedAppPath;
+      this._currentAppPath = path.dirname(path.dirname(process.execPath));
+      this._currentPID = process.pid;
+      this._tmpDir = tmpDir;
       this._updateReady = true;
       this._pushStatus({ status: 'ready', version: this._latestVersion });
       return { ok: true };
     } catch (error) {
-      console.error('[Updater] 下载安装更新失败:', error.message);
-      this._pushStatus({ status: 'error', message: `安装失败: ${error.message}` });
+      console.error('[Updater] 下载更新失败:', error.message);
+      this._pushStatus({ status: 'error', message: `下载失败: ${error.message}` });
       return { error: error.message };
     }
   }
 
   installUpdate() {
     if (this.isDev) return;
-    if (this._updateReady) {
-      app.relaunch();
-      app.quit();
-    }
+    if (!this._updateReady || !this._stagedAppPath) return;
+
+    const scriptPath = path.join(this._tmpDir, 'replace.sh');
+    const script = [
+      '#!/bin/bash',
+      '# Hello Kitty 桌面宠物 - 更新替换脚本',
+      '',
+      'STAGED="' + this._stagedAppPath + '"',
+      'CURRENT="' + this._currentAppPath + '"',
+      'PID=' + this._currentPID,
+      'TMPDIR_PATH="' + this._tmpDir + '"',
+      '',
+      '# 等待当前进程完全退出',
+      'for i in $(seq 1 20); do',
+      '  if ! kill -0 $PID 2>/dev/null; then',
+      '    break',
+      '  fi',
+      '  sleep 0.5',
+      'done',
+      '',
+      '# 额外等待确保文件锁释放',
+      'sleep 2',
+      '',
+      '# 用新版本覆盖当前应用',
+      'ditto --noqtn "$STAGED" "$CURRENT"',
+      '',
+      '# 清除隔离属性',
+      'xattr -cr "$CURRENT" 2>/dev/null',
+      '',
+      '# 启动新版本',
+      'open "$CURRENT"',
+      '',
+      '# 清理临时文件',
+      'rm -rf "$TMPDIR_PATH"',
+    ].join('\n');
+
+    fs.writeFileSync(scriptPath, script, { mode: 0o755 });
+
+    // 分离启动替换脚本（不随主进程退出）
+    spawn('/bin/bash', [scriptPath], {
+      detached: true,
+      stdio: 'ignore',
+    }).unref();
+
+    // 退出当前应用，让脚本接管
+    app.quit();
   }
 
   openReleasePage() {
