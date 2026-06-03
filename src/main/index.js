@@ -500,6 +500,14 @@ app.whenReady().then(() => {
     return { ok: true };
   });
 
+  ipcMain.handle('lan-connect-by-ip', async (_event, ip, port, nickname) => {
+    try {
+      return await lanService.connectByIP(ip, port, nickname);
+    } catch (e) {
+      return { error: e.message };
+    }
+  });
+
   // === Update IPC ===
   ipcMain.handle('update-check', async () => {
     return await updater.checkForUpdates();

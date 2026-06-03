@@ -603,6 +603,35 @@ class LANService {
       discovering: this.discoveryTimer !== null,
     };
   }
+
+  // ==================== 手动添加好友 ====================
+
+  async connectByIP(ip, port, nickname) {
+    if (!ip || !/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ip)) {
+      throw new Error('请输入有效的 IP 地址');
+    }
+    const tcpPort = port || TCP_PORT;
+    const peerId = `manual-${ip}-${tcpPort}`;
+    const friends = this._getFriends();
+    const existing = friends.find(f => f.id === peerId || (f.ip === ip && f.tcpPort === tcpPort));
+    if (existing) {
+      try { await this.connectTo(existing.id, existing.ip, existing.tcpPort); } catch (e) {
+        throw new Error(`无法连接到 ${ip}:${tcpPort}: ${e.message}`);
+      }
+      return existing;
+    }
+    const peer = { id: peerId, nickname: nickname || `${ip}`, ip, tcpPort };
+    const friend = this.addFriend(peer, nickname || peer.nickname);
+    try {
+      await this.connectTo(friend.id, friend.ip, friend.tcpPort);
+      this._emit('friend-online', { friendId: friend.id });
+      return { ...friend, connected: true };
+    } catch (e) {
+      console.warn(`[LAN] 手动连接 ${ip}:${tcpPort} 失败:`, e.message);
+      this._emit('friend-offline', { friendId: friend.id });
+      return { ...friend, connected: false, error: e.message };
+    }
+  }
 }
 
 module.exports = LANService;

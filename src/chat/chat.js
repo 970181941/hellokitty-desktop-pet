@@ -1527,6 +1527,51 @@ function initFriendsPanel() {
     });
   }
 
+  // 手动 IP 添加
+  const ipAddBtn = document.getElementById('friends-ip-add-btn');
+  const ipInput = document.getElementById('friends-ip-input');
+  const ipStatus = document.getElementById('friends-ip-status');
+  if (ipAddBtn && ipInput) {
+    ipAddBtn.addEventListener('click', async () => {
+      const ip = ipInput.value.trim();
+      if (!ip) {
+        if (ipStatus) ipStatus.textContent = '请输入 IP 地址';
+        return;
+      }
+      ipAddBtn.disabled = true;
+      ipAddBtn.textContent = '连接中...';
+      if (ipStatus) ipStatus.textContent = `正在连接 ${ip}...`;
+      try {
+        const result = await window.chatAPI.lanConnectByIP(ip, 38528, ip);
+        if (result && result.error) {
+          if (ipStatus) ipStatus.textContent = `连接失败: ${result.error}`;
+        } else if (result && result.connected) {
+          if (ipStatus) ipStatus.textContent = `已连接到 ${ip}`;
+          renderSystemMessage(`已添加好友: ${result.nickname}`);
+          ipInput.value = '';
+          refreshFriendsList();
+        } else if (result) {
+          if (ipStatus) ipStatus.textContent = `好友已添加，但对方不在线`;
+          renderSystemMessage(`已添加好友: ${result.nickname}（离线）`);
+          ipInput.value = '';
+          refreshFriendsList();
+        }
+      } catch (e) {
+        if (ipStatus) ipStatus.textContent = `错误: ${e.message}`;
+      }
+      ipAddBtn.disabled = false;
+      ipAddBtn.textContent = '连接';
+    });
+
+    // 回车触发连接
+    ipInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        ipAddBtn.click();
+      }
+    });
+  }
+
   // 返回按钮（聊天区域）
   const backBtn = document.getElementById('chat-back-btn');
   if (backBtn) {

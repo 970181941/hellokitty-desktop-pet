@@ -82,5 +82,6 @@ contextBridge.exposeInMainWorld('chatAPI', {
   lanGetChatHistory: (friendId) => ipcRenderer.invoke('lan-get-chat-history', friendId),
   lanGetStatus: () => ipcRenderer.invoke('lan-get-status'),
   lanSetNickname: (name) => ipcRenderer.invoke('lan-set-nickname', name),
+  lanConnectByIP: (ip, port, nickname) => ipcRenderer.invoke('lan-connect-by-ip', ip, port, nickname),
   onLANEvent: (callback) => ipcRenderer.on('lan-event', (_e, payload) => callback(payload)),
 });
