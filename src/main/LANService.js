@@ -2,14 +2,17 @@ const dgram = require('dgram');
 const net = require('net');
 const os = require('os');
 const crypto = require('crypto');
+const WebSocket = require('ws');
 
 const UDP_PORT = 38527;
 const TCP_PORT = 38528;
-const BROADCAST_INTERVAL = 3000;   // 广播间隔 3s
-const DISCOVERY_TIMEOUT = 30000;   // 搜索自动停止 30s
-const HEARTBEAT_INTERVAL = 15000;  // 心跳间隔 15s
-const HEARTBEAT_TIMEOUT = 45000;   // 心跳超时 45s
-const MAX_CHAT_HISTORY = 200;      // 每个好友最大消息数
+const RELAY_PORT = 38530;
+const BROADCAST_INTERVAL = 3000;
+const DISCOVERY_TIMEOUT = 30000;
+const HEARTBEAT_INTERVAL = 15000;
+const HEARTBEAT_TIMEOUT = 45000;
+const MAX_CHAT_HISTORY = 200;
+const RELAY_HEARTBEAT_INTERVAL = 25000;
 
 class LANService {
   constructor(store) {
@@ -26,11 +29,18 @@ class LANService {
 
     // TCP
     this.tcpServer = null;
-    this.connections = new Map(); // friendId -> net.Socket
-    this.connectionBuffers = new Map(); // socket remoteAddress:port -> string buffer
-    this.peerIdBySocket = new Map(); // socket remoteAddress:port -> friendId
+    this.connections = new Map();
+    this.connectionBuffers = new Map();
+    this.peerIdBySocket = new Map();
     this.heartbeatTimer = null;
-    this.lastPong = new Map(); // friendId -> timestamp
+    this.lastPong = new Map();
+
+    // Relay (互联网中继)
+    this.relayWs = null;
+    this.relayUrl = null;
+    this.relayConnected = false;
+    this.relayHeartbeatTimer = null;
+    this.relayOnlineUsers = new Map(); // remoteId -> { id, nickname }
 
     // Event callback
     this.eventCallback = null;
@@ -90,6 +100,159 @@ class LANService {
       try { this.udpSocket.close(); } catch (e) { /* ignore */ }
       this.udpSocket = null;
     }
+
+    // 关闭中继连接
+    this.disconnectRelay();
+  }
+
+  // ==================== 互联网中继 ====================
+
+  async connectToRelay(url) {
+    this.disconnectRelay();
+    const wsUrl = url.includes('://') ? url : `ws://${url}:${RELAY_PORT}`;
+    this.relayUrl = wsUrl;
+
+    return new Promise((resolve, reject) => {
+      try {
+        this.relayWs = new WebSocket(wsUrl, { handshakeTimeout: 8000 });
+      } catch (e) {
+        reject(new Error('连接中继服务器失败: ' + e.message));
+        return;
+      }
+
+      const timeout = setTimeout(() => {
+        if (this.relayWs) { try { this.relayWs.close(); } catch (e) { /* ignore */ } }
+        this.relayWs = null;
+        reject(new Error('连接中继超时'));
+      }, 10000);
+
+      this.relayWs.on('open', () => {
+        clearTimeout(timeout);
+        this.relayConnected = true;
+        // 发送注册消息
+        this.relayWs.send(JSON.stringify({
+          type: 'register',
+          id: this.instanceId,
+          nickname: this.nickname,
+        }));
+        this._startRelayHeartbeat();
+        resolve({ ok: true, url: wsUrl });
+      });
+
+      this.relayWs.on('message', (raw) => {
+        try {
+          const data = JSON.parse(raw.toString());
+          this._handleRelayMessage(data);
+        } catch (e) { /* ignore parse error */ }
+      });
+
+      this.relayWs.on('close', () => {
+        clearTimeout(timeout);
+        this.relayConnected = false;
+        this._stopRelayHeartbeat();
+        // 通知所有中继好友离线
+        for (const [remoteId] of this.relayOnlineUsers) {
+          const friendId = `relay-${remoteId}`;
+          this._emit('friend-offline', { friendId });
+        }
+        this.relayOnlineUsers.clear();
+        this._emit('relay-disconnected', {});
+      });
+
+      this.relayWs.on('error', (err) => {
+        clearTimeout(timeout);
+        this.relayConnected = false;
+        reject(new Error('中继连接错误: ' + err.message));
+      });
+    });
+  }
+
+  disconnectRelay() {
+    this._stopRelayHeartbeat();
+    if (this.relayWs) {
+      try { this.relayWs.close(); } catch (e) { /* ignore */ }
+      this.relayWs = null;
+    }
+    this.relayConnected = false;
+    this.relayUrl = null;
+    this.relayOnlineUsers.clear();
+  }
+
+  getRelayStatus() {
+    return {
+      connected: this.relayConnected,
+      url: this.relayUrl,
+      onlineUsers: this.relayOnlineUsers.size,
+    };
+  }
+
+  _startRelayHeartbeat() {
+    this._stopRelayHeartbeat();
+    this.relayHeartbeatTimer = setInterval(() => {
+      if (this.relayWs && this.relayWs.readyState === WebSocket.OPEN) {
+        this.relayWs.send(JSON.stringify({ type: 'ping' }));
+      }
+    }, RELAY_HEARTBEAT_INTERVAL);
+  }
+
+  _stopRelayHeartbeat() {
+    if (this.relayHeartbeatTimer) {
+      clearInterval(this.relayHeartbeatTimer);
+      this.relayHeartbeatTimer = null;
+    }
+  }
+
+  _handleRelayMessage(data) {
+    switch (data.type) {
+      case 'registered': {
+        // 服务器返回的在线用户列表
+        for (const user of (data.users || [])) {
+          const friendId = `relay-${user.id}`;
+          this.relayOnlineUsers.set(user.id, { id: user.id, nickname: user.nickname });
+          this._emit('friend-online', { friendId });
+        }
+        this._emit('relay-connected', { users: data.users || [] });
+        break;
+      }
+      case 'user-online': {
+        const friendId = `relay-${data.id}`;
+        this.relayOnlineUsers.set(data.id, { id: data.id, nickname: data.nickname });
+        this._emit('friend-online', { friendId });
+        break;
+      }
+      case 'user-offline': {
+        const friendId = `relay-${data.id}`;
+        this.relayOnlineUsers.delete(data.id);
+        this._emit('friend-offline', { friendId });
+        break;
+      }
+      case 'message': {
+        const friendId = `relay-${data.from}`;
+        const msg = {
+          id: crypto.randomUUID(),
+          role: 'friend',
+          text: data.text,
+          time: data.ts || Date.now(),
+          fromName: data.fromName || '好友',
+        };
+        this._saveChatMessage(friendId, msg);
+        this._emit('message-received', { friendId, message: msg });
+        break;
+      }
+      case 'pong':
+        break;
+    }
+  }
+
+  _sendViaRelay(remoteId, text) {
+    if (!this.relayWs || this.relayWs.readyState !== WebSocket.OPEN) {
+      throw new Error('中继服务器未连接');
+    }
+    this.relayWs.send(JSON.stringify({
+      type: 'message',
+      to: remoteId,
+      text,
+    }));
   }
 
   // ==================== UDP 发现 ====================
@@ -416,6 +579,26 @@ class LANService {
     const friend = this._getFriend(friendId);
     if (!friend) throw new Error('好友不存在');
 
+    // 中继好友：通过 WebSocket 中继发送
+    if (friendId.startsWith('relay-')) {
+      const remoteId = friendId.replace('relay-', '');
+      try {
+        this._sendViaRelay(remoteId, text);
+      } catch (e) {
+        throw new Error('中继发送失败: ' + e.message);
+      }
+      const msgRecord = {
+        id: crypto.randomUUID(),
+        role: 'user',
+        text,
+        time: Date.now(),
+      };
+      this._saveChatMessage(friendId, msgRecord);
+      return msgRecord;
+    }
+
+    // 局域网好友：通过 TCP 直连发送
+
     // 确保连接——检测 socket 有效性，包括底层文件描述符
     let socket = this.connections.get(friendId);
     if (!socket || socket.destroyed || !socket.writable) {
@@ -598,11 +781,47 @@ class LANService {
 
   getFriendsList() {
     const friends = this._getFriends();
-    // 补充在线状态
-    return friends.map(f => ({
-      ...f,
-      online: this.connections.has(f.id) && !this.connections.get(f.id).destroyed,
-    }));
+    return friends.map(f => {
+      // 中继好友：检查中继连接和在线用户列表
+      if (f.id.startsWith('relay-')) {
+        const remoteId = f.id.replace('relay-', '');
+        return {
+          ...f,
+          online: this.relayConnected && this.relayOnlineUsers.has(remoteId),
+          relay: true,
+        };
+      }
+      // 局域网好友
+      return {
+        ...f,
+        online: this.connections.has(f.id) && !this.connections.get(f.id).destroyed,
+        relay: false,
+      };
+    });
+  }
+
+  addRelayFriend(remoteId, nickname) {
+    const friendId = `relay-${remoteId}`;
+    const friends = this._getFriends();
+    const existing = friends.find(f => f.id === friendId);
+    if (existing) {
+      if (nickname) existing.nickname = nickname;
+      existing.lastSeen = Date.now();
+      this._saveFriends(friends);
+      return existing;
+    }
+    const friend = {
+      id: friendId,
+      nickname: nickname || '中继好友',
+      ip: null,
+      tcpPort: null,
+      relay: true,
+      addedAt: Date.now(),
+      lastSeen: Date.now(),
+    };
+    friends.push(friend);
+    this._saveFriends(friends);
+    return friend;
   }
 
   // ==================== 聊天记录 ====================

@@ -508,6 +508,28 @@ app.whenReady().then(() => {
     }
   });
 
+  // === 中继服务器 IPC ===
+  ipcMain.handle('relay-connect', async (_event, url) => {
+    try {
+      return await lanService.connectToRelay(url);
+    } catch (e) {
+      return { error: e.message };
+    }
+  });
+
+  ipcMain.handle('relay-disconnect', () => {
+    lanService.disconnectRelay();
+    return { ok: true };
+  });
+
+  ipcMain.handle('relay-get-status', () => {
+    return lanService.getRelayStatus();
+  });
+
+  ipcMain.handle('relay-add-friend', (_event, remoteId, nickname) => {
+    return lanService.addRelayFriend(remoteId, nickname);
+  });
+
   // === Update IPC ===
   ipcMain.handle('update-check', async () => {
     return await updater.checkForUpdates();

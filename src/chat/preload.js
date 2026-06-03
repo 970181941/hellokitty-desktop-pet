@@ -84,4 +84,10 @@ contextBridge.exposeInMainWorld('chatAPI', {
   lanSetNickname: (name) => ipcRenderer.invoke('lan-set-nickname', name),
   lanConnectByIP: (ip, port, nickname) => ipcRenderer.invoke('lan-connect-by-ip', ip, port, nickname),
   onLANEvent: (callback) => ipcRenderer.on('lan-event', (_e, payload) => callback(payload)),
+
+  // === 互联网中继 ===
+  relayConnect: (url) => ipcRenderer.invoke('relay-connect', url),
+  relayDisconnect: () => ipcRenderer.invoke('relay-disconnect'),
+  relayGetStatus: () => ipcRenderer.invoke('relay-get-status'),
+  relayAddFriend: (remoteId, nickname) => ipcRenderer.invoke('relay-add-friend', remoteId, nickname),
 });

@@ -1572,6 +1572,47 @@ function initFriendsPanel() {
     });
   }
 
+  // 互联网中继连接
+  const relayConnectBtn = document.getElementById('relay-connect-btn');
+  const relayUrlInput = document.getElementById('relay-url-input');
+  const relayStatus = document.getElementById('relay-status');
+  if (relayConnectBtn && relayUrlInput) {
+    relayConnectBtn.addEventListener('click', async () => {
+      const url = relayUrlInput.value.trim();
+      if (!url) {
+        if (relayStatus) relayStatus.textContent = '请输入中继服务器地址';
+        return;
+      }
+      relayConnectBtn.disabled = true;
+      relayConnectBtn.textContent = '连接中...';
+      if (relayStatus) relayStatus.textContent = `正在连接 ${url}...`;
+      try {
+        const result = await window.chatAPI.relayConnect(url);
+        if (result && result.error) {
+          if (relayStatus) relayStatus.textContent = `连接失败: ${result.error}`;
+        } else {
+          if (relayStatus) relayStatus.textContent = `已连接到中继服务器`;
+          relayConnectBtn.textContent = '断开';
+          relayConnectBtn.disabled = false;
+          // 切换按钮为断开模式
+          relayConnectBtn.onclick = async () => {
+            await window.chatAPI.relayDisconnect();
+            if (relayStatus) relayStatus.textContent = '已断开';
+            relayConnectBtn.textContent = '连接';
+            relayConnectBtn.disabled = false;
+            // 恢复为连接模式
+            relayConnectBtn.onclick = relayConnectBtn._originalClick;
+          };
+          relayConnectBtn._originalClick = relayConnectBtn.onclick;
+        }
+      } catch (e) {
+        if (relayStatus) relayStatus.textContent = `错误: ${e.message}`;
+      }
+      relayConnectBtn.disabled = false;
+      if (relayConnectBtn.textContent === '连接中...') relayConnectBtn.textContent = '连接';
+    });
+  }
+
   // 返回按钮（聊天区域）
   const backBtn = document.getElementById('chat-back-btn');
   if (backBtn) {
@@ -1979,11 +2020,16 @@ function handleLANEvent(payload) {
 
     case 'friend-online':
       if (data && data.friendId) {
+        // 如果是中继好友，自动添加
+        if (data.friendId.startsWith('relay-')) {
+          const remoteId = data.friendId.replace('relay-', '');
+          window.chatAPI.relayAddFriend(remoteId).catch(() => {});
+        }
         // 更新好友在线状态
         lanFriends = lanFriends.map(f =>
           f.id === data.friendId ? { ...f, online: true } : f
         );
-        if (currentView === 'friends') renderFriendsList();
+        if (currentView === 'friends') refreshFriendsList();
         // 如果正在和这个好友聊天，更新 header
         if (currentChatMode === 'friend' && currentFriendId === data.friendId) {
           const status = document.getElementById('chat-header-status');
@@ -1997,13 +2043,34 @@ function handleLANEvent(payload) {
         lanFriends = lanFriends.map(f =>
           f.id === data.friendId ? { ...f, online: false } : f
         );
-        if (currentView === 'friends') renderFriendsList();
+        if (currentView === 'friends') refreshFriendsList();
         if (currentChatMode === 'friend' && currentFriendId === data.friendId) {
           const status = document.getElementById('chat-header-status');
           if (status) status.textContent = '离线';
         }
       }
       break;
+
+    case 'relay-connected': {
+      const relayStatus = document.getElementById('relay-status');
+      if (relayStatus) {
+        const userCount = (data && data.users) ? data.users.length : 0;
+        relayStatus.textContent = `已连接，${userCount} 人在线`;
+      }
+      // 渲染中继在线用户列表
+      renderRelayUsersList(data && data.users ? data.users : []);
+      refreshFriendsList();
+      break;
+    }
+
+    case 'relay-disconnected': {
+      const relayStatus = document.getElementById('relay-status');
+      if (relayStatus) relayStatus.textContent = '已断开连接';
+      const relayUsersList = document.getElementById('relay-users-list');
+      if (relayUsersList) relayUsersList.innerHTML = '';
+      refreshFriendsList();
+      break;
+    }
   }
 }
 
@@ -2021,5 +2088,66 @@ function handleFriendMessage(friendId, msg) {
     const friend = lanFriends.find(f => f.id === friendId);
     const name = friend ? friend.nickname : '好友';
     renderSystemMessage(`${name} 发来了一条消息~`);
+  }
+}
+
+function renderRelayUsersList(users) {
+  const list = document.getElementById('relay-users-list');
+  if (!list) return;
+  list.innerHTML = '';
+
+  if (!users || users.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'friends-empty';
+    empty.textContent = '暂无其他在线用户';
+    list.appendChild(empty);
+    return;
+  }
+
+  for (const user of users) {
+    const friendId = `relay-${user.id}`;
+    const item = document.createElement('div');
+    item.className = 'friend-item';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'friend-avatar';
+    avatar.textContent = (user.nickname || '?')[0];
+    const dot = document.createElement('div');
+    dot.className = 'friend-online-dot';
+    avatar.appendChild(dot);
+
+    const info = document.createElement('div');
+    info.className = 'friend-info';
+    const name = document.createElement('div');
+    name.className = 'friend-name';
+    name.textContent = user.nickname || '中继用户';
+    const statusText = document.createElement('div');
+    statusText.className = 'friend-status-text';
+    statusText.textContent = '互联网在线';
+    info.appendChild(name);
+    info.appendChild(statusText);
+
+    const actions = document.createElement('div');
+    actions.className = 'friend-actions';
+    const chatBtn = document.createElement('button');
+    chatBtn.className = 'friend-action-btn chat-btn';
+    chatBtn.innerHTML = SVG_CHAT();
+    chatBtn.title = '聊天';
+    chatBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      // 自动添加为中继好友
+      await window.chatAPI.relayAddFriend(user.id, user.nickname).catch(() => {});
+      switchChatMode('friend', friendId, user.nickname);
+    });
+    actions.appendChild(chatBtn);
+
+    item.appendChild(avatar);
+    item.appendChild(info);
+    item.appendChild(actions);
+    item.addEventListener('click', async () => {
+      await window.chatAPI.relayAddFriend(user.id, user.nickname).catch(() => {});
+      switchChatMode('friend', friendId, user.nickname);
+    });
+    list.appendChild(item);
   }
 }
