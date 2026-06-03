@@ -332,10 +332,21 @@ class LANService {
   // ==================== TCP 客户端 ====================
 
   async connectTo(friendId, ip, port) {
-    // 已有连接则复用
+    // 已有连接则复用——但需验证文件描述符是否有效
     const existing = this.connections.get(friendId);
     if (existing && !existing.destroyed) {
-      return existing;
+      // 尝试检测文件描述符是否有效
+      try {
+        if (!existing.writable) throw new Error('socket not writable');
+        return existing; // 连接有效，直接复用
+      } catch (e) {
+        // socket 已失效，清理并重建
+        this.connections.delete(friendId);
+        const key = `${ip}:${port}`;
+        this.connectionBuffers.delete(key);
+        this.peerIdBySocket.delete(key);
+        try { existing.destroy(); } catch (_) { /* ignore */ }
+      }
     }
 
     return new Promise((resolve, reject) => {
@@ -349,11 +360,13 @@ class LANService {
         this.lastPong.set(friendId, Date.now());
 
         // 发送身份标识
-        this._sendToSocket(socket, {
-          type: 'identify',
-          from: this.instanceId,
-          nickname: this.nickname,
-        });
+        try {
+          this._sendToSocket(socket, {
+            type: 'identify',
+            from: this.instanceId,
+            nickname: this.nickname,
+          });
+        } catch (e) { /* 连接刚建立就失败，忽略 */ }
 
         this._emit('friend-online', { friendId });
 
@@ -403,9 +416,14 @@ class LANService {
     const friend = this._getFriend(friendId);
     if (!friend) throw new Error('好友不存在');
 
-    // 确保连接
+    // 确保连接——检测 socket 有效性，包括底层文件描述符
     let socket = this.connections.get(friendId);
-    if (!socket || socket.destroyed) {
+    if (!socket || socket.destroyed || !socket.writable) {
+      // 清理可能存在的陈旧连接
+      if (socket) {
+        this.connections.delete(friendId);
+        try { socket.destroy(); } catch (_) { /* ignore */ }
+      }
       try {
         socket = await this.connectTo(friendId, friend.ip, friend.tcpPort);
       } catch (e) {
@@ -422,7 +440,20 @@ class LANService {
       ts: Date.now(),
     };
 
-    this._sendToSocket(socket, msg);
+    // 发送消息——捕获 EBADF 等写入错误并重试一次
+    try {
+      this._sendToSocket(socket, msg);
+    } catch (e) {
+      // 可能是 EBADF，清理旧连接并重试
+      this.connections.delete(friendId);
+      try { socket.destroy(); } catch (_) { /* ignore */ }
+      try {
+        socket = await this.connectTo(friendId, friend.ip, friend.tcpPort);
+        this._sendToSocket(socket, msg);
+      } catch (retryErr) {
+        throw new Error('发送失败: ' + retryErr.message);
+      }
+    }
 
     // 保存到本地聊天记录
     const msgRecord = {
@@ -456,11 +487,10 @@ class LANService {
   }
 
   _sendToSocket(socket, obj) {
-    try {
-      if (socket && !socket.destroyed) {
-        socket.write(JSON.stringify(obj) + '\n');
-      }
-    } catch (e) { /* ignore */ }
+    if (!socket || socket.destroyed || !socket.writable) {
+      throw new Error('socket 不可用');
+    }
+    socket.write(JSON.stringify(obj) + '\n');
   }
 
   // ==================== 心跳 ====================
@@ -470,7 +500,15 @@ class LANService {
       const now = Date.now();
       for (const [friendId, socket] of this.connections) {
         if (socket && !socket.destroyed) {
-          this._sendToSocket(socket, { type: 'ping', from: this.instanceId });
+          try {
+            this._sendToSocket(socket, { type: 'ping', from: this.instanceId });
+          } catch (e) {
+            // ping 发送失败，可能 socket 已失效，清理
+            this.connections.delete(friendId);
+            try { socket.destroy(); } catch (_) { /* ignore */ }
+            this._emit('friend-offline', { friendId });
+            continue;
+          }
           // 检查上次 pong 时间
           const lastPong = this.lastPong.get(friendId) || 0;
           if (now - lastPong > HEARTBEAT_TIMEOUT) {
