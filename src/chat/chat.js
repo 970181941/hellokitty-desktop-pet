@@ -1637,40 +1637,50 @@ function initFriendsPanel() {
   const relayConnectBtn = document.getElementById('relay-connect-btn');
   const relayUrlInput = document.getElementById('relay-url-input');
   const relayStatus = document.getElementById('relay-status');
+  let relayIsConnected = false;
+
   if (relayConnectBtn && relayUrlInput) {
     relayConnectBtn.addEventListener('click', async () => {
-      const url = relayUrlInput.value.trim();
-      if (!url) {
-        if (relayStatus) relayStatus.textContent = '请输入中继服务器地址';
-        return;
-      }
-      relayConnectBtn.disabled = true;
-      relayConnectBtn.textContent = '连接中...';
-      if (relayStatus) relayStatus.textContent = `正在连接 ${url}...`;
-      try {
-        const result = await window.chatAPI.relayConnect(url);
-        if (result && result.error) {
-          if (relayStatus) relayStatus.textContent = `连接失败: ${result.error}`;
-        } else {
-          if (relayStatus) relayStatus.textContent = `已连接到中继服务器`;
+      if (relayIsConnected) {
+        // 断开连接
+        relayConnectBtn.disabled = true;
+        relayConnectBtn.textContent = '断开中...';
+        try {
+          await window.chatAPI.relayDisconnect();
+          relayIsConnected = false;
+          if (relayStatus) relayStatus.textContent = '已断开';
+          relayConnectBtn.textContent = '连接';
+        } catch (e) {
+          if (relayStatus) relayStatus.textContent = `断开失败: ${e.message}`;
           relayConnectBtn.textContent = '断开';
-          relayConnectBtn.disabled = false;
-          // 切换按钮为断开模式
-          relayConnectBtn.onclick = async () => {
-            await window.chatAPI.relayDisconnect();
-            if (relayStatus) relayStatus.textContent = '已断开';
-            relayConnectBtn.textContent = '连接';
-            relayConnectBtn.disabled = false;
-            // 恢复为连接模式
-            relayConnectBtn.onclick = relayConnectBtn._originalClick;
-          };
-          relayConnectBtn._originalClick = relayConnectBtn.onclick;
         }
-      } catch (e) {
-        if (relayStatus) relayStatus.textContent = `错误: ${e.message}`;
+        relayConnectBtn.disabled = false;
+      } else {
+        // 连接
+        const url = relayUrlInput.value.trim();
+        if (!url) {
+          if (relayStatus) relayStatus.textContent = '请输入中继服务器地址';
+          return;
+        }
+        relayConnectBtn.disabled = true;
+        relayConnectBtn.textContent = '连接中...';
+        if (relayStatus) relayStatus.textContent = `正在连接 ${url}...`;
+        try {
+          const result = await window.chatAPI.relayConnect(url);
+          if (result && result.error) {
+            if (relayStatus) relayStatus.textContent = `连接失败: ${result.error}`;
+            relayConnectBtn.textContent = '连接';
+          } else {
+            relayIsConnected = true;
+            if (relayStatus) relayStatus.textContent = `已连接到中继服务器`;
+            relayConnectBtn.textContent = '断开';
+          }
+        } catch (e) {
+          if (relayStatus) relayStatus.textContent = `错误: ${e.message}`;
+          relayConnectBtn.textContent = '连接';
+        }
+        relayConnectBtn.disabled = false;
       }
-      relayConnectBtn.disabled = false;
-      if (relayConnectBtn.textContent === '连接中...') relayConnectBtn.textContent = '连接';
     });
   }
 
