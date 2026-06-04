@@ -1,0 +1,15 @@
+{
+  "name": "hellokitty-relay",
+  "version": "1.0.0",
+  "description": "HelloKitty 桌面宠物 - 互联网消息中继服务器",
+  "main": "server/relay.js",
+  "scripts": {
+    "start": "node server/relay.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

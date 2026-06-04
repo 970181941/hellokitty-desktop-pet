@@ -1,0 +1,8 @@
+FROM node:20-alpine
+WORKDIR /app
+COPY package.relay.json package.json
+RUN npm install --production
+COPY server/relay.js server/relay.js
+ENV PORT=38530
+EXPOSE 38530
+CMD ["node", "server/relay.js"]

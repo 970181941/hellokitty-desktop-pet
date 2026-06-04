@@ -21,7 +21,7 @@
 const http = require('http');
 const { WebSocketServer } = require('ws');
 
-const PORT = parseInt(process.argv[2]) || 38530;
+const PORT = parseInt(process.env.PORT || process.argv[2]) || 38530;
 const HEARTBEAT_INTERVAL = 30000;
 
 const server = http.createServer((req, res) => {

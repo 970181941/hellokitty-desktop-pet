@@ -1,6 +1,6 @@
 {
   "name": "hellokitty-desktop-pet",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "Hello Kitty 桌面宠物",
   "main": "src/main/index.js",
   "scripts": {
@@ -21,7 +21,7 @@
   "dependencies": {
     "electron-store": "^10.0.0",
     "electron-updater": "^6.8.3",
-    "ws": "^8.18.0"
+    "ws": "^8.21.0"
   },
   "build": {
     "appId": "com.hellokitty.desktop-pet",
@@ -39,7 +39,9 @@
       {
         "from": "素材/背景",
         "to": "素材/背景",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "publish": [

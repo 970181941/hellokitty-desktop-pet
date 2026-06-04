@@ -90,4 +90,7 @@ contextBridge.exposeInMainWorld('chatAPI', {
   relayDisconnect: () => ipcRenderer.invoke('relay-disconnect'),
   relayGetStatus: () => ipcRenderer.invoke('relay-get-status'),
   relayAddFriend: (remoteId, nickname) => ipcRenderer.invoke('relay-add-friend', remoteId, nickname),
+  relayStartServer: () => ipcRenderer.invoke('relay-start-server'),
+  relayStopServer: () => ipcRenderer.invoke('relay-stop-server'),
+  relayGetLocalIP: () => ipcRenderer.invoke('relay-get-local-ip'),
 });

@@ -1,12 +1,57 @@
 const { app, ipcMain, Menu, dialog, Notification } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
+const { spawn } = require('child_process');
 const { createWindow, getWindow, saveWindowPosition, getScreenSize, showChatWindow, getChatWindow, setQuitting } = require('./windowManager');
 const { createTray, updateTrayMenu } = require('./trayManager');
 const store = require('./store');
 const AIService = require('./AIService');
 const Updater = require('./updater');
 const LANService = require('./LANService');
+
+// === 本地中继服务器管理 ===
+let relayServerProcess = null;
+let relayServerRunning = false;
+const RELAY_PORT = 38530;
+
+function getLocalIP() {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === 'IPv4' && !iface.internal) return iface.address;
+    }
+  }
+  return '127.0.0.1';
+}
+
+function startRelayServer() {
+  if (relayServerRunning) return { ok: true, url: `ws://${getLocalIP()}:${RELAY_PORT}` };
+  let relayScript = path.join(__dirname, '..', '..', 'server', 'relay.js');
+  if (!fs.existsSync(relayScript)) relayScript = path.join(process.resourcesPath || '.', 'server', 'relay.js');
+  if (!fs.existsSync(relayScript)) relayScript = path.join(__dirname, '..', 'server', 'relay.js');
+  try {
+    relayServerProcess = spawn(process.execPath, [relayScript], {
+      env: { ...process.env, PORT: String(RELAY_PORT) },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    relayServerProcess.stdout.on('data', (d) => console.log('[Relay]', d.toString().trim()));
+    relayServerProcess.stderr.on('data', (d) => console.error('[Relay]', d.toString().trim()));
+    relayServerProcess.on('close', () => { relayServerRunning = false; relayServerProcess = null; });
+    relayServerProcess.on('error', (e) => { console.error('[Relay] error:', e.message); relayServerRunning = false; });
+    relayServerRunning = true;
+    return { ok: true, url: `ws://${getLocalIP()}:${RELAY_PORT}` };
+  } catch (e) {
+    return { error: e.message };
+  }
+}
+
+function stopRelayServer() {
+  if (relayServerProcess) { try { relayServerProcess.kill('SIGTERM'); } catch (e) { /* ignore */ } }
+  relayServerProcess = null;
+  relayServerRunning = false;
+  return { ok: true };
+}
 
 // === 单实例锁：防止重复启动 ===
 const gotTheLock = app.requestSingleInstanceLock();
@@ -530,6 +575,17 @@ app.whenReady().then(() => {
     return lanService.addRelayFriend(remoteId, nickname);
   });
 
+  ipcMain.handle('relay-start-server', () => {
+    const result = startRelayServer();
+    if (result.ok) lanService.connectToRelay(result.url).catch(() => {});
+    return result;
+  });
+  ipcMain.handle('relay-stop-server', () => {
+    lanService.disconnectRelay();
+    return stopRelayServer();
+  });
+  ipcMain.handle('relay-get-local-ip', () => getLocalIP());
+
   // === Update IPC ===
   ipcMain.handle('update-check', async () => {
     return await updater.checkForUpdates();
@@ -585,6 +641,7 @@ app.whenReady().then(() => {
     saveWindowPosition();
     store.set('lastCloseTime', Date.now());
     lanService.stop();
+    stopRelayServer();
   });
 });
 

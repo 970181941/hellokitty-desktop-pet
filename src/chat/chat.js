@@ -1573,6 +1573,67 @@ function initFriendsPanel() {
   }
 
   // 互联网中继连接
+  const relayServerBtn = document.getElementById('relay-server-btn');
+  const relayServerStatus = document.getElementById('relay-server-status');
+  const relayServerUrl = document.getElementById('relay-server-url');
+  let relayServerIsRunning = false;
+
+  if (relayServerBtn) {
+    // 检查当前状态
+    window.chatAPI.relayGetStatus().then(status => {
+      if (status && status.serverRunning) {
+        relayServerIsRunning = true;
+        relayServerBtn.textContent = '停止中继服务器';
+        relayServerBtn.classList.add('running');
+        if (relayServerStatus) relayServerStatus.textContent = '中继服务器运行中';
+        if (relayServerUrl) relayServerUrl.textContent = status.serverUrl || '';
+      }
+    }).catch(() => {});
+
+    relayServerBtn.addEventListener('click', async () => {
+      if (relayServerIsRunning) {
+        // 停止
+        relayServerBtn.disabled = true;
+        relayServerBtn.textContent = '停止中...';
+        try {
+          await window.chatAPI.relayStopServer();
+          relayServerIsRunning = false;
+          relayServerBtn.textContent = '启动中继服务器';
+          relayServerBtn.classList.remove('running');
+          if (relayServerStatus) relayServerStatus.textContent = '已停止';
+          if (relayServerUrl) relayServerUrl.textContent = '';
+        } catch (e) {
+          if (relayServerStatus) relayServerStatus.textContent = `停止失败: ${e.message}`;
+        }
+        relayServerBtn.disabled = false;
+      } else {
+        // 启动
+        relayServerBtn.disabled = true;
+        relayServerBtn.textContent = '启动中...';
+        if (relayServerStatus) relayServerStatus.textContent = '正在启动中继服务器...';
+        try {
+          const result = await window.chatAPI.relayStartServer();
+          if (result && result.error) {
+            if (relayServerStatus) relayServerStatus.textContent = `启动失败: ${result.error}`;
+            relayServerBtn.textContent = '启动中继服务器';
+          } else {
+            relayServerIsRunning = true;
+            relayServerBtn.textContent = '停止中继服务器';
+            relayServerBtn.classList.add('running');
+            if (relayServerStatus) relayServerStatus.textContent = '中继服务器运行中';
+            if (relayServerUrl) {
+              relayServerUrl.textContent = result.url || '';
+            }
+          }
+        } catch (e) {
+          if (relayServerStatus) relayServerStatus.textContent = `错误: ${e.message}`;
+          relayServerBtn.textContent = '启动中继服务器';
+        }
+        relayServerBtn.disabled = false;
+      }
+    });
+  }
+
   const relayConnectBtn = document.getElementById('relay-connect-btn');
   const relayUrlInput = document.getElementById('relay-url-input');
   const relayStatus = document.getElementById('relay-status');

@@ -3,6 +3,8 @@ const net = require('net');
 const os = require('os');
 const crypto = require('crypto');
 const WebSocket = require('ws');
+const { spawn } = require('child_process');
+const { app } = require('electron');
 
 const UDP_PORT = 38527;
 const TCP_PORT = 38528;
@@ -183,7 +185,82 @@ class LANService {
       connected: this.relayConnected,
       url: this.relayUrl,
       onlineUsers: this.relayOnlineUsers.size,
+      serverRunning: this.relayServerRunning || false,
+      serverUrl: this.relayServerRunning ? `ws://${this._getLocalIP()}:${this.relayServerPort || RELAY_PORT}` : null,
     };
+  }
+
+  // ==================== 本地中继服务器 ====================
+
+  _getLocalIP() {
+    const interfaces = os.networkInterfaces();
+    for (const name of Object.keys(interfaces)) {
+      for (const iface of interfaces[name]) {
+        if (iface.family === 'IPv4' && !iface.internal) {
+          return iface.address;
+        }
+      }
+    }
+    return '127.0.0.1';
+  }
+
+  startRelayServer() {
+    if (this.relayServerRunning) {
+      return { ok: true, url: `ws://${this._getLocalIP()}:${this.relayServerPort}` };
+    }
+
+    // 查找 relay.js 路径
+    let relayScript = path.join(__dirname, '..', '..', 'server', 'relay.js');
+    if (!require('fs').existsSync(relayScript)) {
+      // 打包后路径
+      relayScript = path.join(process.resourcesPath || path.join(__dirname, '..', '..'), 'server', 'relay.js');
+    }
+    if (!require('fs').existsSync(relayScript)) {
+      relayScript = path.join(__dirname, 'server', 'relay.js');
+    }
+
+    try {
+      const port = this.relayServerPort || RELAY_PORT;
+      this.relayServerProcess = spawn(process.execPath, [relayScript], {
+        env: { ...process.env, PORT: String(port) },
+        stdio: ['ignore', 'pipe', 'pipe'],
+        detached: false,
+      });
+
+      this.relayServerProcess.stdout.on('data', (data) => {
+        console.log('[RelayServer]', data.toString().trim());
+      });
+      this.relayServerProcess.stderr.on('data', (data) => {
+        console.error('[RelayServer]', data.toString().trim());
+      });
+      this.relayServerProcess.on('close', (code) => {
+        console.log('[RelayServer] 进程退出, code:', code);
+        this.relayServerRunning = false;
+        this.relayServerProcess = null;
+      });
+      this.relayServerProcess.on('error', (err) => {
+        console.error('[RelayServer] 进程错误:', err.message);
+        this.relayServerRunning = false;
+        this.relayServerProcess = null;
+      });
+
+      this.relayServerRunning = true;
+      const localIP = this._getLocalIP();
+      return { ok: true, url: `ws://${localIP}:${port}` };
+    } catch (e) {
+      return { error: e.message };
+    }
+  }
+
+  stopRelayServer() {
+    if (this.relayServerProcess) {
+      try {
+        this.relayServerProcess.kill('SIGTERM');
+      } catch (e) { /* ignore */ }
+      this.relayServerProcess = null;
+    }
+    this.relayServerRunning = false;
+    return { ok: true };
   }
 
   _startRelayHeartbeat() {
